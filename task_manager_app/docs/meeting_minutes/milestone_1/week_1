@@ -1,1 +1,22 @@
+Milestone 1
+========================================================================================================================
 
+Meeting 1 Weekly Discussion - 02/02/2026
+
+1. Github repository has been done and named G4_To_do_list. 
+2. Team has been formed.
+3. Git took some time to figure out.
+	Git clone to start and have it in our computer. Git status gives us a status of our changes. 
+	Git add yourfile.md 
+	Git commit "Note on what was done goes here" adds file to our Git with message.
+	Git push to send to GitHub.
+	If Git complains it is mostly because we need to refresh our computer repository with 'Git pull --rebase' first.
+
+
+- Weekly Meetings will be held every Mondays, 5:20 pm. Place organized by Scrum Master.
+- To get caught in our missed first week, we are meeting this Wednesday 04/02/2026 at 5:20 pm, Place by Scrum Master.
+- No gummy bears.
+
+
+Project Vision Planning
+- A file has been made of and with this.
