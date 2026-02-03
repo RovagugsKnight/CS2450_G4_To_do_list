@@ -4,6 +4,6 @@ o	Scrum Master
 o	Tester
 		Nathan Scott
 o	Developer
-		Nathan Ewell
+		Andy Ewell
 o	Meeting Recorder
 		Forrest Centeno
