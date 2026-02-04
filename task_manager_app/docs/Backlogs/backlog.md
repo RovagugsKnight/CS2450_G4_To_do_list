@@ -1,12 +1,12 @@
 # Backlog
 - Add reminder feature (high)
 - Remove/delete reminder feature (high)
-- Checkbox (Complete task) feature
-- Prioritize tasks feature
-- Categorize tasks feature
-- Experience (Level up) feature
-- Assign colors to specific reminder/task
-- Deadline (due dates) feature
-- Notification feature
-- User authentication feature
-- Shared notes for collaboration
+- Checkbox (Complete task) feature (high)
+- Prioritize tasks feature (med)
+- Categorize tasks feature (med)
+- Experience (Level up) feature (med)
+- Assign colors to specific reminder/task (med)
+- Deadline (due dates) feature (high)
+- Notification feature (med)
+- User authentication feature (med)
+- Shared notes for collaboration (med)
