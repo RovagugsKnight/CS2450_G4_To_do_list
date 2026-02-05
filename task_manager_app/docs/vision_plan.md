@@ -12,5 +12,7 @@
 - Choosing the right frameworks
 
 # Other elements
-- Using python to complete the project
+- Using python and kivy to complete the project
+- Local app (potentially adding cloud feature with login for individual users)
+- Starting with just a desktop app (potentially porting to mobile later on)
 - Finding features that competitors dont have for marketing
