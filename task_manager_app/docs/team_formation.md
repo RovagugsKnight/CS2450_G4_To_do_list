@@ -1,9 +1,9 @@
 Team formation for Milestone 1
-o	Scrum Master
-		Andrew Howard
-o	Tester
-		Nathan Scott
-o	Developer
-		Andy Ewell
-o	Meeting Recorder
-		Forrest Centeno
+- Scrum Master
+	- Andrew Howard
+- Tester
+	- Nathan Scott
+- Developer
+	- Andy Ewell
+- Meeting Recorder
+	- Forrest Centeno
