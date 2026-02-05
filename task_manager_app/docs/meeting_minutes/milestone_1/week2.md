@@ -1,25 +1,24 @@
 # Week 2 Meeting Minutes
 
-**Team:** G4 To-do List / Task Manager  
-**Date:** YYYY-MM-DD  
-**Time:** HH:MM–HH:MM (Timezone)  
-**Location/Platform:** (In-person / Zoom / Discord / etc.)  
-**Note Taker:** Forrest Centeno Arias  
-**Facilitator:** (name)  
+**Team:** G4 To-do List / Task Manager
+**Date:** 1985-04-02
+**Time:** 05:20–HH:MM (Timezone)
+**Location/Platform:** (In-person SB 419)
+**Note Taker:** Forrest Centeno Arias 
 
 ## Attendees
-- [ ] Name 1
-- [ ] Name 2
-- [ ] Name 3
-- [ ] Forrest
+- [x] Andy
+- [x] Andrew
+- [x] Drew
+- [x] Forrest
 
 ## Agenda
-1. 
-2. 
+1. Milestone 5
+2. Milestone 6
 3. 
 
 ## Quick Updates (since last meeting)
-- **Forrest:**  
+- **Forrest:*Updated Note Taker Notes Template and Team Formation File* 
 - **Teammate 1:**  
 - **Teammate 2:**  
 - **Teammate 3:**  
