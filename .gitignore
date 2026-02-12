@@ -36,3 +36,7 @@ wheels/
 # OS
 .DS_Store
 Thumbs.db
+
+# Local application data (SQLite DB should not be committed)
+data/*.db
+*.db
