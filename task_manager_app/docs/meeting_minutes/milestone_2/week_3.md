@@ -18,6 +18,7 @@
 - Functional Requirements: Adding, editing, deleting tasks, setting a date
 - Non-Functional Requirements: Organizing data, creating classes, user interface colors
 - Started developing SRS
+- Built UML diagram
   
 
 ## Action Items (who does what)
