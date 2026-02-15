@@ -54,6 +54,12 @@ class TaskRepository:
             "SELECT item_id, item, done FROM todo;"
         )
         return result.fetchall()
+    
+    def update_task(self, task_id, new_text):
+        self._run_query(
+            "UPDATE todo SET item = ? WHERE item_id = ?;",
+            new_text, task_id
+        )
 
     def close(self):
         self.db.close()

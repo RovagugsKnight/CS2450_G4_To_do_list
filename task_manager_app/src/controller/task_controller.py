@@ -18,3 +18,6 @@ class TaskController:
 
     def mark_done(self, task_id):
         self.repo.mark_done(task_id)
+    
+    def update_task(self, task_id, new_text):
+        self.repo.update_task(task_id, new_text)
