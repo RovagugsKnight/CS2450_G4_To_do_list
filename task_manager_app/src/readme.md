@@ -9,6 +9,7 @@ A task management application built with Python and Kivy, structured using the M
 - Custom-styled buttons and inputs
 - Organized MVC architecture
 - Easy to extend (categories, priorities, due dates, etc.)
+- Edit Tasks and Save to `tasks.db`
 
 ## Project Structure
 
@@ -44,7 +45,7 @@ Install Kivy:
 
 pip install kivy
 
-3. Run the application:
+Run the application:
 
 python main.py
 
@@ -60,6 +61,5 @@ python main.py
 - Future improvements may include:
   - Overdue task highlighting
   - Categories or tags
-  - Editing tasks
   - Animations and transitions
   - Persistent settings
