@@ -41,6 +41,16 @@ project/
 - Kivy (latest stable)
 - Virtual environment recommended
 
+Create Venv:
+
+- Windows: py -3.12 -m venv venv (or py -3.12 -m venv venv.nosync to prevent onedrive syncing)
+- Mac: python3.12 -m venv venv
+
+Activate venv:
+
+- Windows: venv\Scripts\activate.bat or venv.nosync\Scripts\activate.bat
+- Mac: source venv/bin/activate
+
 Install Kivy:
 
 pip install kivy
