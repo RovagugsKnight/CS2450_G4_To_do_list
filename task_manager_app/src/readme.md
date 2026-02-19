@@ -37,7 +37,7 @@ project/
 
 ## Dependencies
 
-- Python 3.12.10
+- Python 3.12
 - Kivy (latest stable)
 - Virtual environment recommended
 
@@ -50,6 +50,8 @@ Activate venv:
 
 - Windows: venv\Scripts\activate.bat or venv.nosync\Scripts\activate.bat
 - Mac: source venv/bin/activate
+
+Open a new terminal and you should see (venv)
 
 Install Kivy:
 
