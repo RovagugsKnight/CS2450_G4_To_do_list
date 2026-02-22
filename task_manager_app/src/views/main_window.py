@@ -52,7 +52,7 @@ class MainWindow(FloatLayout):
     def load_existing_tasks(self):
         tasks = self.controller.load_tasks()
         for task in reversed(tasks):
-            widget = TaskItem(self, task.id, task.text, task.done)
+            widget = TaskItem(self, task.task_id, task.text, task.done)
             self.todoitems.add_widget(widget)
 
     def add_todo_item(self, text):
@@ -76,17 +76,9 @@ class MainWindow(FloatLayout):
 
     def delete_todo_item(self, item_id):
         self.controller.delete_task(item_id)
+        self.scrollablelist.remove_item(item_id)
 
-        for widget in list(self.todoitems.children):
-            if widget.item_id == item_id:
-                self.todoitems.remove_widget(widget)
-                break
-
-    def mark_as_done(self, item_id):
+    def mark_todo_item_done(self, item_id):
         self.controller.mark_done(item_id)
-
-        for widget in self.todoitems.children:
-            if widget.item_id == item_id:
-                widget.mark_done_button.disabled = True
-                break
+        self.scrollablelist.mark_item_done(item_id)
     

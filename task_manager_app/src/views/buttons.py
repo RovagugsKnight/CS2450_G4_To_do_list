@@ -1,37 +1,18 @@
-from kivy.uix.button import Button
-from views.colors import Black, Yellow, Red, Light_teal, White
+from views.base_button import BaseButton
+from views.colors import Yellow, Red, Light_teal, Black, White
 
-
-class YellowButton(Button):
+class YellowButton(BaseButton):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.background_normal = ""
         self.background_color = Yellow
+        self.color = Black
 
-
-class RedButton(Button):
+class RedButton(BaseButton):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.background_normal = ""
         self.background_color = Red
 
-
-class LightTealButton(Button):
+class LightTealButton(BaseButton):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.background_normal = ""
         self.background_color = Light_teal
-
-
-class BlackButton(Button):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.background_normal = ""
-        self.background_color = Black
-
-
-class WhiteButton(Button):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.background_normal = ""
-        self.background_color = White

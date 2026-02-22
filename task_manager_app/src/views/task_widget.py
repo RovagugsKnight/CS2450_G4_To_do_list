@@ -25,7 +25,7 @@ class TaskItem(BoxLayout):
             disabled=done
         )
         self.mark_done_button.bind(
-            on_release=lambda *args: main_window.mark_as_done(item_id)
+            on_release=lambda *args: main_window.mark_todo_item_done(item_id)
         )
 
         remove_button = YellowButton(
