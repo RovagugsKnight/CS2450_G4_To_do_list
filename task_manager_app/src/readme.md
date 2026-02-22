@@ -18,6 +18,7 @@ project/
 ├── main.py
 │
 ├── models/
+│   ├── database.py
 │   ├── task.py
 │   └── task_repository.py
 │
@@ -29,6 +30,7 @@ project/
 │   ├── task_widget.py
 │   ├── scrollable_list.py
 │   ├── inputs.py
+│   ├── base_buttons.py
 │   ├── buttons.py
 │   └── colors.py
 │
