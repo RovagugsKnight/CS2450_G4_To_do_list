@@ -32,39 +32,55 @@ Group 4
 
 ### 1.1 Document Purpose
 This is the document for explaining system requirments
-not for how it will be implemented. The Primary users
-will be average people needing to organize their goals.
+not for how it will be implemented. It explains both functional
+and non-functional requirements.
 
 ### 1.2 Product Scope
 The Task Manager will be used for managing personal tasks
 and so a user can organize tasks and stay on track for personal
-goals. It will allow for logging and setting reminders for tasks
+goals. It will allow for creating, logging, and editing tasks
 along with setting up a schedule for accomplishing them. Potential
-for buisness level task managing in the future.
+for team task managing in the future. see [vision_plan](vision_plan.md)
+for more info.
 
 ## 1.3 Definitions
-__SRS__: Software Requierments Specification document for explaining app requirments
+__SRS__: Software Requierments Specification document for explaining the system requirments
 
-__UI__: User Interface for user to interact with app.
+__UI__: User Interface is a program that a user can interact with.
 
-__GUI__: Graphical User Interface for accessable and visual user interface
+__GUI__: Graphical User Interface is a visual user interface that an average user can
+use.
+
+__MVC__: Model View Control architecture is a software design with a model for data,
+the view for display, and the controller for handling user interactions and connecting
+the two.
+
+__Venv__: Vitual Environment is a development environment that keeps project dependencies
+isolated from the rest of the device.
+
+__SOLID__: 
+- Single Responsiblity: Only one reason to change. Each component should do one thing.
+-  Open\Closed Principle: Open for extention closed to modification. Add new behavior without changing existing code.
+-  Liskov Substitution: Superclass should be replacable with subclass. Subclass should behave like its parent class.
+-  Interface Segragation: No client should be forced to rely on methods it doesn't use. Only include functions needed.
+-  Dependency Inversion: High level modules don't rely on low level modules. Details should rely on abstractions.
 
 ## 1.4 References
 vision_plan by Drew Howard  
 version 1.0  
 INFORMATIVE  
-https://github.com/RovagugsKnight/G4_To_do_list/blob/main/task_manager_app/docs/vision_plan.md
+[vision_plan.md](vision_plan.md)
 
 Use Case by Drew Howard  
 version 1.1  
 02/11/2026  
 INFORMATIVE  
-https://github.com/RovagugsKnight/G4_To_do_list/blob/main/task_manager_app/docs/G4%20Group%20Project%20-%20Use%20Case.svg
+[uml/Use_Case_diagram.svg](uml/Use_CASe_diagram.svg)
 
 ## 1.5 Document Overview
-- Product Overview: Provides background and context for product requirements.
-- Requirements: Requirements for product.
-- Verification: Describes on requirments will be verified.
+- __Product Overview__: Background and context for product requirements.
+- __Requirements__: Requirements for product.
+- __Verification__: How requirements will be verified.
   
 # 2. Product Overview
 ## 2.1 Product Perspective
@@ -77,13 +93,28 @@ related documentation resides with Group 4.
 - Editing tasks
 - Viewing tasks
 - Setting task deadlines
-- Giving task reminders  
-Use Case Diagram:   
-https://github.com/RovagugsKnight/G4_To_do_list/blob/main/task_manager_app/docs/G4%20Group%20Project%20-%20Use%20Case.svg
+- Giving task reminders
+- Marking tasks as finished  
+[Use Case](uml/Use_Case_diagram.svg)
 
 ## 2.3 Product constraints
-No constraints, no limits, no rules just managing tasks
-
+- This project has no funding so only open
+  source and free tools shall be used.
+- The system shall use the Kivy framework to create
+  a GUI
+- This project uses the Kivy framework so python
+  3.12 must be use for it to function properly.
+  [REQ-INST-002-0.1](req-inst-002-01)
+- Because of required dependencies, the project must
+  use a virtual environment.
+  [REQ-INST-001-0.1](req-inst-001-01)
+- This project shall use MVC architecture to create
+  separation of responsibilities and reduce coupling.
+  [REQ-MAINT-001-0.1](req-maint-001-01)
+- The system shall follow SOLID design principles to
+  further support maintainability.
+  [REQ-MAINT-001-0.1](req-maint-001-01)
+  
 ## 2.4 User Characteristics
 __User Class: Registered User__
 - __Role__: Uses all product features 
@@ -108,17 +139,19 @@ __Potential Impact__: A change in the GUI framework would require a major redesi
 of front end design.
 
 ## 2.6 Apportioning of Requirements
-Release 1: Product documentation
-Release 2: Product Diagrams and class design
+Release 1: Product documentation   
+Release 2: Product Diagrams and class design   
 Next Release requirements unknown
 
 # 3. Requirements
 ## 3.1 External Interfaces
+
 __Hardware Interfaces: This system does not require interaction
 from specialized hardware devices.__
 
 ### 3.1.1 User Interface
-__REQ-FUNC-001-0.1__  
+
+__REQ-UI-001-0.1__  
 __Add Task Button__
 
 The system shall have an add task
@@ -131,7 +164,7 @@ Acceptance Criteria:
 
 Verification: Test
 
-__REQ-FUNC-002-0.1__  
+__REQ-UI-002-0.1__  
 __Delete Task Button__
 
 The system shall have a delete task
@@ -144,36 +177,34 @@ Acceptance Criteria:
 
 Verification: Test
 
-__REQ-FUNC-003-0.1__  
-__Task Completion Checkbox__
+__REQ-UI-003-0.1__  
+__Task Completion Button__
 
-The system shall have a Checkbox
+The system shall have a button
 to mark a task completed.
 
 Acceptance Criteria:
-- Checkbox will be visible to user
-- A checkbox will be included for every task
+- Button will be visible to user
+- A Button will be included for every task
 
 Verification: Test
 
 ### 3.1.2 Software Interface
 
-__REQ-COMP-001-0.1__  
-__Kivy Framework__
-
-The system shall use the
-Kivy framework to create the 
-application's GUI.
+__REQ-SI-001-0.1__  
+__Local SQLite Database__
+The system shall use an SQLite
+database as persistent storage for 
+the task log.
 
 Acceptance Criteria:
-- The system runs Kivy without errors
-- The GUI is implemented using Kivy widgets and layouts
+- .db file stores task log.
 
 Verification: Inspection
 
 ## 3.2 Functional Requirements
 
-#### REQ-FUNC-004-0.1  
+#### REQ-FUNC-001-0.1  
 __Task Log__
 
 The system shall store
@@ -186,13 +217,11 @@ Acceptance Criteria:
 
 Verifcation: Test
 
-__REQ-FUNC-005-0.1__    
+__REQ-FUNC-002-0.1__    
 __Add Tasks__
 
 The system shall allow users
-to add tasks to the task log, 
-including a name, description,
-and an optional deadline.
+to add tasks to the task log.
 
 Acceptance Criteria:
 - Tasks appear in tasklog
@@ -200,7 +229,7 @@ Acceptance Criteria:
 
 Verifcation: Test
 
-__REQ-FUNC-006-0.1__  
+__REQ-FUNC-003-0.1__  
 __Delete Tasks__
 
 The system shall allow users
@@ -211,7 +240,7 @@ Acceptance Criteria:
 
 Verfication: Test
 
-__REQ-FUNC-007-0.1__  
+__REQ-FUNC-004-0.1__  
 __Edit Tasks__
 
 The system shall allow users
@@ -225,7 +254,7 @@ Acceptance Criteria:
 
 Verification: Test
 
-__REQ-FUNC-008-0.1__  
+__REQ-FUNC-005-0.1__  
 __Categorize Tasks__
 
 The system shall allow users
@@ -306,15 +335,69 @@ Verification: Inspection
 
 ### 3.5.1 Installation
 
+#### REQ-INST-001-0.1
+__Virtual Environment__
+The system shall require
+execution within a Python
+virtual environment.
+
+Acceptance Criteria:
+- Installed product runs in venv
+
+Verification: Inspection
+
+#### REQ-INST-002-0.1
+__Python Version__
+The system shall require
+Python 3.12.
+
+Acceptance Criteria:
+- Installed product runs with Python 3.12
+
+Verification: Inspection
+
 ### 3.5.2 Build and Delivery
+
+#### REQ-BUILD-001-0.1
+The system shall use a virtual
+environment to ensure depedency
+isolation and reproducible builds.
+
+Acceptance Criteria & Verification:
+- Same as [REQ-INST-001-0.1](req-inst-001-01)
+
 
 ### 3.5.3 Distribution
 
 ### 3.5.4 Maintainability
 
+#### REQ-MAINT-001-0.1
+The system shall promote
+maintainability through
+separation of responsibilites
+accross system components.
+
+Acceptance Criteria & Verification:
+- clear separation of responsiblities
+- Changes to one component do not require modification of other components
+
+Verification: Inspection
+
 ### 3.5.5 Portability
 
 ### 3.5.6 Deadline
+#### REQ-DEAD-001-0.1
+__Two Week Milestones__
+
+Development shall be split
+into two week intervals with
+a major release at the end of
+each milestone.
+
+Acceptance Criteria:
+- Major release every two weeks
+
+Verification: Inspection
 
 ### 3.5.7 Proof of Concept
 
@@ -324,16 +407,22 @@ Verification: Inspection
 
 | Requirement ID | Verification Method | Test/Artifact Link | Status | Evidence           |
 |----------------|---------------------|--------------------|--------|--------------------|
-|REQ-FUNC-001-0.1|         Test        | [tests](src\tests) |Planned |                    |
+|REQ-UI-001-0.1  |         Test        | [tests](src/tests) |Planned |                    |
+|REQ-UI-002-0.1  |         Test        | [tests](src/tests) |Planned |                    |
+|REQ-UI-003-0.1  |         Test        | [tests](src/tests) |Planned |                    |
+|REQ-FUNC-001-0.1|         Test        | [tests](src/tests) |Planned |                    |
 |REQ-FUNC-002-0.1|         Test        | [tests](src\tests) |Planned |                    |
-|REQ-FUNC-003-0.1|         Test        | [tests](src\tests) |Planned |                    |
-|REQ-FUNC-005-0.1|         Test        | [tests](src\tests) |Planned |                    |
-|REQ-FUNC-006-0.1|         Test        | [tests](src\tests) |Planned |                    |
-|REQ-FUNC-007-0.1|         Test        | [tests](src\tests) |Planned |                    |
-|REQ-FUNC-008-0.1|         Test        | [tests](src\tests) |Planned |                    |
-|REQ-COMP-001-0.1|      Inspection     |      document      |Planned |                    |
-|REQ-PERF-001-0.1|         Test        | [tests](src\tests) |Planned |                    |
-|REQ-PERF-001-0.1|         Test        | [tests](src\tests) |Planned |                    |
-|REQ-REL-001-0.1 |         Test        | [tests](src\tests) |Planned |                    |
-|REQ-REL-001-0.1 |         Test        | [tests](src\tests) |Planned |                    |
+|REQ-FUNC-003-0.1|         Test        | [tests](src/tests) |Planned |                    |
+|REQ-FUNC-004-0.1|         Test        | [tests](src/tests) |Planned |                    |
+|REQ-FUNC-005-0.1|         Test        | [tests](src/tests) |Planned |                    |
+|REQ-SI-001-0.1  |      Inspection     |      document      |Planned |                    |
+|REQ-PERF-001-0.1|         Test        | [tests](src/tests) |Planned |                    |
+|REQ-PERF-001-0.1|         Test        | [tests](src/tests) |Planned |                    |
+|REQ-REL-001-0.1 |         Test        | [tests](src/tests) |Planned |                    |
+|REQ-REL-001-0.1 |         Test        | [tests](src/tests) |Planned |                    |
 |REQ-AVAIL-001-0.1|     Inspection     |      document      |Planned |                    |
+|REQ-DEAD-001-0.1|      Inspection     |[Releases](../../releases) |Planned |             |
+|REQ-INST-001-0.1|      Inspection     |      document      |Planned |                    |
+|REQ-INST-002-0.1|      Inspection     |      document      |Planned |                    |
+|REQ-BUILD-001-0.1|      Inspection    |      document      |Planned |                    |
+|REQ-MAINT-001-0.1|      Inspection    |      document      |Planned |                    |
