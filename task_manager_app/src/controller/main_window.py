@@ -2,9 +2,9 @@ from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
 from kivy.uix.popup import Popup
-from views.inputs import InputFrame
-from views.scrollable_list import ScrollableList
-from views.task_widget import TaskItem
+from controller.inputs import InputFrame
+from controller.scrollable_list import ScrollableList
+from controller.task_widget import TaskItem
 from controller.task_controller import TaskController
 
 
@@ -16,7 +16,7 @@ class MainWindow(FloatLayout):
 
         todo_list_container = BoxLayout(
             orientation="vertical",
-            size_hint=(0.85, None),
+            size_hint=(0.90, 0.90),
             height=350,
             pos_hint={"center_x": 0.5, "top": 0.85},
             spacing=10
@@ -52,10 +52,10 @@ class MainWindow(FloatLayout):
     def load_existing_tasks(self):
         tasks = self.controller.load_tasks()
         for task in reversed(tasks):
-            widget = TaskItem(self, task.task_id, task.text, task.done)
+            widget = TaskItem(self, task.task_id, task.task_name, task.text, task.done)
             self.todoitems.add_widget(widget)
 
-    def add_todo_item(self, text):
+    def add_todo_item(self, task_name, text):
         text = text.strip()
 
         # Empty check
@@ -68,11 +68,12 @@ class MainWindow(FloatLayout):
             self.show_popup("Task is too long. Maximum length is 150 characters.")
             return
 
-        task_id = self.controller.add_task(text)
-        widget = TaskItem(self, task_id, text)
+        task_id = self.controller.add_task(task_name, text)
+        widget = TaskItem(self, task_id, task_name, text)
         self.todoitems.add_widget(widget)
 
-        self.inputframe.todo_input_widget.text = ""
+        self.inputframe.ids.task_name.text = ""
+        self.inputframe.ids.description.text = ""
 
     def delete_todo_item(self, item_id):
         self.controller.delete_task(item_id)
@@ -80,5 +81,5 @@ class MainWindow(FloatLayout):
 
     def mark_todo_item_done(self, item_id):
         self.controller.mark_done(item_id)
-        self.scrollablelist.mark_item_done(item_id)
+
     

@@ -17,16 +17,17 @@ class TaskRepository:
         query = """
             CREATE TABLE IF NOT EXISTS todo(
                 item_id INTEGER PRIMARY KEY,
+                item_name TEXT,
                 item TEXT,
                 done INTEGER
             );
         """
         self.db.execute(query)
 
-    def add_task(self, text):
+    def add_task(self,task_name:str, text:str):
         result = self.db.execute(
-            "INSERT INTO todo VALUES (NULL, ?, 0);",
-            text
+            "INSERT INTO todo VALUES (NULL, ?, ?, 0);",
+            task_name, text
         )
         return result.lastrowid
 
@@ -50,7 +51,7 @@ class TaskRepository:
 
     def get_all_tasks(self):
         result = self.db.execute(
-            "SELECT item_id, item, done FROM todo;"
+            "SELECT item_id, item_name, item, done FROM todo;"
         )
         return result.fetchall()
 

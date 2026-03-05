@@ -8,10 +8,10 @@ class TaskController:
 
     def load_tasks(self):
         rows = self.repo.get_all_tasks()
-        return [Task(task_id=row[0], text=row[1], done=bool(row[2])) for row in rows]
+        return [Task(task_id=row[0], task_name=row[1], text=row[2], done=bool(row[3])) for row in rows]
 
-    def add_task(self, text):
-        return self.repo.add_task(text)
+    def add_task(self,task_name, text):
+        return self.repo.add_task(task_name, text)
 
     def delete_task(self, task_id):
         self.repo.delete_task(task_id)

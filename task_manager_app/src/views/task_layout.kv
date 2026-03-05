@@ -1,0 +1,54 @@
+<TaskItem>:
+    orientation: "horizontal"
+    size_hint: None, None
+    height: "200dp"
+    spacing: "6dp"
+    padding: "8dp"
+    width: min(self.minimum_width + dp(200), dp(500))
+
+
+
+    # --- Left side: card ---
+    MDCard:
+        radius: [20, 20, 20, 20]
+        md_bg_color: 0.2, 0.6, 0.8, 1
+        padding: "12dp"
+        size_hint_x: 1
+
+        MDBoxLayout:
+            orientation: "vertical"
+            spacing: "6dp"
+            width: self.minimum_width
+
+            MDLabel:
+                text: root.task_name
+                text_size: self.size
+                size_hint_y: None
+                height: self.texture_size[1]
+                halign: "center"
+
+            MDLabel:
+                text: root.description
+                font_size: "15sp"
+                size_hint_y: None
+                height: self.texture_size[1]
+
+    # --- Right side: buttons ---
+    MDBoxLayout:
+        orientation: "vertical"
+        size_hint: None, 1
+        width: "80dp"
+        spacing: "6dp"
+
+        YellowButton:
+            text: "Done"
+            disabled: root.done
+            on_release: root.mark_done()
+
+        YellowButton:
+            text: "-"
+            on_release: root.remove()
+
+        YellowButton:
+            text: "Edit"
+            on_release: root.edit_task()
