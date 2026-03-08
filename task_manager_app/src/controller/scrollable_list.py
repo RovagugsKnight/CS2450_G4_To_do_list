@@ -19,3 +19,5 @@ class ScrollableList(ScrollView):
             if widget.item_id == item_id:
                 self.todoitems.remove_widget(widget)
                 break
+    
+

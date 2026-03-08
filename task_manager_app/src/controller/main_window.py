@@ -6,7 +6,8 @@ from controller.inputs import InputFrame
 from controller.scrollable_list import ScrollableList
 from controller.task_widget import TaskItem
 from controller.task_controller import TaskController
-
+from controller.grid_layout import normalize_grid
+from views.spacer import Spacer
 
 class MainWindow(FloatLayout):
     def __init__(self, **kwargs):
@@ -55,6 +56,10 @@ class MainWindow(FloatLayout):
             widget = TaskItem(self, task.task_id, task.task_name, task.text, task.done)
             self.todoitems.add_widget(widget)
 
+        # pad with invisible spacers
+        normalize_grid(self.todoitems, 3)
+
+
     def add_todo_item(self, task_name, text):
         text = text.strip()
 
@@ -70,10 +75,21 @@ class MainWindow(FloatLayout):
 
         task_id = self.controller.add_task(task_name, text)
         widget = TaskItem(self, task_id, task_name, text)
+
+        last_row = self.todoitems.children[:self.todoitems.cols]
+
+        # Remove spacers
+        for child in reversed(last_row):
+            if isinstance(child, Spacer):
+                self.todoitems.remove_widget(child)
+                
         self.todoitems.add_widget(widget)
 
         self.inputframe.ids.task_name.text = ""
         self.inputframe.ids.description.text = ""
+
+        # add spacers if needed
+        normalize_grid(self.todoitems, 3)
 
     def delete_todo_item(self, item_id):
         self.controller.delete_task(item_id)
