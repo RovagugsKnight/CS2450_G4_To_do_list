@@ -24,10 +24,15 @@ class MainWindowController:
         # Empty check
         if not text:
             return Result(False, "Task cannot be empty.")
+        if not taskname:
+            return Result(False, "Name cannot be empty.")
 
         # Length check
         if len(text) > 150:
             return Result(False, "Task is too long. Maximum length is 150 characters.")
+        
+        if len(taskname) > 20:
+            return Result(False, "Name should be 20 char or less.")
 
         task_id = self.repo.add_task(taskname, text)
         return Result(True, task_id= task_id)

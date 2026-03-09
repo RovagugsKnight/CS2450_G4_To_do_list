@@ -32,9 +32,18 @@ class TaskController:
         """check description length, update task name and description in repository, 
         and signals task view to change"""
         try:
+            # Empty check
+            if not new_text:
+                return Result(False, "Task cannot be empty.")
+            if not new_name:
+                return Result(False, "Name cannot be empty.")
+
             # Length check
             if len(new_text) > 150:
                 return Result(False, "Task is too long. Maximum length is 150 characters.")
+            if len(new_name) > 20:
+                return Result(False, "Name should be 20 char or less.")
+
             
             self.repo.update_task(task_id, new_name, new_text)
             return Result(True)

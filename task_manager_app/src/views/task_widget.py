@@ -86,6 +86,7 @@ class TaskItem(MDBoxLayout):
                 else:
                     self.show_popup(result.error)
                     input_box.text = self.description
+                    task_box.text = self.task_name
 
         save_button.bind(on_release=save_changes)
         popup.open()
