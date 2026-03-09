@@ -8,7 +8,7 @@ from views.task_widget import TaskItem
 from models.sqllite_repository import SqliteRepo
 from controller.task_controller import TaskController
 from controller.main_window_controller import main_window_controller
-from controller.grid_layout import normalize_grid
+from views.grid_layout import normalize_grid
 from views.spacer import Spacer
 
 class MainWindow(FloatLayout):
