@@ -24,7 +24,7 @@ class TaskItem(MDBoxLayout):
         self.description = description
         self.controller = controller
 
-    def show_popup(self, message):
+    def show_popup(self, message:str) -> None:
         """Creates popup for errors"""
         popup = Popup(
             title="Error",
@@ -33,7 +33,7 @@ class TaskItem(MDBoxLayout):
         )
         popup.open()
   
-    def mark_done(self):
+    def mark_done(self) -> None:
         """disables done button and tells controller 
         to mark task done"""
         result = self.controller.mark_done(self.item_id)
@@ -42,7 +42,7 @@ class TaskItem(MDBoxLayout):
         else:
             self.show_popup(result.error)
     
-    def remove(self):
+    def remove(self) -> None:
         """tells main window to remove task widget and 
         tells controller to delete task from repository"""
         result = self.controller.delete_task(self.item_id)
@@ -51,7 +51,7 @@ class TaskItem(MDBoxLayout):
         else:
             self.show_popup(result.error)
 
-    def edit_task(self):
+    def edit_task(self) -> None:
         """Pulls up edit popup that lets user edit task name and description
         calls controller to update database info"""
         from kivy.uix.popup import Popup
@@ -72,7 +72,9 @@ class TaskItem(MDBoxLayout):
 
         popup = Popup(title="Edit Task", content=layout, size_hint=(0.8, 0.4))
 
-        def save_changes(instance):
+        def save_changes(instance:Button) -> None:
+            """Saves task to repository with controller.
+            Shows popup on failure"""
             new_name = task_box.text.strip()
             new_text = input_box.text.strip()
             if new_text and new_name:

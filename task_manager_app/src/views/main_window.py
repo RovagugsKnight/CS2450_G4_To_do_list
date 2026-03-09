@@ -5,7 +5,7 @@ from kivy.uix.popup import Popup
 from views.inputs import InputFrame
 from views.scrollable_list import ScrollableList
 from views.task_widget import TaskItem
-from models.sqllite_repository import SqliteRepo
+from models.task_repository import TaskRepository
 from controller.main_window_controller import MainWindowController
 from controller.task_controller import TaskController
 from views.grid_layout import normalize_grid
@@ -13,13 +13,13 @@ from views.spacer import Spacer
 
 class MainWindow(FloatLayout):
     """Main window veiw. Has a title, input box, and scrollable list of tasks"""
-    def __init__(self, **kwargs):
+    def __init__(self, repo:TaskRepository, **kwargs):
         super().__init__(**kwargs)
-        #sqlite repo
-        repo = SqliteRepo()
+        #task repo
+        self.repo = repo
         #controllers
-        self.controller = MainWindowController(repo)
-        self.task_controller = TaskController(repo)
+        self.controller = MainWindowController(self.repo)
+        self.task_controller = TaskController(self.repo)
 
         #task list container
         todo_list_container = BoxLayout(
