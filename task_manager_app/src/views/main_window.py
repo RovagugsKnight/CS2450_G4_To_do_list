@@ -2,10 +2,12 @@ from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
 from kivy.uix.popup import Popup
-from controller.inputs import InputFrame
-from controller.scrollable_list import ScrollableList
-from controller.task_widget import TaskItem
+from views.inputs import InputFrame
+from views.scrollable_list import ScrollableList
+from views.task_widget import TaskItem
+from models.sqllite_repository import SqliteRepo
 from controller.task_controller import TaskController
+from controller.main_window_controller import main_window_controller
 from controller.grid_layout import normalize_grid
 from views.spacer import Spacer
 
@@ -14,6 +16,8 @@ class MainWindow(FloatLayout):
         super().__init__(**kwargs)
 
         self.controller = TaskController()
+
+        self.true_controller = main_window_controller(SqliteRepo())
 
         todo_list_container = BoxLayout(
             orientation="vertical",
@@ -51,7 +55,7 @@ class MainWindow(FloatLayout):
         popup.open()
 
     def load_existing_tasks(self):
-        tasks = self.controller.load_tasks()
+        tasks = self.true_controller.load_tasks()
         for task in reversed(tasks):
             widget = TaskItem(self, task.task_id, task.task_name, task.text, task.done)
             self.todoitems.add_widget(widget)

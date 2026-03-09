@@ -15,17 +15,15 @@
         MDBoxLayout:
             orientation: "vertical"
             spacing: "6dp"
-            width: self.minimum_width
             size_hint_y: 1
 
             MDLabel:
                 text: root.task_name
-                text_size: self.size
+                font_size: "20sp"
                 size_hint_y: None
                 height: self.texture_size[1]
                 halign: "center"
                 size_hint: 1, 1
-
 
             MDLabel:
                 text: root.description

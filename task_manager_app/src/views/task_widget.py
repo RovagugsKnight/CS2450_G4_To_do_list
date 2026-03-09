@@ -5,7 +5,7 @@ from kivy.properties import BooleanProperty, StringProperty
 from kivymd.uix.label import MDLabel
 from kivy.lang import Builder
 
-Builder.load_file("views/task_layout.kv")
+Builder.load_file("views/task_widget.kv")
 
 class TaskItem(MDBoxLayout):
     done = BooleanProperty(False)

@@ -1,6 +1,6 @@
 from kivymd.app import MDApp
 from kivy.core.window import Window
-from controller.main_window import MainWindow
+from views.main_window import MainWindow
 
 class TaskManagerApp(MDApp):
     title = "Task Manager App"

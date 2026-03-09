@@ -1,10 +1,10 @@
-from models.task_repository import TaskRepository
+from models.prev_task_repo import PrevTaskRepository
 from models.tasks import Task
 
 
 class TaskController:
     def __init__(self):
-        self.repo = TaskRepository()
+        self.repo = PrevTaskRepository()
 
     def load_tasks(self):
         rows = self.repo.get_all_tasks()
