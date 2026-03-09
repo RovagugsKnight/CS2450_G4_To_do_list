@@ -65,35 +65,29 @@ class MainWindow(FloatLayout):
 
 
     def add_todo_item(self, task_name, text):
-        text = text.strip()
+        
+        result = self.true_controller.add_task(task_name, text)
+        if not result.success:
+            self.show_popup(result.error)
+        
+        else:
+            task_id = result.task_id
+            widget = TaskItem(self, task_id, task_name, text)
 
-        # Empty check
-        if not text:
-            self.show_popup("Task cannot be empty.")
-            return
+            last_row = self.todoitems.children[:self.todoitems.cols]
 
-        # Length check
-        if len(text) > 150:
-            self.show_popup("Task is too long. Maximum length is 150 characters.")
-            return
+            # Remove spacers
+            for child in reversed(last_row):
+                if isinstance(child, Spacer):
+                    self.todoitems.remove_widget(child)
+                    
+            self.todoitems.add_widget(widget)
 
-        task_id = self.controller.add_task(task_name, text)
-        widget = TaskItem(self, task_id, task_name, text)
+            self.inputframe.ids.task_name.text = ""
+            self.inputframe.ids.description.text = ""
 
-        last_row = self.todoitems.children[:self.todoitems.cols]
-
-        # Remove spacers
-        for child in reversed(last_row):
-            if isinstance(child, Spacer):
-                self.todoitems.remove_widget(child)
-                
-        self.todoitems.add_widget(widget)
-
-        self.inputframe.ids.task_name.text = ""
-        self.inputframe.ids.description.text = ""
-
-        # add spacers if needed
-        normalize_grid(self.todoitems, 3)
+            # add spacers if needed
+            normalize_grid(self.todoitems, 3)
 
     def delete_todo_item(self, item_id):
         self.controller.delete_task(item_id)
