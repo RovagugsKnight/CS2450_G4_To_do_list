@@ -1,4 +1,6 @@
 from kivymd.uix.boxlayout import MDBoxLayout
+from kivy.uix.popup import Popup
+from kivy.uix.label import Label
 from views.buttons import YellowButton, LightTealButton
 from kivymd.uix.card import MDCard
 from kivy.properties import BooleanProperty, StringProperty
@@ -9,6 +11,7 @@ from controller.task_controller import TaskController
 Builder.load_file("views/task_widget.kv")
 
 class TaskItem(MDBoxLayout):
+    """Task widget with card layout and done, delete, and edit buttons on the side"""
     done = BooleanProperty(False)
     task_name = StringProperty(" ")
     description = StringProperty(" ")
@@ -20,16 +23,37 @@ class TaskItem(MDBoxLayout):
         self.task_name = task_name
         self.description = description
         self.controller = controller
+
+    def show_popup(self, message):
+        """Creates popup for errors"""
+        popup = Popup(
+            title="Error",
+            content=Label(text=message),
+            size_hint=(0.6, 0.3)
+        )
+        popup.open()
   
-    
     def mark_done(self):
-        self.controller.mark_done(self.item_id)
-        self.done = True
+        """disables done button and tells controller 
+        to mark task done"""
+        result = self.controller.mark_done(self.item_id)
+        if result.success:
+            self.done = True
+        else:
+            self.show_popup(result.error)
     
     def remove(self):
-        self.main_window.delete_todo_item(self.item_id)
+        """tells main window to remove task widget and 
+        tells controller to delete task from repository"""
+        result = self.controller.delete_task(self.item_id)
+        if result.success:
+            self.main_window.remove_task_widget(self.item_id)
+        else:
+            self.show_popup(result.error)
 
     def edit_task(self):
+        """Pulls up edit popup that lets user edit task name and description
+        calls controller to update database info"""
         from kivy.uix.popup import Popup
         from kivy.uix.boxlayout import BoxLayout
         from kivy.uix.textinput import TextInput
@@ -37,7 +61,10 @@ class TaskItem(MDBoxLayout):
 
         layout = BoxLayout(orientation='vertical', spacing=10, padding=10)
 
-        input_box = TextInput(text=self.description, multiline=False)
+        task_box = TextInput(text=self.task_name, multiline=False)
+        layout.add_widget(task_box)
+
+        input_box = TextInput(text=self.description, multiline=True)
         layout.add_widget(input_box)
 
         save_button = YellowButton(text="Save")
@@ -46,11 +73,17 @@ class TaskItem(MDBoxLayout):
         popup = Popup(title="Edit Task", content=layout, size_hint=(0.8, 0.4))
 
         def save_changes(instance):
+            new_name = task_box.text.strip()
             new_text = input_box.text.strip()
-            if new_text:
-                self.main_window.controller.update_task(self.item_id, new_text)
-                self.description = new_text
-            popup.dismiss()
+            if new_text and new_name:
+                result = self.controller.update_task(self.item_id, new_name, new_text)
+                if result.success:
+                    self.task_name = new_name
+                    self.description = new_text
+                    popup.dismiss()
+                else:
+                    self.show_popup(result.error)
+                    input_box.text = self.description
 
         save_button.bind(on_release=save_changes)
         popup.open()

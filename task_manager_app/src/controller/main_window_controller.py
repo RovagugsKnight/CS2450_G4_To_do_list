@@ -32,8 +32,5 @@ class MainWindowController:
         task_id = self.repo.add_task(taskname, text)
         return Result(True, task_id= task_id)
     
-    def delete_task(self, task_id):
-        """Deletes task from repository."""
-        self.repo.delete_task(task_id)
 
     

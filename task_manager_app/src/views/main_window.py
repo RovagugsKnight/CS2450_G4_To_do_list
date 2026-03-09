@@ -12,12 +12,16 @@ from views.grid_layout import normalize_grid
 from views.spacer import Spacer
 
 class MainWindow(FloatLayout):
+    """Main window veiw. Has a title, input box, and scrollable list of tasks"""
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        #sqlite repo
+        repo = SqliteRepo()
+        #controllers
+        self.controller = MainWindowController(repo)
+        self.task_controller = TaskController(repo)
 
-        self.controller = MainWindowController(SqliteRepo())
-        self.task_controller = TaskController()
-
+        #task list container
         todo_list_container = BoxLayout(
             orientation="vertical",
             size_hint=(0.90, 0.90),
@@ -26,6 +30,7 @@ class MainWindow(FloatLayout):
             spacing=10
         )
 
+        #Title label
         title_label = Label(
             font_size=35,
             text="[b]Todo App[/b]",
@@ -33,8 +38,11 @@ class MainWindow(FloatLayout):
             markup=True
         )
 
+        #task input
         self.inputframe = InputFrame(self)
+        #scrollable task list
         self.scrollablelist = ScrollableList()
+        #task list tasks
         self.todoitems = self.scrollablelist.todoitems
 
         todo_list_container.add_widget(title_label)
@@ -43,26 +51,37 @@ class MainWindow(FloatLayout):
 
         self.add_widget(todo_list_container)
 
+        #load tasks from data base
         self.load_existing_tasks()
 
     def show_popup(self, message):
+        """Creates popup for errors"""
         popup = Popup(
-            title="Invalid Task",
+            title="Error",
             content=Label(text=message),
             size_hint=(0.6, 0.3)
         )
         popup.open()
 
     def load_existing_tasks(self):
-        tasks = self.controller.load_tasks()
-        for task in reversed(tasks):
-            widget = TaskItem(self, self.task_controller, task.task_id, task.task_name, task.text, task.done)
-            self.todoitems.add_widget(widget)
+        """Controller grabs tasks from db which are used
+         to create taskitem widgets. Widgets are added
+         to task list and spaced with spacer widgets."""
+        try:
+            tasks = self.controller.load_tasks()
+            for task in reversed(tasks):
+                widget = TaskItem(self, self.task_controller, task.task_id, task.task_name, task.text, task.done)
+                self.todoitems.add_widget(widget)
 
-        # pad with invisible spacers
-        normalize_grid(self.todoitems, 3)
+            # pad with invisible spacers
+            normalize_grid(self.todoitems, 3)
+        except Exception as e:
+            self.show_popup(e)
 
     def add_todo_item(self, task_name, text):
+        """task input is sent to controller to check and add to db.
+        New task widget is added to task list and evenly spaced with
+        spacer widgets."""
         result = self.controller.add_task(task_name, text)
         if not result.success:
             self.show_popup(result.error)
@@ -89,8 +108,8 @@ class MainWindow(FloatLayout):
             # add spacers if needed
             normalize_grid(self.todoitems, 3)
 
-    def delete_todo_item(self, item_id):
-        self.controller.delete_task(item_id)
+    def remove_task_widget(self, item_id):
+        """Task widget is removed from task list"""
         self.scrollablelist.remove_item(item_id)
 
 

@@ -1,6 +1,7 @@
 from kivy.uix.scrollview import ScrollView
 from kivymd.uix.gridlayout import MDGridLayout
 from views.task_widget import TaskItem
+from views.grid_layout import normalize_grid    
 
 class ScrollableList(ScrollView):
     def __init__(self, **kwargs):
@@ -19,6 +20,9 @@ class ScrollableList(ScrollView):
             if isinstance(widget, TaskItem) and widget.item_id == item_id:
                 self.todoitems.remove_widget(widget)
                 break
+        
+        # make sure task size is consistent with spacers
+        normalize_grid(self.todoitems)
 
     
 
