@@ -4,6 +4,7 @@ from kivymd.uix.card import MDCard
 from kivy.properties import BooleanProperty, StringProperty
 from kivymd.uix.label import MDLabel
 from kivy.lang import Builder
+from controller.task_controller import TaskController
 
 Builder.load_file("views/task_widget.kv")
 
@@ -11,17 +12,18 @@ class TaskItem(MDBoxLayout):
     done = BooleanProperty(False)
     task_name = StringProperty(" ")
     description = StringProperty(" ")
-    def __init__(self, main_window, item_id:int, task_name:str, description:str, done=False, **kwargs):
+    def __init__(self, main_window, controller:TaskController, item_id:int, task_name:str, description:str, done=False, **kwargs):
         super().__init__(**kwargs)
-
         self.item_id = item_id
         self.main_window = main_window
         self.done = done
         self.task_name = task_name
-        self.description = description     
+        self.description = description
+        self.controller = controller
+  
     
     def mark_done(self):
-        self.main_window.mark_todo_item_done(self.item_id)
+        self.controller.mark_done(self.item_id)
         self.done = True
     
     def remove(self):

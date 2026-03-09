@@ -6,8 +6,8 @@ from views.inputs import InputFrame
 from views.scrollable_list import ScrollableList
 from views.task_widget import TaskItem
 from models.sqllite_repository import SqliteRepo
+from controller.main_window_controller import MainWindowController
 from controller.task_controller import TaskController
-from controller.main_window_controller import main_window_controller
 from views.grid_layout import normalize_grid
 from views.spacer import Spacer
 
@@ -15,9 +15,8 @@ class MainWindow(FloatLayout):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.controller = TaskController()
-
-        self.true_controller = main_window_controller(SqliteRepo())
+        self.controller = MainWindowController(SqliteRepo())
+        self.task_controller = TaskController()
 
         todo_list_container = BoxLayout(
             orientation="vertical",
@@ -55,34 +54,35 @@ class MainWindow(FloatLayout):
         popup.open()
 
     def load_existing_tasks(self):
-        tasks = self.true_controller.load_tasks()
+        tasks = self.controller.load_tasks()
         for task in reversed(tasks):
-            widget = TaskItem(self, task.task_id, task.task_name, task.text, task.done)
+            widget = TaskItem(self, self.task_controller, task.task_id, task.task_name, task.text, task.done)
             self.todoitems.add_widget(widget)
 
         # pad with invisible spacers
         normalize_grid(self.todoitems, 3)
 
-
     def add_todo_item(self, task_name, text):
-        
-        result = self.true_controller.add_task(task_name, text)
+        result = self.controller.add_task(task_name, text)
         if not result.success:
             self.show_popup(result.error)
         
         else:
             task_id = result.task_id
-            widget = TaskItem(self, task_id, task_name, text)
+            widget = TaskItem(self, self.task_controller, task_id, task_name, text)
 
+            #grab last row
             last_row = self.todoitems.children[:self.todoitems.cols]
 
             # Remove spacers
             for child in reversed(last_row):
                 if isinstance(child, Spacer):
                     self.todoitems.remove_widget(child)
-                    
+            
+            #add widget
             self.todoitems.add_widget(widget)
 
+            #clear input frame
             self.inputframe.ids.task_name.text = ""
             self.inputframe.ids.description.text = ""
 
@@ -93,7 +93,5 @@ class MainWindow(FloatLayout):
         self.controller.delete_task(item_id)
         self.scrollablelist.remove_item(item_id)
 
-    def mark_todo_item_done(self, item_id):
-        self.controller.mark_done(item_id)
 
     

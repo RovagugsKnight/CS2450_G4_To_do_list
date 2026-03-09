@@ -2,12 +2,10 @@ from models.task_repository import TaskRepository
 from models.tasks import Task
 from controller.result import Result
 
-class main_window_controller:
+class MainWindowController:
     """controller class to link main window view to data"""
     def __init__(self, repo: TaskRepository):
         self.repo = repo
-
-    
 
     def load_tasks(self) -> list[Task]:
         """Loads tasks from task repository and sends them to MainWindow view"""
@@ -33,4 +31,9 @@ class main_window_controller:
 
         task_id = self.repo.add_task(taskname, text)
         return Result(True, task_id= task_id)
+    
+    def delete_task(self, task_id):
+        """Deletes task from repository."""
+        self.repo.delete_task(task_id)
+
     
