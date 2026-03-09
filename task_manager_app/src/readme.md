@@ -41,6 +41,7 @@ project/
 
 - Python 3.12
 - Kivy (latest stable)
+- KivyMD
 - Virtual environment recommended
 
 Create Venv:
@@ -58,6 +59,10 @@ Open a new terminal and you should see (venv)
 Install Kivy:
 
 pip install kivy
+
+Install KivyMD:
+
+pip install kivymd
 
 Run the application:
 

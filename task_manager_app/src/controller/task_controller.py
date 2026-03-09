@@ -1,23 +1,52 @@
 from models.task_repository import TaskRepository
 from models.tasks import Task
-
+from controller.result import Result
 
 class TaskController:
-    def __init__(self):
-        self.repo = TaskRepository()
+    """Accepts signals from task widget, updates 
+    task info in repository, and signals back to task
+    widget to update view"""
+    def __init__(self, repo:TaskRepository):
+        self.repo = repo
 
-    def load_tasks(self):
-        rows = self.repo.get_all_tasks()
-        return [Task(task_id=row[0], text=row[1], done=bool(row[2])) for row in rows]
+    def mark_done(self, task_id:int):
+        """Mark task done in repository"""
+        try:
+            self.repo.mark_done(task_id)
+            return Result(True)
+        
+        except Exception as e:
+            return Result(False, e)
 
-    def add_task(self, text):
-        return self.repo.add_task(text)
-
-    def delete_task(self, task_id):
-        self.repo.delete_task(task_id)
-
-    def mark_done(self, task_id):
-        self.repo.mark_done(task_id)
     
-    def update_task(self, task_id, new_text):
-        self.repo.update_task(task_id, new_text)
+    def delete_task(self, task_id:int):
+        """Deletes task from repository."""
+        try:
+            self.repo.delete_task(task_id)
+            return Result(True)
+        
+        except Exception as e:
+            return Result(False, e)
+    
+    def update_task(self, task_id:int, new_name:str, new_text:str) -> Result:
+        """check description length, update task name and description in repository, 
+        and signals task view to change"""
+        try:
+            # Empty check
+            if not new_text:
+                return Result(False, "Task cannot be empty.")
+            if not new_name:
+                return Result(False, "Name cannot be empty.")
+
+            # Length check
+            if len(new_text) > 150:
+                return Result(False, "Task is too long. Maximum length is 150 characters.")
+            if len(new_name) > 20:
+                return Result(False, "Name should be 20 char or less.")
+
+            
+            self.repo.update_task(task_id, new_name, new_text)
+            return Result(True)
+        
+        except Exception as e:
+            return Result(False,e)
