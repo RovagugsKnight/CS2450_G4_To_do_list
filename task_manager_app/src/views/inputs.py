@@ -1,22 +1,19 @@
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.textinput import TextInput
+from kivymd.uix.boxlayout import MDBoxLayout
+from kivymd.uix.textfield import MDTextField
 from views.buttons import YellowButton
+from kivy.lang import Builder
 
+Builder.load_file("views/Input.kv")
 
-class InputFrame(BoxLayout):
+class InputFrame(MDBoxLayout):
+    """Input boxes for task name and description with button
+    to add task."""
     def __init__(self, main_window, **kwargs):
-        super().__init__(orientation="horizontal", size_hint=(1, None), height=40, **kwargs)
-
-        self.todo_input_widget = TextInput(
-            multiline=False,
-            size_hint=(0.8, 1)
-        )
-
-        add_button = YellowButton(
-            text="+",
-            size_hint=(0.2, 1)
-        )
-        add_button.bind(on_release=lambda *args: main_window.add_todo_item(self.todo_input_widget.text))
-
-        self.add_widget(self.todo_input_widget)
-        self.add_widget(add_button)
+        super().__init__(**kwargs)
+        self.main_window = main_window
+    
+    def add_task(self) -> None:
+        """Sends name and description to main window"""
+        name = self.ids.task_name.text
+        desc = self.ids.description.text
+        self.main_window.add_todo_item(name, desc)

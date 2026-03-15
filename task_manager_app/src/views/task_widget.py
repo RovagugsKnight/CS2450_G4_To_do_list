@@ -1,52 +1,59 @@
-from kivy.uix.boxlayout import BoxLayout
+from kivymd.uix.boxlayout import MDBoxLayout
+from kivy.uix.popup import Popup
+from kivy.uix.label import Label
 from views.buttons import YellowButton, LightTealButton
+from kivymd.uix.card import MDCard
+from kivy.properties import BooleanProperty, StringProperty
+from kivymd.uix.label import MDLabel
+from kivy.lang import Builder
+from controller.task_controller import TaskController
 
+Builder.load_file("views/task_widget.kv")
 
-class TaskItem(BoxLayout):
-    size_hint = (1, None)
-    spacing = 5
-
-    def __init__(self, main_window, item_id, todo_item, done=False, **kwargs):
+class TaskItem(MDBoxLayout):
+    """Task widget with card layout and done, delete, and edit buttons on the side"""
+    done = BooleanProperty(False)
+    task_name = StringProperty(" ")
+    description = StringProperty(" ")
+    def __init__(self, main_window, controller:TaskController, item_id:int, task_name:str, description:str, done=False, **kwargs):
         super().__init__(**kwargs)
-
-        self.height = 40
         self.item_id = item_id
         self.main_window = main_window
+        self.done = done
+        self.task_name = task_name
+        self.description = description
+        self.controller = controller
 
-        self.item_display_box = LightTealButton(
-        text=todo_item,
-        size_hint=(0.6, 1)
+    def show_popup(self, message:str) -> None:
+        """Creates popup for errors"""
+        popup = Popup(
+            title="Error",
+            content=Label(text=message),
+            size_hint=(0.6, 0.3)
         )
+        popup.open()
+  
+    def mark_done(self) -> None:
+        """disables done button and tells controller 
+        to mark task done"""
+        result = self.controller.mark_done(self.item_id)
+        if result.success:
+            self.done = True
+        else:
+            self.show_popup(result.error)
+    
+    def remove(self) -> None:
+        """tells main window to remove task widget and 
+        tells controller to delete task from repository"""
+        result = self.controller.delete_task(self.item_id)
+        if result.success:
+            self.main_window.remove_task_widget(self.item_id)
+        else:
+            self.show_popup(result.error)
 
-        self.mark_done_button = YellowButton(
-            text="Done",
-            size_hint=(None, 1),
-            width=100,
-            disabled=done
-        )
-        self.mark_done_button.bind(
-            on_release=lambda *args: main_window.mark_todo_item_done(item_id)
-        )
-
-        remove_button = YellowButton(
-            text="-",
-            size_hint=(None, 1),
-            width=40
-        )
-        remove_button.bind(
-            on_release=lambda *args: main_window.delete_todo_item(item_id)
-        )
-
-        self.add_widget(self.item_display_box)
-        self.add_widget(self.mark_done_button)
-        self.add_widget(remove_button)
-        
-
-        edit_button = YellowButton(text="Edit", size_hint=(None, 1), width=60)
-        edit_button.bind(on_release=self.edit_task)
-        self.add_widget(edit_button)
-
-    def edit_task(self, instance):
+    def edit_task(self) -> None:
+        """Pulls up edit popup that lets user edit task name and description
+        calls controller to update database info"""
         from kivy.uix.popup import Popup
         from kivy.uix.boxlayout import BoxLayout
         from kivy.uix.textinput import TextInput
@@ -54,7 +61,10 @@ class TaskItem(BoxLayout):
 
         layout = BoxLayout(orientation='vertical', spacing=10, padding=10)
 
-        input_box = TextInput(text=self.item_display_box.text, multiline=False)
+        task_box = TextInput(text=self.task_name, multiline=False)
+        layout.add_widget(task_box)
+
+        input_box = TextInput(text=self.description, multiline=True)
         layout.add_widget(input_box)
 
         save_button = YellowButton(text="Save")
@@ -62,12 +72,21 @@ class TaskItem(BoxLayout):
 
         popup = Popup(title="Edit Task", content=layout, size_hint=(0.8, 0.4))
 
-        def save_changes(instance):
+        def save_changes(instance:Button) -> None:
+            """Saves task to repository with controller.
+            Shows popup on failure"""
+            new_name = task_box.text.strip()
             new_text = input_box.text.strip()
-            if new_text:
-                self.main_window.controller.update_task(self.item_id, new_text)
-                self.item_display_box.text = new_text
-            popup.dismiss()
+            if new_text and new_name:
+                result = self.controller.update_task(self.item_id, new_name, new_text)
+                if result.success:
+                    self.task_name = new_name
+                    self.description = new_text
+                    popup.dismiss()
+                else:
+                    self.show_popup(result.error)
+                    input_box.text = self.description
+                    task_box.text = self.task_name
 
         save_button.bind(on_release=save_changes)
         popup.open()
