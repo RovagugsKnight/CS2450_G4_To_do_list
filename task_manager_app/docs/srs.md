@@ -1,17 +1,10 @@
 # Software Requirments Specification
 ## For Task Manager
-<<<<<<< HEAD
 Version 2.1  
 Prepared by Andy Ewell 
 Updated by Nathan Scott
 Group 4  
 3/8/2026
-=======
-Version 1.1  
-Prepared by Andy Ewell  
-Group 4  
-02/11/1026
->>>>>>> origin/main
 ## Table of Contents
 <!-- TOC -->
 * [1. Introduction](#1-introduction)
@@ -92,7 +85,6 @@ INFORMATIVE
   
 # 2. Product Overview
 ## 2.1 Product Perspective
-<<<<<<< HEAD
 
 This application is a standalone system built using the Kivy framework and structured using the Model–View–Controller (MVC) architecture. The system is divided into three primary components:
 
@@ -101,10 +93,6 @@ This application is a standalone system built using the Kivy framework and struc
 - **Controller** – Handles user interactions, updates the Model, and refreshes the View. Controllers coordinate all logic between UI and data.
 
 This architecture replaces earlier prototypes that combined UI and logic in a single file. The MVC structure improves maintainability, reduces coupling, and supports future expansion such as categories, reminders, and collaboration features.
-=======
-This is a new application not part of any larger system. Ownership of this product and all 
-related documentation resides with Group 4. 
->>>>>>> origin/main
 
 ## 2.2 Product Functions
 - Logging tasks
@@ -114,10 +102,7 @@ related documentation resides with Group 4.
 - Setting task deadlines
 - Giving task reminders
 - Marking tasks as finished  
-<<<<<<< HEAD
 - Viewing tasks as interactive cards rather than a simple list
-=======
->>>>>>> origin/main
 [Use Case](uml/Use_Case_diagram.svg)
 
 ## 2.3 Product constraints
@@ -212,7 +197,6 @@ Acceptance Criteria:
 
 Verification: Test
 
-<<<<<<< HEAD
 __REQ-UI-004-0.1__  
 __Task Cards__
 
@@ -225,8 +209,6 @@ Acceptance Criteria:
 
 Verification: Test
 
-=======
->>>>>>> origin/main
 ### 3.1.2 Software Interface
 
 __REQ-SI-001-0.1__  
@@ -407,7 +389,6 @@ Acceptance Criteria & Verification:
 
 ### 3.5.3 Distribution
 
-<<<<<<< HEAD
 ### 3.5.4 Maintainability (Updated for MVC)
 
 #### REQ-MAINT-001-0.1  
@@ -436,37 +417,6 @@ Verification: Inspection
             main.py        # Application entry point
 
 This structure ensures each component has a single responsibility and supports SOLID design principles.
-=======
-### 3.5.4 Maintainability
-
-#### REQ-MAINT-001-0.1
-The system shall promote
-maintainability through
-separation of responsibilites
-accross system components.
-
-Acceptance Criteria & Verification:
-- clear separation of responsiblities
-- Changes to one component do not require modification of other components
-
-Verification: Inspection
-
-### 3.5.5 Portability
-
-### 3.5.6 Deadline
-#### REQ-DEAD-001-0.1
-__Two Week Milestones__
-
-Development shall be split
-into two week intervals with
-a major release at the end of
-each milestone.
-
-Acceptance Criteria:
-- Major release every two weeks
-
-Verification: Inspection
->>>>>>> origin/main
 
 ### 3.5.7 Proof of Concept
 
@@ -479,10 +429,7 @@ Verification: Inspection
 |REQ-UI-001-0.1  |         Test        | [tests](src/tests) |Planned |                    |
 |REQ-UI-002-0.1  |         Test        | [tests](src/tests) |Planned |                    |
 |REQ-UI-003-0.1  |         Test        | [tests](src/tests) |Planned |                    |
-<<<<<<< HEAD
 |REQ-UI-004-0.1  |         Test        | [tests](src/tests) |Planned |                    |
-=======
->>>>>>> origin/main
 |REQ-FUNC-001-0.1|         Test        | [tests](src/tests) |Planned |                    |
 |REQ-FUNC-002-0.1|         Test        | [tests](src\tests) |Planned |                    |
 |REQ-FUNC-003-0.1|         Test        | [tests](src/tests) |Planned |                    |
