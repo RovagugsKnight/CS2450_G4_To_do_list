@@ -209,6 +209,19 @@ Acceptance Criteria:
 
 Verification: Test
 
+## REQ-UI-005-0.1  
+**Task Card UI Component**
+
+The system shall provide a reusable UI component for displaying and interacting with a single task.
+
+**Acceptance Criteria:**  
+- Component displays task name, text, and completion state  
+- Component includes buttons for edit, delete, and mark done  
+- Component receives a Task object from the controller  
+- Component triggers controller actions when buttons are pressed  
+
+**Verification:** Test
+
 ### 3.1.2 Software Interface
 
 __REQ-SI-001-0.1__  
@@ -271,6 +284,7 @@ the updated task to task log.
 Acceptance Criteria:
 - Updated name, description, or deadline appear in saved task
 - modifications match users changes
+- System allows updating both task name and task text
 
 Verification: Test
 
@@ -286,6 +300,80 @@ Acceptance Criteria:
 - Task is included in category group
 
 Verification: Test
+
+## REQ-FUNC-TASKMODEL-001-0.1  
+**Task Data Model**
+
+The system shall provide a Task data model representing a single task entity.
+
+**Acceptance Criteria:**  
+- Task model stores `task_id`, `task_name`, `text`, and `done` fields  
+- Task objects can be created and passed between components  
+- Task objects accurately reflect repository data  
+
+**Verification:** Inspection
+
+## REQ-FUNC-REPO-001-0.1  
+**Task Repository Interface**
+
+The system shall define an abstract repository interface specifying required task storage operations.
+
+**Acceptance Criteria:**  
+- Interface defines methods for add, delete, update, mark done, and retrieve tasks  
+- All methods are abstract and must be implemented by concrete repositories  
+- Interface does not contain business logic or storage implementation details  
+
+**Verification:** Inspection
+
+## REQ-FUNC-REPO-002-0.1  
+**SQLite Task Repository Implementation**
+
+The system shall implement the TaskRepository interface using a local SQLite database.
+
+**Acceptance Criteria:**  
+- SQLite repository implements all abstract methods defined in TaskRepository  
+- Repository persists tasks to a `.db` file  
+- Repository returns Task model objects  
+- Repository performs CRUD operations using SQL statements  
+
+**Verification:** Test + Inspection
+
+## REQ-FUNC-CONTROLLER-001-0.1  
+**Task Controller Logic**
+
+The system shall provide a controller responsible for coordinating task operations between the UI and repository.
+
+**Acceptance Criteria:**  
+- Controller calls repository methods for add, delete, update, and mark done  
+- Controller validates input before passing data to repository  
+- Controller returns Task objects or lists of Task objects to the UI  
+- Controller contains no SQL or UI layout code  
+
+**Verification:** Test
+
+## REQ-FUNC-ID-001-0.1  
+**Unique Task Identification**
+
+The system shall assign each task a unique identifier used for storage and retrieval.
+
+**Acceptance Criteria:**  
+- Each task has a unique integer ID  
+- Repository operations reference tasks by ID  
+- IDs remain stable across application restarts  
+
+**Verification:** Test
+
+## REQ-FUNC-DONE-001-0.1  
+**Task Completion State**
+
+The system shall store and update a boolean completion state for each task.
+
+**Acceptance Criteria:**  
+- Completion state is persisted in the repository  
+- UI reflects completion state  
+- Marking a task complete updates the stored value  
+
+**Verification:** Test
 
 ## 3.3 Quality of Service (Non-Functional Requirements)
 
@@ -404,6 +492,8 @@ The system shall promote maintainability through separation of responsibilities 
 - Models do not depend on UI components  
 - View components may include reusable UI widgets such as task cards
 - UI widgets must not contain business logic
+- Repository implementations must not contain UI logic  
+- Controllers must not contain SQL or database logic
 
 Verification: Inspection
 
@@ -430,15 +520,20 @@ This structure ensures each component has a single responsibility and supports S
 |REQ-UI-002-0.1  |         Test        | [tests](src/tests) |Planned |                    |
 |REQ-UI-003-0.1  |         Test        | [tests](src/tests) |Planned |                    |
 |REQ-UI-004-0.1  |         Test        | [tests](src/tests) |Planned |                    |
+|REQ-UI-005-0.1  |         Test        | [tests](src/tests) |Planned |                    |
 |REQ-FUNC-001-0.1|         Test        | [tests](src/tests) |Planned |                    |
-|REQ-FUNC-002-0.1|         Test        | [tests](src\tests) |Planned |                    |
+|REQ-FUNC-002-0.1|         Test        | [tests](src/tests) |Planned |                    |
 |REQ-FUNC-003-0.1|         Test        | [tests](src/tests) |Planned |                    |
 |REQ-FUNC-004-0.1|         Test        | [tests](src/tests) |Planned |                    |
 |REQ-FUNC-005-0.1|         Test        | [tests](src/tests) |Planned |                    |
+|REQ-FUNC-TASKMODEL-001-0.1 |      Inspection     |      document      |Planned |                    |
+|REQ-FUNC-REPO-001-0.1      |      Inspection     |      document      |Planned |                    |
+|REQ-FUNC-REPO-002-0.1      |   Test + Inspection | [tests](src/tests) |Planned |                    |
+|REQ-FUNC-CONTROLLER-001-0.1|         Test        | [tests](src/tests) |Planned |                    |
+|REQ-FUNC-ID-001-0.1        |         Test        | [tests](src/tests) |Planned |                    |
+|REQ-FUNC-DONE-001-0.1      |         Test        | [tests](src/tests) |Planned |                    |
 |REQ-SI-001-0.1  |      Inspection     |      document      |Planned |                    |
 |REQ-PERF-001-0.1|         Test        | [tests](src/tests) |Planned |                    |
-|REQ-PERF-001-0.1|         Test        | [tests](src/tests) |Planned |                    |
-|REQ-REL-001-0.1 |         Test        | [tests](src/tests) |Planned |                    |
 |REQ-REL-001-0.1 |         Test        | [tests](src/tests) |Planned |                    |
 |REQ-AVAIL-001-0.1|     Inspection     |      document      |Planned |                    |
 |REQ-DEAD-001-0.1|      Inspection     |[Releases](../../releases) |Planned |             |
