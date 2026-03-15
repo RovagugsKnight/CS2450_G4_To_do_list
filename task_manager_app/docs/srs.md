@@ -1,9 +1,10 @@
 # Software Requirments Specification
 ## For Task Manager
-Version 1.1  
-Prepared by Andy Ewell  
+Version 2.1  
+Prepared by Andy Ewell 
+Updated by Nathan Scott
 Group 4  
-02/11/1026
+3/8/2026
 ## Table of Contents
 <!-- TOC -->
 * [1. Introduction](#1-introduction)
@@ -84,8 +85,14 @@ INFORMATIVE
   
 # 2. Product Overview
 ## 2.1 Product Perspective
-This is a new application not part of any larger system. Ownership of this product and all 
-related documentation resides with Group 4. 
+
+This application is a standalone system built using the Kivy framework and structured using the Model–View–Controller (MVC) architecture. The system is divided into three primary components:
+
+- **Model** – Defines the Task data structure and manages persistent storage using SQLite.  
+- **View** – Implements the graphical user interface using Kivy and KivyMD. Views display task information and collect user input.  
+- **Controller** – Handles user interactions, updates the Model, and refreshes the View. Controllers coordinate all logic between UI and data.
+
+This architecture replaces earlier prototypes that combined UI and logic in a single file. The MVC structure improves maintainability, reduces coupling, and supports future expansion such as categories, reminders, and collaboration features.
 
 ## 2.2 Product Functions
 - Logging tasks
@@ -95,6 +102,7 @@ related documentation resides with Group 4.
 - Setting task deadlines
 - Giving task reminders
 - Marking tasks as finished  
+- Viewing tasks as interactive cards rather than a simple list
 [Use Case](uml/Use_Case_diagram.svg)
 
 ## 2.3 Product constraints
@@ -189,6 +197,31 @@ Acceptance Criteria:
 
 Verification: Test
 
+__REQ-UI-004-0.1__  
+__Task Cards__
+
+The system shall display each task as an interactive card containing task details and available actions.
+
+Acceptance Criteria:
+- Each task is rendered as a card component
+- Cards display task name, deadline, and category
+- Cards include action buttons (edit, delete, complete)
+
+Verification: Test
+
+## REQ-UI-005-0.1  
+**Task Card UI Component**
+
+The system shall provide a reusable UI component for displaying and interacting with a single task.
+
+**Acceptance Criteria:**  
+- Component displays task name, text, and completion state  
+- Component includes buttons for edit, delete, and mark done  
+- Component receives a Task object from the controller  
+- Component triggers controller actions when buttons are pressed  
+
+**Verification:** Test
+
 ### 3.1.2 Software Interface
 
 __REQ-SI-001-0.1__  
@@ -251,6 +284,7 @@ the updated task to task log.
 Acceptance Criteria:
 - Updated name, description, or deadline appear in saved task
 - modifications match users changes
+- System allows updating both task name and task text
 
 Verification: Test
 
@@ -266,6 +300,80 @@ Acceptance Criteria:
 - Task is included in category group
 
 Verification: Test
+
+## REQ-FUNC-TASKMODEL-001-0.1  
+**Task Data Model**
+
+The system shall provide a Task data model representing a single task entity.
+
+**Acceptance Criteria:**  
+- Task model stores `task_id`, `task_name`, `text`, and `done` fields  
+- Task objects can be created and passed between components  
+- Task objects accurately reflect repository data  
+
+**Verification:** Inspection
+
+## REQ-FUNC-REPO-001-0.1  
+**Task Repository Interface**
+
+The system shall define an abstract repository interface specifying required task storage operations.
+
+**Acceptance Criteria:**  
+- Interface defines methods for add, delete, update, mark done, and retrieve tasks  
+- All methods are abstract and must be implemented by concrete repositories  
+- Interface does not contain business logic or storage implementation details  
+
+**Verification:** Inspection
+
+## REQ-FUNC-REPO-002-0.1  
+**SQLite Task Repository Implementation**
+
+The system shall implement the TaskRepository interface using a local SQLite database.
+
+**Acceptance Criteria:**  
+- SQLite repository implements all abstract methods defined in TaskRepository  
+- Repository persists tasks to a `.db` file  
+- Repository returns Task model objects  
+- Repository performs CRUD operations using SQL statements  
+
+**Verification:** Test + Inspection
+
+## REQ-FUNC-CONTROLLER-001-0.1  
+**Task Controller Logic**
+
+The system shall provide a controller responsible for coordinating task operations between the UI and repository.
+
+**Acceptance Criteria:**  
+- Controller calls repository methods for add, delete, update, and mark done  
+- Controller validates input before passing data to repository  
+- Controller returns Task objects or lists of Task objects to the UI  
+- Controller contains no SQL or UI layout code  
+
+**Verification:** Test
+
+## REQ-FUNC-ID-001-0.1  
+**Unique Task Identification**
+
+The system shall assign each task a unique identifier used for storage and retrieval.
+
+**Acceptance Criteria:**  
+- Each task has a unique integer ID  
+- Repository operations reference tasks by ID  
+- IDs remain stable across application restarts  
+
+**Verification:** Test
+
+## REQ-FUNC-DONE-001-0.1  
+**Task Completion State**
+
+The system shall store and update a boolean completion state for each task.
+
+**Acceptance Criteria:**  
+- Completion state is persisted in the repository  
+- UI reflects completion state  
+- Marking a task complete updates the stored value  
+
+**Verification:** Test
 
 ## 3.3 Quality of Service (Non-Functional Requirements)
 
@@ -369,35 +477,36 @@ Acceptance Criteria & Verification:
 
 ### 3.5.3 Distribution
 
-### 3.5.4 Maintainability
+### 3.5.4 Maintainability (Updated for MVC)
 
-#### REQ-MAINT-001-0.1
-The system shall promote
-maintainability through
-separation of responsibilites
-accross system components.
+#### REQ-MAINT-001-0.1  
+**Separation of Responsibilities**
 
-Acceptance Criteria & Verification:
-- clear separation of responsiblities
-- Changes to one component do not require modification of other components
+The system shall promote maintainability through separation of responsibilities across the Model, View, and Controller components.
 
-Verification: Inspection
-
-### 3.5.5 Portability
-
-### 3.5.6 Deadline
-#### REQ-DEAD-001-0.1
-__Two Week Milestones__
-
-Development shall be split
-into two week intervals with
-a major release at the end of
-each milestone.
-
-Acceptance Criteria:
-- Major release every two weeks
+**Acceptance Criteria & Verification:**  
+- Clear separation of responsibilities between data, UI, and logic  
+- Changes to one component do not require modification of other components  
+- Controllers do not contain UI layout code  
+- Views do not contain business logic  
+- Models do not depend on UI components  
+- View components may include reusable UI widgets such as task cards
+- UI widgets must not contain business logic
+- Repository implementations must not contain UI logic  
+- Controllers must not contain SQL or database logic
 
 Verification: Inspection
+
+### 3.5.4.1 MVC Directory Structure (Informative)
+
+    task_manager_app/
+        src/
+            models/        # Task model and database manager
+            views/         # Kivy/KivyMD UI components
+            controllers/   # Application logic and event handling
+            main.py        # Application entry point
+
+This structure ensures each component has a single responsibility and supports SOLID design principles.
 
 ### 3.5.7 Proof of Concept
 
@@ -410,15 +519,21 @@ Verification: Inspection
 |REQ-UI-001-0.1  |         Test        | [tests](src/tests) |Planned |                    |
 |REQ-UI-002-0.1  |         Test        | [tests](src/tests) |Planned |                    |
 |REQ-UI-003-0.1  |         Test        | [tests](src/tests) |Planned |                    |
+|REQ-UI-004-0.1  |         Test        | [tests](src/tests) |Planned |                    |
+|REQ-UI-005-0.1  |         Test        | [tests](src/tests) |Planned |                    |
 |REQ-FUNC-001-0.1|         Test        | [tests](src/tests) |Planned |                    |
-|REQ-FUNC-002-0.1|         Test        | [tests](src\tests) |Planned |                    |
+|REQ-FUNC-002-0.1|         Test        | [tests](src/tests) |Planned |                    |
 |REQ-FUNC-003-0.1|         Test        | [tests](src/tests) |Planned |                    |
 |REQ-FUNC-004-0.1|         Test        | [tests](src/tests) |Planned |                    |
 |REQ-FUNC-005-0.1|         Test        | [tests](src/tests) |Planned |                    |
+|REQ-FUNC-TASKMODEL-001-0.1 |      Inspection     |      document      |Planned |                    |
+|REQ-FUNC-REPO-001-0.1      |      Inspection     |      document      |Planned |                    |
+|REQ-FUNC-REPO-002-0.1      |   Test + Inspection | [tests](src/tests) |Planned |                    |
+|REQ-FUNC-CONTROLLER-001-0.1|         Test        | [tests](src/tests) |Planned |                    |
+|REQ-FUNC-ID-001-0.1        |         Test        | [tests](src/tests) |Planned |                    |
+|REQ-FUNC-DONE-001-0.1      |         Test        | [tests](src/tests) |Planned |                    |
 |REQ-SI-001-0.1  |      Inspection     |      document      |Planned |                    |
 |REQ-PERF-001-0.1|         Test        | [tests](src/tests) |Planned |                    |
-|REQ-PERF-001-0.1|         Test        | [tests](src/tests) |Planned |                    |
-|REQ-REL-001-0.1 |         Test        | [tests](src/tests) |Planned |                    |
 |REQ-REL-001-0.1 |         Test        | [tests](src/tests) |Planned |                    |
 |REQ-AVAIL-001-0.1|     Inspection     |      document      |Planned |                    |
 |REQ-DEAD-001-0.1|      Inspection     |[Releases](../../releases) |Planned |             |
