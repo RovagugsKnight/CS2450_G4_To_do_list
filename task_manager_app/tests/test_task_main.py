@@ -14,4 +14,4 @@ class TestMainApp(unittest.TestCase):
         self.assertEqual(app.title, "Task Manager App")
 
 if __name__ == "__main__":
-    unittest.main
+    unittest.main()
