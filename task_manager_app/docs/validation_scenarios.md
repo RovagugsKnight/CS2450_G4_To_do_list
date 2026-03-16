@@ -1,4 +1,4 @@
-# Scenario 1 (Creating a task): 
+## Scenario 1 (Creating a task): 
     Steps to recreate: 
         1. Open app, 2. Type in task name and description, 3. Click the plus button.
     Expected output:
@@ -6,9 +6,9 @@
     Actual output:
         It had the output I expected.
     Screenshot:
-        ![Creating a task](../docs/validation_scenarios_screenshots/Create%20task%20w%20name%20and%20desc.png)
+    ![Creating a task](validation_scenarios_screenshots/Create%20task%20w%20name%20and%20desc.png)
 
-# Scenario 2 (Saving a task with no name):
+## Scenario 2 (Saving a task with no name):
     Steps to recreate: 
         1. Open app, 2. Dont type in task name, 3. Click the plus button.
     Expected output:
@@ -16,9 +16,9 @@
     Actual output:
         It had the output I expected.
     Screenshot:
-        ![No name](../docs/validation_scenarios_screenshots/Create%20task%20w%20no%20name.png)
+    ![No name](validation_scenarios_screenshots/Create%20task%20w%20no%20name.png)
 
-# Scenario 3 (Saving a task with no description):
+## Scenario 3 (Saving a task with no description):
     Steps to recreate: 
         1. Open app, 2. Type in task name with no description, 3. Click the plus button.
     Expected output:
@@ -26,9 +26,9 @@
     Actual output:
         It had an error saying that we needed a task description. We need to edit this so it works with just a task name.
     Screenshot:
-        ![No description](../docs/validation_scenarios_screenshots/Create%20task%20w%20no%20desc.png)
+    ![No description](validation_scenarios_screenshots/Create%20task%20w%20no%20desc.png)
 
-# Scenario 4 (Deleting a saved task):
+## Scenario 4 (Deleting a saved task):
     Steps to recreate: 
         1. Open app, 2. Type in task name and description, 3. Click the plus button, 4. click the minus button on the task to delete.
     Expected output:
@@ -36,9 +36,9 @@
     Actual output:
         For the most part this worked just fine, but if I deleted enough tasks I sometimes got a gap in the cards instead of them sliding over to fill the gaps. We need to correct the spacers in the code.
     Screenshot:
-        ![Deleting task](../docs/validation_scenarios_screenshots/Delete%20a%20saved%20task.png)
+    ![Deleting task](validation_scenarios_screenshots/Delete%20a%20saved%20task.png)
 
-# Scenario 5 (Completing a saved task):
+## Scenario 5 (Completing a saved task):
     Steps to recreate: 
         1. Open app, 2. Type in task name and description, 3. Click the plus button, 4. Click done on the task you just created.
     Expected output:
@@ -46,5 +46,5 @@
     Actual output:
         It worked as expected.
     Screenshot:
-        ![Completing a task](../docs/validation_scenarios_screenshots/Complete%20a%20task.png)
+    ![Completing a task](validation_scenarios_screenshots/Complete%20a%20task.png)
 
