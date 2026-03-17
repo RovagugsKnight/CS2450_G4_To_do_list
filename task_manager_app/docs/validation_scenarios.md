@@ -6,7 +6,7 @@
     Actual output:
         It had the output I expected.
     Screenshot:
-    ![Creating a task](validation_scenarios_screenshots/Create%20task%20w%20name%20and%20desc.png)
+![Creating a task](validation_scenarios_screenshots/Create%20task%20w%20name%20and%20desc.png)
 
 ## Scenario 2 (Saving a task with no name):
     Steps to recreate: 
@@ -16,7 +16,7 @@
     Actual output:
         It had the output I expected.
     Screenshot:
-    ![No name](validation_scenarios_screenshots/Create%20task%20w%20no%20name.png)
+![No name](validation_scenarios_screenshots/Create%20task%20w%20no%20name.png)
 
 ## Scenario 3 (Saving a task with no description):
     Steps to recreate: 
@@ -26,7 +26,7 @@
     Actual output:
         It had an error saying that we needed a task description. We need to edit this so it works with just a task name.
     Screenshot:
-    ![No description](validation_scenarios_screenshots/Create%20task%20w%20no%20desc.png)
+![No description](validation_scenarios_screenshots/Create%20task%20w%20no%20desc.png)
 
 ## Scenario 4 (Deleting a saved task):
     Steps to recreate: 
@@ -36,7 +36,7 @@
     Actual output:
         For the most part this worked just fine, but if I deleted enough tasks I sometimes got a gap in the cards instead of them sliding over to fill the gaps. We need to correct the spacers in the code.
     Screenshot:
-    ![Deleting task](validation_scenarios_screenshots/Delete%20a%20saved%20task.png)
+![Deleting task](validation_scenarios_screenshots/Delete%20a%20saved%20task.png)
 
 ## Scenario 5 (Completing a saved task):
     Steps to recreate: 
@@ -46,5 +46,5 @@
     Actual output:
         It worked as expected.
     Screenshot:
-    ![Completing a task](validation_scenarios_screenshots/Complete%20a%20task.png)
+![Completing a task](validation_scenarios_screenshots/Complete%20a%20task.png)
 
