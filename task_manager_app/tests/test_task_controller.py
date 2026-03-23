@@ -2,8 +2,8 @@ import unittest
 import tempfile
 from pathlib import Path
 
-from controller.task_controller import TaskController
-from models.task_repository import TaskRepository
+from src.controller.task_controller import TaskController
+from src.models.task_repository import TaskRepository
 
 
 class TestTaskController(unittest.TestCase):

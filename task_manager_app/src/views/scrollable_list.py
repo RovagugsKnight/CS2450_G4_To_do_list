@@ -2,6 +2,7 @@ from kivy.uix.scrollview import ScrollView
 from kivymd.uix.gridlayout import MDGridLayout
 from views.task_widget import TaskItem
 from views.grid_layout import normalize_grid    
+from views.spacer import Spacer
 
 class ScrollableList(ScrollView):
     """Creates a scrollable list to hold
@@ -22,6 +23,12 @@ class ScrollableList(ScrollView):
     def remove_item(self, item_id:int) -> None:
         """looks for task id in widgets and removes
         widget when found."""
+
+        # Delete spacer widgets
+        for widget in reversed(list(self.todoitems.children)):
+            if isinstance(widget, Spacer):
+                self.todoitems.remove_widget(widget)
+
         # look for widget with task id
         for widget in list(self.todoitems.children):
             if isinstance(widget, TaskItem) and widget.item_id == item_id:
