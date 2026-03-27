@@ -2,6 +2,7 @@ from kivymd.app import MDApp
 from kivy.core.window import Window
 from views.main_window import MainWindow
 from models.sqllite_repository import SqliteRepo
+from models.sqllite_category_list import SqliteCategories
 
 class TaskManagerApp(MDApp):
     title = "Task Manager App"
@@ -11,12 +12,14 @@ class TaskManagerApp(MDApp):
         widget"""
         self.theme_cls.theme_style = "Dark"
         self.repo = SqliteRepo()
-        return MainWindow(repo = self.repo)
+        self.catlist = SqliteCategories()
+        return MainWindow(repo = self.repo, catlist= self.catlist)
     
     def on_stop(self) -> None:
         """close sql repository"""
         self.repo.close()
-
+        self.catlist.close()
+        
 if __name__ == "__main__":
     taskManager = TaskManagerApp()
     taskManager.run()

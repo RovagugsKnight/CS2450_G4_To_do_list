@@ -17,7 +17,7 @@ class SqliteCategories(CategoryList):
         self.create_table()
     
     def execute(self, query:str, *args:Any) -> sqlite3.Cursor:
-        """Execute sql query on db"""
+        """Execute and commit sql query on db"""
         result = self.cursor.execute(query, args)
         self.connection.commit()
         return result
@@ -28,12 +28,12 @@ class SqliteCategories(CategoryList):
             CREATE TABLE IF NOT EXISTS category(
                 category_id INTEGER PRIMARY KEY,
                 category_name TEXT,
-                color TEXT,
+                color TEXT
             );
         """
         self.execute(query)
         
-    def load_categories(self) -> list[Any]:
+    def load_categories(self) -> tuple[Any]:
         """ returns all categories from db"""
         result = self.execute(
             "SELECT category_id, category_name, color FROM category;"
@@ -62,6 +62,14 @@ class SqliteCategories(CategoryList):
             "Update category SET category_name = ?, color = ? WHERE category_id = ?",
             category.name, category.color, category.id
         )
+    
+    def grab_category(self, id:int) -> tuple[Any]:
+        """return category with given id"""
+        result = self.execute(
+            """SELECT FROM category WHERE category_id = ?""",
+            id
+        )
+        return result.fetchall()
 
     def close(self) -> None:
         """close connection to db"""

@@ -33,6 +33,7 @@ class SqliteRepo(TaskRepository):
                 item_name TEXT,
                 item TEXT,
                 done INTEGER,
+                category_id INTEGER,
                 FOREIGN KEY(category_id) REFERENCES category(category_id)
                 ON DELETE SET NULL
             );
@@ -68,10 +69,10 @@ class SqliteRepo(TaskRepository):
             new_text, new_name, task_id
         )
 
-    def get_all_tasks(self) -> list[tuple[int, str, str, int]]:
+    def get_all_tasks(self) -> list[tuple[int, str, str, int, int]]:
         """ returns all tasks from db"""
         result = self.execute(
-            "SELECT item_id, item_name, item, done FROM todo;"
+            "SELECT item_id, item_name, item, done, category_id FROM todo;"
         )
         return result.fetchall()
 

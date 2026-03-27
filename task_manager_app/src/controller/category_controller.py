@@ -42,3 +42,11 @@ class CategoryController:
         except Exception as e:
             return Result(False, error = e)
     
+    def get_category(self, id: int) -> Result:
+        """grab category with given id"""
+        try:
+            result = self.catlist.grab_category(id)
+            cat = Category(id, result[1], result[2])
+            return Result(True, return_val= cat)
+        except Exception as e:
+            return Result(False, error = e)

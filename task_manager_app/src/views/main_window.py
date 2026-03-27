@@ -76,13 +76,14 @@ class MainWindow(FloatLayout):
         try:
             tasks = self.controller.load_tasks()
             for task in reversed(tasks):
-                widget = TaskItem(self, self.task_controller, task.task_id, task.task_name, task.text, task.done)
+                cat = self.cat_controller.get_category(task.catid)
+                widget = TaskItem(self, self.task_controller, task.task_id, task.task_name, task.text, cat, task.done)
                 self.todoitems.add_widget(widget)
 
             # pad with invisible spacers
             normalize_grid(self.todoitems, 3)
-        except Exception as e:
-            self.show_popup(e)
+        except ValueError as e:
+            self.show_popup(e.value)
 
     def add_todo_item(self, task_name: str, text: str, category: Category) -> None:
         """task input is sent to controller to check and add to db.

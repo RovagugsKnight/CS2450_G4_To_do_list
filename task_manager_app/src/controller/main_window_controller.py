@@ -1,6 +1,7 @@
 from models.task_repository import TaskRepository
 from models.tasks import Task
 from controller.result import Result
+from controller.category_controller import CategoryController
 
 class MainWindowController:
     """controller class to link main window view to data"""
@@ -13,7 +14,8 @@ class MainWindowController:
         tasks = [Task(
             task_id=row[0], 
             task_name=row[1], 
-            text=row[2], 
+            text=row[2],
+            catid= row[4],
             done=bool(row[3])) 
             for row in rows]
         return tasks

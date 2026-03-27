@@ -6,10 +6,6 @@ class CategoryList(ABC):
     @abstractmethod
     def load_categories(self):
         pass
-    
-    @abstractmethod
-    def grab_categories(self):
-        pass
 
     @abstractmethod
     def add_category(self, category: Category):
