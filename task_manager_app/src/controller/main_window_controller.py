@@ -18,7 +18,7 @@ class MainWindowController:
             for row in rows]
         return tasks
     
-    def add_task(self, taskname: str, text: str) -> Result:
+    def add_task(self, taskname: str, text: str, catid: int) -> Result:
         """Checks and adds task to task repository. Signals for MainWindow view to show it."""
         text = text.strip()
         # Empty check
@@ -34,8 +34,8 @@ class MainWindowController:
         if len(taskname) > 20:
             return Result(False, "Name should be 20 char or less.")
 
-        task_id = self.repo.add_task(taskname, text)
-        return Result(True, task_id= task_id)
+        task_id = self.repo.add_task(taskname, text, catid)
+        return Result(True, return_val = task_id)
     
 
     

@@ -7,6 +7,7 @@ from kivy.properties import BooleanProperty, StringProperty
 from kivymd.uix.label import MDLabel
 from kivy.lang import Builder
 from controller.task_controller import TaskController
+from models.category import Category
 
 Builder.load_file("views/task_widget.kv")
 
@@ -15,7 +16,7 @@ class TaskItem(MDBoxLayout):
     done = BooleanProperty(False)
     task_name = StringProperty(" ")
     description = StringProperty(" ")
-    def __init__(self, main_window, controller:TaskController, item_id:int, task_name:str, description:str, done=False, **kwargs):
+    def __init__(self, main_window, controller:TaskController, item_id:int, task_name:str, description:str, category:Category,done=False,**kwargs):
         super().__init__(**kwargs)
         self.item_id = item_id
         self.main_window = main_window
@@ -23,6 +24,7 @@ class TaskItem(MDBoxLayout):
         self.task_name = task_name
         self.description = description
         self.controller = controller
+        self.cat = category
 
     def show_popup(self, message:str) -> None:
         """Creates popup for errors"""

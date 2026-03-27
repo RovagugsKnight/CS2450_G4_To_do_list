@@ -10,16 +10,22 @@ from controller.main_window_controller import MainWindowController
 from controller.task_controller import TaskController
 from views.grid_layout import normalize_grid
 from views.spacer import Spacer
+from models.category_list import CategoryList
+from models.category import Category
+from controller.category_controller import CategoryController
 
 class MainWindow(FloatLayout):
     """Main window veiw. Has a title, input box, and scrollable list of tasks"""
-    def __init__(self, repo:TaskRepository, **kwargs):
+    def __init__(self, repo: TaskRepository, catlist: CategoryList,**kwargs):
         super().__init__(**kwargs)
         #task repo
         self.repo = repo
+        #category list
+        self.catlist = catlist
         #controllers
         self.controller = MainWindowController(self.repo)
         self.task_controller = TaskController(self.repo)
+        self.cat_controller = CategoryController(self.catlist)
 
         #task list container
         todo_list_container = BoxLayout(
@@ -63,7 +69,7 @@ class MainWindow(FloatLayout):
         )
         popup.open()
 
-    def load_existing_tasks(self):
+    def load_existing_tasks(self) -> None:
         """Controller grabs tasks from db which are used
          to create taskitem widgets. Widgets are added
          to task list and spaced with spacer widgets."""
@@ -78,7 +84,7 @@ class MainWindow(FloatLayout):
         except Exception as e:
             self.show_popup(e)
 
-    def add_todo_item(self, task_name, text):
+    def add_todo_item(self, task_name: str, text: str, category: Category) -> None:
         """task input is sent to controller to check and add to db.
         New task widget is added to task list and evenly spaced with
         spacer widgets."""
@@ -87,8 +93,8 @@ class MainWindow(FloatLayout):
             self.show_popup(result.error)
         
         else:
-            task_id = result.task_id
-            widget = TaskItem(self, self.task_controller, task_id, task_name, text)
+            task_id = result.return_val
+            widget = TaskItem(self, self.task_controller, task_id, task_name, text, category)
 
             #grab last row
             last_row = self.todoitems.children[:self.todoitems.cols]
@@ -108,7 +114,7 @@ class MainWindow(FloatLayout):
             # add spacers if needed
             normalize_grid(self.todoitems, 3)
 
-    def remove_task_widget(self, item_id):
+    def remove_task_widget(self, item_id: int) -> None:
         """Task widget is removed from task list"""
         self.scrollablelist.remove_item(item_id)
 
