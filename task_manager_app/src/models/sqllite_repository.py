@@ -3,10 +3,9 @@ from typing import Any
 from models.task_repository import TaskRepository
 import sqlite3
 
-# Ensure /data folder exists
+
 DATA_DIR = pathlib.Path(__file__).parent.parent / "data"
 DATA_DIR.mkdir(exist_ok=True)
-
 DATABASE_PATH = DATA_DIR / "tasks.db"
 
 class SqliteRepo(TaskRepository):
@@ -29,16 +28,17 @@ class SqliteRepo(TaskRepository):
                 item_id INTEGER PRIMARY KEY,
                 item_name TEXT,
                 item TEXT,
-                done INTEGER
+                done INTEGER,
+                deadline TEXT
             );
         """
         self.execute(query)
 
-    def add_task(self,task_name:str, text:str) -> int:
+    def add_task(self, task_name:str, text:str, deadline:str) -> int:
         """adds task to database and returns task id"""
         result = self.execute(
-            "INSERT INTO todo VALUES (NULL, ?, ?, 0);",
-            task_name, text
+            "INSERT INTO todo (item_name, item, done, deadline) VALUES (?, ?, 0, ?);",
+            task_name, text, deadline
         )
         return result.lastrowid
 
@@ -56,17 +56,17 @@ class SqliteRepo(TaskRepository):
             task_id
         )
 
-    def update_task(self, task_id:int, new_name:str, new_text:str) -> None:
+    def update_task(self, task_id:int, new_name:str, new_text:str, new_deadline:str) -> None:
         """updates task info for task with task id"""
         self.execute(
-            "UPDATE todo SET item = ?, item_name = ? WHERE item_id = ?;",
-            new_text, new_name, task_id
+            "UPDATE todo SET item = ?, item_name = ?, deadline = ? WHERE item_id = ?;",
+            new_text, new_name, new_deadline, task_id
         )
 
-    def get_all_tasks(self) -> list[tuple[int, str, str, int]]:
+    def get_all_tasks(self) -> list[tuple[int, str, str, int, str]]:
         """ returns all tasks from db"""
         result = self.execute(
-            "SELECT item_id, item_name, item, done FROM todo;"
+            "SELECT item_id, item_name, item, done, deadline FROM todo;"
         )
         return result.fetchall()
 
