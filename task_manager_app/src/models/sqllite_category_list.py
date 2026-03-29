@@ -43,7 +43,7 @@ class SqliteCategories(CategoryList):
     def add_category(self, category: Category) -> int:
         """add a category to db"""
         result = self.execute(
-            "INSERT INTO todo VALUES (NULL, ?, ? );",
+            "INSERT INTO category VALUES (NULL, ?, ? );",
             category.name, category.color
         )
         id = result.lastrowid

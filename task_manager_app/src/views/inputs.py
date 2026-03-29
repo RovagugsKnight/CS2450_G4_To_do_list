@@ -7,6 +7,7 @@ from kivy.lang import Builder
 from kivy.animation import Animation
 from kivy.metrics import dp
 from kivy.clock import Clock
+from models.category import Category
 
 Builder.load_file("views/Input.kv")
 
@@ -14,6 +15,11 @@ class InputFrame(MDBoxLayout):
     def __init__(self, main_window, **kwargs):
         super().__init__(**kwargs)
         self.main_window = main_window
+        self.catlist = self.ids.cat_list
+
+    def add_category(self, category: Category):
+        self.catlist.add_widget(CategoryButton(category))
+
 
     def on_touch_down(self, touch):
         # This helps with the touch target for the descriptions drop down
@@ -30,11 +36,15 @@ class InputFrame(MDBoxLayout):
         # The animations live here
         self.ids.extra_fields.disabled = False
         
-        anim_main = Animation(height=dp(175), duration=0.2)
+        """anim_main = Animation(height= self.minimum_height, duration=0.2)
         anim_main.start(self)
         
-        anim_fields = Animation(height=dp(140), opacity=1, duration=0.2)
-        anim_fields.start(self.ids.extra_fields)
+        anim_fields = Animation(height= self.minimum_height, opacity=1, duration=0.2)
+        anim_fields.start(self.ids.extra_fields)"""
+
+        self.ids.extra_fields.disabled = False
+        Animation(height=self.ids.extra_fields.minimum_height, opacity=1, duration=0.2).start(self.ids.extra_fields)
+    
     
     def add_task(self) -> None:
         name = self.ids.task_name.text

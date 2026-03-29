@@ -5,7 +5,7 @@ from kivy.uix.popup import Popup
 from kivy.uix.widget import Widget
 from kivymd.uix.button import MDIconButton      
 from kivymd.uix.menu import MDDropdownMenu      
-
+from kivymd.uix.textfield import MDTextField
 from views.inputs import InputFrame
 from views.scrollable_list import ScrollableList
 from views.task_widget import TaskItem
@@ -17,6 +17,8 @@ from views.spacer import Spacer
 from models.category_list import CategoryList
 from models.category import Category
 from controller.category_controller import CategoryController
+from views.category_creator import CategoryCreator
+from kivy.logger import Logger
 
 class MainWindow(FloatLayout):
     """Main window veiw. Has a title, input box, and scrollable list of tasks"""
@@ -42,7 +44,7 @@ class MainWindow(FloatLayout):
             {
                 "viewclass": "OneLineListItem",
                 "text": "Create Category",
-                "on_release": lambda x="Create Category": self.menu_click(x),
+                "on_release": self.create_category,
             },
             {
                 "viewclass": "OneLineListItem",
@@ -99,6 +101,37 @@ class MainWindow(FloatLayout):
 
         #load tasks from data base
         self.load_existing_tasks()
+
+    def create_category(self):
+        """Category creation popup"""
+        creator = CategoryCreator(self)
+        popup = Popup(
+            title="Create Category",
+            content= creator,
+            size_hint=(0.8, 0.5)
+        )
+        popup.open()
+        creator.popup = popup
+    
+    def add_cat_option(self, cat_name:str, color:str) -> None:
+        Logger.info(f"DEBUG: cat_name={cat_name}, color={color}")
+        result = self.cat_controller.add_category(cat_name, color)
+        Logger.info(f"DEBUG: result={result}, error={getattr(result, 'error', None)}")
+        new_cat = result.return_val
+        if new_cat:
+            Logger.info(f"DEBUG: category={new_cat}, color={getattr(new_cat, 'color', None)}")
+            self.make_cat_widget(new_cat)
+        else:
+            self.show_popup(result.error)
+
+    def make_cat_widget(self, category: Category) -> None:
+        self.inputframe.add_category(category)
+    
+
+    def load_cat_widgets(self):
+        pass
+        
+
 
 
     def show_popup(self, message):

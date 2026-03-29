@@ -12,3 +12,4 @@ def get_color(color: str):
         raise ValueError('Color not available')
 
 Black_transparent = (0, 0, 0, 0)
+

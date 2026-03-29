@@ -7,7 +7,7 @@ from kivy.lang import Builder
 
 Builder.load_file('views/category_selector.kv')
 
-class CategorySelector(MDScrollView):
+class CategorySelector(MDStackLayout):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 

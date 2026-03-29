@@ -1,15 +1,15 @@
 from kivy.uix.button import Button  
-from views.colors import Yellow, Red, Light_teal, Black, White, Black_transparent
+from views.colors import Black_transparent, get_color
 from kivy.metrics import dp 
 
 class YellowButton(Button):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.background_normal = '' 
-        self.background_color = Yellow
-        self.color = Black          
-        self.md_bg_color = Yellow       
-        self._md_bg_color = Yellow      
+        self.background_color = get_color('Yellow')
+        self.color = get_color('Black')        
+        self.md_bg_color = get_color('Yellow')     
+        self._md_bg_color = get_color('Yellow')   
         self.line_color = Black_transparent
         self._line_color = Black_transparent
         self._line_color_disabled = Black_transparent
@@ -26,11 +26,11 @@ class RedButton(Button):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.background_normal = ''
-        self.background_color = Red
-        self.color = White
+        self.background_color = get_color('Red')
+        self.color = get_color('White')
         
-        self.md_bg_color = Red
-        self._md_bg_color = Red
+        self.md_bg_color = get_color('Red')
+        self._md_bg_color = get_color('Red')
         self.line_color = Black_transparent
         self._line_color = Black_transparent
         self._line_color_disabled = Black_transparent
@@ -42,14 +42,14 @@ class LightTealButton(Button):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.background_normal = ''
-        self.background_color = Light_teal
-        self.color = White
+        self.background_color = get_color('Light_teal')
+        self.color = get_color('White')
         
-        self.md_bg_color = Light_teal
-        self._md_bg_color = Light_teal
-        self.line_color = Black_transparent
-        self._line_color = Black_transparent
-        self._line_color_disabled = Black_transparent
+        self.md_bg_color = get_color('Light_teal')
+        self._md_bg_color = get_color('Light_teal')
+        self.line_color = get_color('Black_transparent')
+        self._line_color = get_color('Black_transparent')
+        self._line_color_disabled = get_color('Black_transparent')
         self.line_width = 1
         self.radius = [0, 0, 0, 0]
         self._radius = 0

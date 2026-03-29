@@ -19,19 +19,21 @@ class CategoryController:
     def add_category(self, name: str, color: str) -> Result:
         """Validate and add category to db. Signal back to view with Result."""
         try:
+            print(name)
+            print(color)
             new_cat = Category(None, name, color)
             ret_cat = self.catlist.add_category(new_cat)
             return Result(True, return_val= ret_cat )
-        except Exception as e:
-            return Result(False, error = e)
+        except ValueError as e:
+            return Result(False, error = str(e))
     
     def delete_category(self, id: int) -> Result:
         """Delete category from db with given id"""
         try:
             self.catlist.delete_category(id)
             return Result(True)
-        except Exception as e:
-            return Result(False, error = e)
+        except ValueError as e:
+            return Result(False, error = str(e))
     
     def edit_category(self, id: int, name: str, color: str) -> Result:
         """Edit Category from db with given id"""
@@ -39,8 +41,8 @@ class CategoryController:
             new_cat = Category(id, name, color)
             self.catlist.edit_category(new_cat)
             return Result(True)
-        except Exception as e:
-            return Result(False, error = e)
+        except ValueError as e:
+            return Result(False, error = str(e))
     
     def get_category(self, id: int) -> Result:
         """grab category with given id"""
@@ -48,5 +50,5 @@ class CategoryController:
             result = self.catlist.grab_category(id)
             cat = Category(id, result[1], result[2])
             return Result(True, return_val= cat)
-        except Exception as e:
-            return Result(False, error = e)
+        except ValueError as e:
+            return Result(False, error = str(e))
