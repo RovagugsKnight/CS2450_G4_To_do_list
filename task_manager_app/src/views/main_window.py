@@ -60,6 +60,7 @@ class MainWindow(FloatLayout):
         #load tasks from data base
         self.load_existing_tasks()
 
+
     def show_popup(self, message):
         """Creates popup for errors"""
         popup = Popup(

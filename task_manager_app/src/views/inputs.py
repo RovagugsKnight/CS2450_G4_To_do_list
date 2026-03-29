@@ -1,7 +1,10 @@
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.textfield import MDTextField
 from views.buttons import YellowButton
+from views.category_selector import CategorySelector
+from views.category_button import CategoryButton
 from kivy.lang import Builder
+from kivymd.uix.label import MDLabel
 
 Builder.load_file("views/Input.kv")
 

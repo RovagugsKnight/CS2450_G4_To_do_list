@@ -1,42 +1,46 @@
 <InputFrame>:
     spacing: 0
     padding: 0
-    height: "150dp"
+    height: "225dp"
     size_hint: 1, None
 
     # Column 1 — stack Task Name + Description
     MDBoxLayout:
         orientation: "vertical"
         size_hint_x: 1
-        spacing: 0
-        padding: 0
+        spacing: '3dp'
 
         MDTextField:
             id: task_name
             mode: "fill"
             hint_text: "Task Name"
             multiline: False
+            size_hint_y: None
             height: "48dp"
-            spacing: 0
-            padding: 0
 
         MDTextField:
             id: description
             mode: "rectangle"
             hint_text: "Description"
             multiline: True
-            size_hint_y: 1
+            size_hint_y: None
             height: "48dp"
-            spacing: 0
-            padding: 0
+
+        MDLabel:
+            text: 'Categories'
+            text_color: 'white'
+        
+        CategorySelector:
+            id: cat_list
 
     # Column 2 — Add button centered vertically
     MDBoxLayout:
-
         size_hint: 0.20, 1
 
-        YellowButton:
-            text: "+"
-            size_hint: 1, 1
-            font_size: "30sp"
-            on_release: root.add_task()
+        MDRelativeLayout:
+            YellowButton:
+                text: "+"
+                size_hint: 1, 0.6
+                font_size: "30sp"
+                pos_hint: {"top": 1}
+                on_release: root.add_task()

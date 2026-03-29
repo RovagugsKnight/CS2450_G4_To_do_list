@@ -1,18 +1,18 @@
-from views.base_button import BaseButton
-from views.colors import Yellow, Red, Light_teal, Black, White
+from kivymd.uix.button import MDRaisedButton
+from views.colors import get_color
 
-class YellowButton(BaseButton):
+class YellowButton(MDRaisedButton):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.background_color = Yellow
-        self.color = Black
+        self.md_bg_color = get_color('Yellow')
+        self.text_color = get_color('Black')
 
-class RedButton(BaseButton):
+class RedButton(MDRaisedButton):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.background_color = Red
+        self.md_bg_color = get_color('Red')
 
-class LightTealButton(BaseButton):
+class LightTealButton(MDRaisedButton):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.background_color = Light_teal
+        self.md_bg_color = get_color('Light Teal')

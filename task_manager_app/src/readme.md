@@ -62,7 +62,7 @@ pip install kivy
 
 Install KivyMD:
 
-pip install kivymd
+pip install kivymd2
 
 Run the application:
 
