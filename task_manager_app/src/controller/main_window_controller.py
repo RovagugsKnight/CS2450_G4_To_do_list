@@ -15,29 +15,31 @@ class MainWindowController:
             task_id=row[0], 
             task_name=row[1], 
             text=row[2],
-            catid= row[4],
-            done=bool(row[3])) 
-            for row in rows]
+            catid= row[5],
+            done=bool(row[3]), 
+            deadline=row[4]
+        ) for row in rows]
         return tasks
     
-    def add_task(self, taskname: str, text: str, catid: int) -> Result:
+    def add_task(self, taskname: str, text: str, deadline: str, catid: int) -> Result: 
         """Checks and adds task to task repository. Signals for MainWindow view to show it."""
         text = text.strip()
-        # Empty check
+        if deadline:
+            deadline = deadline.strip()
+            
         if not text:
             return Result(False, "Task cannot be empty.")
         if not taskname:
             return Result(False, "Name cannot be empty.")
 
-        # Length check
         if len(text) > 150:
             return Result(False, "Task is too long. Maximum length is 150 characters.")
-        
         if len(taskname) > 20:
             return Result(False, "Name should be 20 char or less.")
-
-        task_id = self.repo.add_task(taskname, text, catid)
-        return Result(True, return_val = task_id)
-    
-
+        
+        try:
+            task_id = self.repo.add_task(taskname, text, deadline, catid)
+            return Result(True, return_val =task_id)
+        except Exception as e:
+            return Result(False, str(e))
     

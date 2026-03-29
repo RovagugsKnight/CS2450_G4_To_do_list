@@ -3,7 +3,7 @@ from typing import Any
 from models.task_repository import TaskRepository
 import sqlite3
 
-# Ensure /data folder exists
+
 DATA_DIR = pathlib.Path(__file__).parent.parent / "data"
 DATA_DIR.mkdir(exist_ok=True)
 
@@ -33,6 +33,7 @@ class SqliteRepo(TaskRepository):
                 item_name TEXT,
                 item TEXT,
                 done INTEGER,
+                deadline TEXT,
                 category_id INTEGER,
                 FOREIGN KEY(category_id) REFERENCES category(category_id)
                 ON DELETE SET NULL
@@ -40,11 +41,11 @@ class SqliteRepo(TaskRepository):
         """
         self.execute(query)
 
-    def add_task(self,task_name:str, text:str, cat_id: int | None = None) -> int:
+    def add_task(self, task_name:str, text:str, deadline:str, cat_id: int | None = None) -> int:
         """adds task to database and returns task id"""
         result = self.execute(
-            "INSERT INTO todo VALUES (NULL, ?, ?, 0, ?);",
-            task_name, text, cat_id
+            "INSERT INTO todo (item_name, item, done, deadline) VALUES (?, ?, 0, ?, ?);",
+            task_name, text, deadline, cat_id
         )
         return result.lastrowid
 
@@ -62,17 +63,17 @@ class SqliteRepo(TaskRepository):
             task_id
         )
 
-    def update_task(self, task_id:int, new_name:str, new_text:str) -> None:
+    def update_task(self, task_id:int, new_name:str, new_text:str, new_deadline:str) -> None:
         """updates task info for task with task id"""
         self.execute(
-            "UPDATE todo SET item = ?, item_name = ? WHERE item_id = ?;",
-            new_text, new_name, task_id
+            "UPDATE todo SET item = ?, item_name = ?, deadline = ? WHERE item_id = ?;",
+            new_text, new_name, new_deadline, task_id
         )
 
-    def get_all_tasks(self) -> list[tuple[int, str, str, int, int]]:
+    def get_all_tasks(self) -> list[tuple[int, str, str, int, int, str]]:
         """ returns all tasks from db"""
         result = self.execute(
-            "SELECT item_id, item_name, item, done, category_id FROM todo;"
+            "SELECT item_id, item_name, item, done, deadline, category_id FROM todo;"
         )
         return result.fetchall()
 

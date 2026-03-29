@@ -14,39 +14,36 @@ class TaskController:
         try:
             self.repo.mark_done(task_id)
             return Result(True)
-        
         except Exception as e:
             return Result(False, e)
-
     
     def delete_task(self, task_id:int):
         """Deletes task from repository."""
         try:
             self.repo.delete_task(task_id)
             return Result(True)
-        
         except Exception as e:
             return Result(False, e)
     
-    def update_task(self, task_id:int, new_name:str, new_text:str) -> Result:
+    def update_task(self, task_id:int, new_name:str, new_text:str, new_deadline:str) -> Result:
         """check description length, update task name and description in repository, 
         and signals task view to change"""
         try:
-            # Empty check
             if not new_text:
                 return Result(False, "Task cannot be empty.")
             if not new_name:
                 return Result(False, "Name cannot be empty.")
 
-            # Length check
             if len(new_text) > 150:
                 return Result(False, "Task is too long. Maximum length is 150 characters.")
             if len(new_name) > 20:
                 return Result(False, "Name should be 20 char or less.")
-
             
-            self.repo.update_task(task_id, new_name, new_text)
+            if new_deadline:
+                new_deadline = new_deadline.strip()
+       
+            self.repo.update_task(task_id, new_name, new_text, new_deadline)
             return Result(True)
         
         except Exception as e:
-            return Result(False,e)
+            return Result(False, str(e))

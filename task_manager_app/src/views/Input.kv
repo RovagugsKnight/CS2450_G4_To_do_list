@@ -1,46 +1,63 @@
 <InputFrame>:
-    spacing: 0
-    padding: 0
-    height: "225dp"
-    size_hint: 1, None
+    orientation: "vertical"
+    spacing: "-15dp"
+    padding: "0dp"
+    
+    # --- WIDTH CONTROL ---
+    size_hint_x: 1
+    pos_hint: {"center_x": 0.5}
+    
+    # --- HEIGHT CONTROL ---
+    size_hint_y: None
+    height: "50dp" 
 
-    # Column 1 — stack Task Name + Description
+    # --- HEADER ROW (Always Visible) ---
     MDBoxLayout:
-        orientation: "vertical"
-        size_hint_x: 1
-        spacing: '3dp'
+        orientation: "horizontal"
+        size_hint_y: None
+        height: "50dp"
+        spacing: "10dp"
 
         MDTextField:
             id: task_name
             mode: "fill"
             hint_text: "Task Name"
             multiline: False
+            size_hint_y: 1  
+            font_size: "18sp"
+            on_focus: if self.focus: root.expand_menu(self.focus)
+
+        YellowButton:
+            text: "+"
+            color: 0, 0, 0, 1
+            font_size: "30sp"
+            size_hint: None, 1  
+            width: "60dp"
+            on_release: root.add_task()
+
+    # --- HIDDEN MENU ROW (Expands Downward) ---
+    MDBoxLayout:
+        id: extra_fields
+        orientation: "vertical"
+        size_hint_y: None
+        height: "0dp"
+        opacity: 0
+        disabled: True  
+        spacing: "10dp"
+        padding: "0dp"
+
+        MDTextField:
+            id: deadline
+            mode: "fill"
+            hint_text: "Deadline (mm/dd/yyyy)"
+            multiline: False
             size_hint_y: None
-            height: "48dp"
+            height: "50dp"
 
         MDTextField:
             id: description
-            mode: "rectangle"
+            mode: "fill"
             hint_text: "Description"
             multiline: True
             size_hint_y: None
-            height: "48dp"
-
-        MDLabel:
-            text: 'Categories'
-            text_color: 'white'
-        
-        CategorySelector:
-            id: cat_list
-
-    # Column 2 — Add button centered vertically
-    MDBoxLayout:
-        size_hint: 0.20, 1
-
-        MDRelativeLayout:
-            YellowButton:
-                text: "+"
-                size_hint: 1, 0.6
-                font_size: "30sp"
-                pos_hint: {"top": 1}
-                on_release: root.add_task()
+            height: "80dp"

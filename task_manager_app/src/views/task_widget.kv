@@ -31,6 +31,16 @@
                 size_hint_y: None
                 height: self.texture_size[1]
 
+            MDLabel:
+                text: root.deadline
+                font_size: "12sp"
+                italic: True
+                size_hint_y: None
+                height: self.texture_size[1]
+                halign: "right"
+                theme_text_color: "Custom"
+                text_color: 1, 1, 1, 0.8 
+
 
     # --- Right side: buttons ---
     MDBoxLayout:
@@ -41,13 +51,19 @@
 
         YellowButton:
             text: "Done"
+            color: 0, 0, 0, 1    
+            font_size: "16sp"       
             disabled: root.done
             on_release: root.mark_done()
 
         YellowButton:
             text: "-"
+            color: 0, 0, 0, 1       
+            font_size: "25sp"
             on_release: root.remove()
 
         YellowButton:
             text: "Edit"
+            color: 0, 0, 0, 1        
+            font_size: "16sp"
             on_release: root.edit_task()
