@@ -15,20 +15,23 @@ class TaskItem(MDBoxLayout):
     done = BooleanProperty(False)
     task_name = StringProperty(" ")
     description = StringProperty(" ")
-    def __init__(self, main_window, controller:TaskController, item_id:int, task_name:str, description:str, done=False, **kwargs):
+    deadline = StringProperty(" ")
+
+    def __init__(self, main_window, controller:TaskController, item_id:int, task_name:str, description:str, done=False, deadline:str="", **kwargs):
         super().__init__(**kwargs)
         self.item_id = item_id
         self.main_window = main_window
         self.done = done
         self.task_name = task_name
         self.description = description
+        self.deadline = deadline
         self.controller = controller
 
     def show_popup(self, message:str) -> None:
         """Creates popup for errors"""
         popup = Popup(
             title="Error",
-            content=Label(text=message),
+            content=Label(text=str(message)),
             size_hint=(0.6, 0.3)
         )
         popup.open()
@@ -64,6 +67,9 @@ class TaskItem(MDBoxLayout):
         task_box = TextInput(text=self.task_name, multiline=False)
         layout.add_widget(task_box)
 
+        deadline_box = TextInput(text=self.deadline, multiline=False)
+        layout.add_widget(deadline_box)
+
         input_box = TextInput(text=self.description, multiline=True)
         layout.add_widget(input_box)
 
@@ -77,16 +83,20 @@ class TaskItem(MDBoxLayout):
             Shows popup on failure"""
             new_name = task_box.text.strip()
             new_text = input_box.text.strip()
+            new_deadline = deadline_box.text.strip()
+
             if new_text and new_name:
-                result = self.controller.update_task(self.item_id, new_name, new_text)
+                result = self.controller.update_task(self.item_id, new_name, new_text, new_deadline, self.color)
                 if result.success:
                     self.task_name = new_name
                     self.description = new_text
+                    self.deadline = new_deadline
                     popup.dismiss()
                 else:
                     self.show_popup(result.error)
                     input_box.text = self.description
                     task_box.text = self.task_name
+                    deadline_box.text = self.deadline
 
         save_button.bind(on_release=save_changes)
         popup.open()
