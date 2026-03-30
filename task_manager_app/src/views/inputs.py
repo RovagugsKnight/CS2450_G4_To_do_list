@@ -8,14 +8,19 @@ from kivy.animation import Animation
 from kivy.metrics import dp
 from kivy.clock import Clock
 from models.category import Category
+from controller.category_controller import CategoryController
+from kivy.properties import ObjectProperty
 
 Builder.load_file("views/Input.kv")
 
 class InputFrame(MDBoxLayout):
-    def __init__(self, main_window, **kwargs):
+    def __init__(self, main_window, controller: CategoryController, **kwargs):
         super().__init__(**kwargs)
         self.main_window = main_window
-        self.catlist = self.ids.cat_list
+        self.controller = controller
+        self.catlist = CategorySelector(self.controller)
+        self.ids.extra_fields.add_widget(self.catlist)
+    
 
     def add_category(self, category: Category):
         """add category widget to category selection group"""

@@ -86,7 +86,7 @@ class MainWindow(FloatLayout):
         )
 
         #task input
-        self.inputframe = InputFrame(self)
+        self.inputframe = InputFrame(self, self.cat_controller)
         #scrollable task list
         self.scrollablelist = ScrollableList()
         #task list tasks

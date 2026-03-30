@@ -9,12 +9,13 @@ class CategoryController:
     def load_categories(self) -> list[Category]:
         """Create all category objects from category data return in list"""
         categories = []
-        for row in self.catlist:
+        for row in self.catlist.load_categories():
             categories.append(Category(
                 row[0],
                 row[1],
                 row[2]
             ))
+        return categories
     
     def add_category(self, name: str, color: str) -> Result:
         """Validate and add category to db. Signal back to view with Result."""
