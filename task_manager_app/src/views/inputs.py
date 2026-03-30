@@ -21,6 +21,13 @@ class InputFrame(MDBoxLayout):
         self.catlist = CategorySelector(self.controller)
         self.ids.extra_fields.add_widget(self.catlist)
     
+    def delete_category(self, cat_id:int):
+        """delete category widget from selection group"""
+        for widget in list(self.catlist.children):
+            if widget.cat_id == cat_id:
+                self.catlist.remove_widget(widget)
+                break
+    
 
     def add_category(self, category: Category):
         """add category widget to category selection group"""

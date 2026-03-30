@@ -17,6 +17,7 @@ class SqliteRepo(TaskRepository):
         self.connection.execute('PRAGMA foreign_keys = ON') #enable foreign keys
         self.fk_status = self.connection.execute('PRAGMA foreign_keys').fetchall() #check foreign key activation
         self.fk_errors = self.connection.execute('PRAGMA foreign_key_check').fetchall() #See foreign key errors
+        print(self.fk_errors)
         self.create_table()
     
     def execute(self, query:str, *args:Any) -> sqlite3.Cursor:
@@ -75,6 +76,7 @@ class SqliteRepo(TaskRepository):
         result = self.execute(
             "SELECT item_id, item_name, item, done, deadline, category_id FROM todo;"
         )
+        #print(result.fetchall())
         return result.fetchall()
 
     def close(self) -> None:

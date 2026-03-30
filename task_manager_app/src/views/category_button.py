@@ -16,6 +16,7 @@ class CategoryButton(MDFillRoundFlatIconButton, ToggleButtonBehavior):
         super().__init__(**kwargs)
         self.category = category
         if self.category:
+            self.cat_id = self.category.id
             self.color = get_color(self.category.color)
             self.name = self.category.name
             self.bind(state=self.keep_color) # keep color after toggle

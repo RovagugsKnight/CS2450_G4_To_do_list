@@ -14,6 +14,7 @@ class SqliteCategories(CategoryList):
     def __init__(self):
         self.connection = sqlite3.connect(DATABASE_PATH)
         self.cursor = self.connection.cursor()
+        self.connection.execute("PRAGMA foreign_keys = ON")
         self.create_table()
     
     def execute(self, query:str, *args:Any) -> sqlite3.Cursor:

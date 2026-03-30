@@ -38,9 +38,13 @@ class TaskItem(MDBoxLayout):
             self.color = get_color(category.color)
             self.cat_id = category.id
         else:
-            self.cat_name = "None"
-            self.color = get_color("white")
-            self.cat_id = None
+            self.change_to_none()
+    
+    def change_to_none(self) -> None:
+        """change display to no category"""
+        self.cat_name = "None"
+        self.color = get_color("white")
+        self.cat_id = None
 
     def show_popup(self, message:str) -> None:
         """Creates popup for errors"""

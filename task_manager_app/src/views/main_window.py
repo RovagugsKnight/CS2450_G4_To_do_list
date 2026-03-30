@@ -18,6 +18,8 @@ from models.category_list import CategoryList
 from models.category import Category
 from controller.category_controller import CategoryController
 from views.category_creator import CategoryCreator
+from views.category_selector import CategorySelector
+from views.buttons import YellowButton
 from kivy.logger import Logger
 
 class MainWindow(FloatLayout):
@@ -54,7 +56,7 @@ class MainWindow(FloatLayout):
             {
                 "viewclass": "OneLineListItem",
                 "text": "Remove Category",
-                "on_release": lambda x="Remove Category": self.menu_click(x),
+                "on_release": self.delete_category,
             }
         ]
 
@@ -102,6 +104,44 @@ class MainWindow(FloatLayout):
         #load tasks from data base
         self.load_existing_tasks()
 
+    def delete_category(self):
+        """Category deletion popup"""
+        Logger.info("DEBUG: delete_category called")
+        selection = CategorySelector(controller=self.cat_controller)
+        btn = YellowButton(text="Submit")
+
+        def decide_binding(*args):
+            cat_id = None
+            category = selection.get_selected_category()
+            if category:
+                cat_id = category.id
+                self.delete_cat_option(cat_id)
+
+        btn.bind(on_release = decide_binding)
+            
+        box = BoxLayout(orientation="vertical", spacing="5dp", padding="5dp")
+        box.add_widget(selection)
+        box.add_widget(btn)
+        popup = Popup(
+            title= "Delete Category",
+            content= box,
+            size_hint= {0.8, 0.3}
+        )
+        popup.open()
+        btn.bind(on_release = popup.dismiss)
+    
+    def delete_cat_option(self, cat_id:int) -> None:
+        Logger.info("DEBUG: delete_cat_option called")
+        result = self.cat_controller.delete_category(cat_id)
+        if result:
+            self.delete_cat_widget(cat_id)
+            self.scrollablelist.disable_task_category(cat_id)
+        else:
+            self.show_popup(result.error)
+    
+    def delete_cat_widget(self, cat_id:int) -> None:
+        self.inputframe.delete_category(cat_id)
+
     def create_category(self):
         """Category creation popup"""
         creator = CategoryCreator(self)
@@ -118,7 +158,7 @@ class MainWindow(FloatLayout):
         result = self.cat_controller.add_category(cat_name, color)
         Logger.info(f"DEBUG: result={result}, error={getattr(result, 'error', None)}")
         new_cat = result.return_val
-        if new_cat:
+        if result.success:
             Logger.info(f"DEBUG: category={new_cat}, color={getattr(new_cat, 'color', None)}")
             self.make_cat_widget(new_cat)
         else:

@@ -12,14 +12,19 @@ from kivy.lang import Builder
 Builder.load_file('views/category_selector.kv')
 
 class CategorySelector(MDStackLayout):
+    """category selection widget with buttons and optional none value"""
     groupname = StringProperty("categories")
-    def __init__(self, controller: CategoryController, groupname: str = "categories", **kwargs):
+    def __init__(self, controller: CategoryController, none: bool = True, 
+                 groupname: str = "categories", **kwargs):
         super().__init__(**kwargs)
         self.groupname = groupname
         self.controller = controller
+        self.none = none
+        self.give_none()
         self.load_categories()
     
     def get_selected_category(self) -> Category | None:
+        Logger.info("DEBUG: get_selected_category called")
         """grab category from selected button"""
         for child in self.children:
             if getattr(child, "state", None) == "down":
@@ -39,6 +44,15 @@ class CategorySelector(MDStackLayout):
 
         for category in categories:
             btn = CategoryButton(category)
+            btn.group = self.groupname
+            self.add_widget(btn)
+    
+    def give_none(self) -> None:
+        """Gives a none option for selection"""
+        if self.none:
+            btn = CategoryButton()
+            btn.md_bg_color = "white"
+            btn.text = "None"
             btn.group = self.groupname
             self.add_widget(btn)
 

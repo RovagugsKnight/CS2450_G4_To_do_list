@@ -38,5 +38,9 @@ class ScrollableList(ScrollView):
         # make sure task size is consistent with spacers
         normalize_grid(self.todoitems)
 
-    
+    def disable_task_category(self, cat_id):
+        for widget in list(self.todoitems.children):
+            if isinstance(widget, TaskItem) and widget.cat_id == cat_id:
+                widget.change_to_none()
+                break
 
