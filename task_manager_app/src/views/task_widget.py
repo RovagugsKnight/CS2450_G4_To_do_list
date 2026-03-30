@@ -3,7 +3,7 @@ from kivy.uix.popup import Popup
 from kivy.uix.label import Label
 from views.buttons import YellowButton, LightTealButton
 from kivymd.uix.card import MDCard
-from kivy.properties import BooleanProperty, StringProperty, ColorProperty
+from kivy.properties import BooleanProperty, StringProperty, ListProperty
 from kivymd.uix.label import MDLabel
 from kivy.lang import Builder
 from controller.task_controller import TaskController
@@ -17,7 +17,7 @@ class TaskItem(MDBoxLayout):
     done = BooleanProperty(False)
     task_name = StringProperty(" ")
     description = StringProperty(" ")
-    color = ColorProperty(get_color('Light Teal'))
+    color = ListProperty([1,1,1,1])
     deadline = StringProperty(" ")
 
     def __init__(self, main_window, controller:TaskController, item_id:int, task_name:str, description:str, category:Category,done=False, deadline:str="",**kwargs):

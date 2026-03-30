@@ -18,8 +18,11 @@ class InputFrame(MDBoxLayout):
         self.catlist = self.ids.cat_list
 
     def add_category(self, category: Category):
-        self.catlist.add_widget(CategoryButton(category))
-
+        """add category widget to category selection group"""
+        groupname = self.catlist.groupname
+        btn = CategoryButton(category)
+        btn.group = groupname
+        self.catlist.add_widget(btn)
 
     def on_touch_down(self, touch):
         # This helps with the touch target for the descriptions drop down
@@ -50,8 +53,9 @@ class InputFrame(MDBoxLayout):
         name = self.ids.task_name.text
         desc = self.ids.description.text
         deadline = self.ids.deadline.text
+        category = self.ids.cat_list.get_selected_category()
 
-        self.main_window.add_todo_item(name, desc, deadline)
+        self.main_window.add_todo_item(name, desc, deadline, category)
         self.ids.extra_fields.disabled = True
 
         anim_main = Animation(height=dp(50), duration=0.2)

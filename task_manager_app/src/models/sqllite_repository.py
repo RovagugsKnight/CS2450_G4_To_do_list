@@ -44,7 +44,7 @@ class SqliteRepo(TaskRepository):
     def add_task(self, task_name:str, text:str, deadline:str, cat_id: int | None = None) -> int:
         """adds task to database and returns task id"""
         result = self.execute(
-            "INSERT INTO todo (item_name, item, done, deadline) VALUES (?, ?, 0, ?, ?);",
+            "INSERT INTO todo (item_name, item, done, deadline, category_id) VALUES (?, ?, 0, ?, ?);",
             task_name, text, deadline, cat_id
         )
         return result.lastrowid

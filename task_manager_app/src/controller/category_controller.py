@@ -19,8 +19,6 @@ class CategoryController:
     def add_category(self, name: str, color: str) -> Result:
         """Validate and add category to db. Signal back to view with Result."""
         try:
-            print(name)
-            print(color)
             new_cat = Category(None, name, color)
             ret_cat = self.catlist.add_category(new_cat)
             return Result(True, return_val= ret_cat )

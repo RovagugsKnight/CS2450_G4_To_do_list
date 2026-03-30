@@ -162,7 +162,7 @@ class MainWindow(FloatLayout):
         """task input is sent to controller to check and add to db.
         New task widget is added to task list and evenly spaced with
         spacer widgets."""
-        result = self.controller.add_task(task_name, text, deadline)
+        result = self.controller.add_task(task_name, text, deadline, category.id)
         if not result.success:
             self.show_popup(result.error)
         
@@ -171,7 +171,6 @@ class MainWindow(FloatLayout):
             widget = TaskItem(self, self.task_controller, task_id, task_name, text, category, False, deadline)
 
             last_row = self.todoitems.children[:self.todoitems.cols]
-
 
             for child in reversed(last_row):
                 if isinstance(child, Spacer):

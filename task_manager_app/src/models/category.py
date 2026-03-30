@@ -7,7 +7,6 @@ class Category:
     color: str
     
     def __post_init__(self):
-        print("checking category input")
         #validate input
         if not self.name:
             raise ValueError("Category name required")
