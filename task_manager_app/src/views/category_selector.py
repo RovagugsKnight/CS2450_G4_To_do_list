@@ -5,6 +5,7 @@ from kivymd.uix.stacklayout import MDStackLayout
 from views.category_button import CategoryButton
 from kivy.properties import StringProperty
 from controller.category_controller import CategoryController
+from models.category import Category
 from kivy.logger import Logger
 from kivy.lang import Builder
 
@@ -18,19 +19,21 @@ class CategorySelector(MDStackLayout):
         self.controller = controller
         self.load_categories()
     
-
-
-    def get_selected_category(self):
+    def get_selected_category(self) -> Category | None:
         """grab category from selected button"""
         for child in self.children:
             if getattr(child, "state", None) == "down":
-                cat = child.get_category()
-                Logger.info("DEBUG: category={cat}")
                 return child.get_category()
-            
         return None
+    
+    def check_selected(self) -> bool:
+        """check if a button is selected"""
+        for child in self.children:
+            if getattr(child, "state", None) == "down":
+                return True
+        return False
 
-    def load_categories(self):
+    def load_categories(self) -> None:
         """Load categories from db"""
         categories = self.controller.load_categories()
 

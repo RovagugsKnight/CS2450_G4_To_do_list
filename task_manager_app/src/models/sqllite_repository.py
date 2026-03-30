@@ -63,11 +63,11 @@ class SqliteRepo(TaskRepository):
             task_id
         )
 
-    def update_task(self, task_id:int, new_name:str, new_text:str, new_deadline:str) -> None:
+    def update_task(self, task_id:int, new_name:str, new_text:str, new_deadline:str, cat_id:int) -> None:
         """updates task info for task with task id"""
         self.execute(
-            "UPDATE todo SET item = ?, item_name = ?, deadline = ? WHERE item_id = ?;",
-            new_text, new_name, new_deadline, task_id
+            "UPDATE todo SET item = ?, item_name = ?, deadline = ?, category_id = ? WHERE item_id = ?;",
+            new_text, new_name, new_deadline, cat_id, task_id
         )
 
     def get_all_tasks(self) -> list[tuple[int, str, str, int, int, str]]:

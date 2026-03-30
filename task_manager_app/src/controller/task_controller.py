@@ -25,7 +25,7 @@ class TaskController:
         except Exception as e:
             return Result(False, e)
     
-    def update_task(self, task_id:int, new_name:str, new_text:str, new_deadline:str) -> Result:
+    def update_task(self, task_id:int, new_name:str, new_text:str, new_deadline:str, cat_id:int) -> Result:
         """check description length, update task name and description in repository, 
         and signals task view to change"""
         try:
@@ -42,7 +42,7 @@ class TaskController:
             if new_deadline:
                 new_deadline = new_deadline.strip()
        
-            self.repo.update_task(task_id, new_name, new_text, new_deadline)
+            self.repo.update_task(task_id, new_name, new_text, new_deadline, cat_id)
             return Result(True)
         
         except Exception as e:

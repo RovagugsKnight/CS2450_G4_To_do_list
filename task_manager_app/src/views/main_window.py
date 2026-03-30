@@ -150,7 +150,8 @@ class MainWindow(FloatLayout):
                     cat_result = self.cat_controller.get_category(task.catid)
                     cat = cat_result.return_val
 
-                widget = TaskItem(self, self.task_controller, task.task_id, task.task_name, task.text, cat, task.done, task.deadline)
+                widget = TaskItem(self, self.task_controller, task.task_id, task.task_name, 
+                                  task.text, cat, self.cat_controller, task.done, task.deadline)
                 self.todoitems.add_widget(widget)
 
             normalize_grid(self.todoitems, 3)
@@ -172,7 +173,8 @@ class MainWindow(FloatLayout):
         
         else:
             task_id = result.return_val
-            widget = TaskItem(self, self.task_controller, task_id, task_name, text, category, False, deadline)
+            widget = TaskItem(self, self.task_controller, task_id, task_name, text,
+                               category, self.cat_controller, False, deadline)
 
             last_row = self.todoitems.children[:self.todoitems.cols]
 
