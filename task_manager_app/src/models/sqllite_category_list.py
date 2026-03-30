@@ -66,7 +66,7 @@ class SqliteCategories(CategoryList):
     def grab_category(self, id:int) -> tuple[Any]:
         """return category with given id"""
         result = self.execute(
-            """SELECT FROM category WHERE category_id = ?""",
+            "SELECT * FROM category WHERE category_id = ?",
             id
         )
         return result.fetchall()

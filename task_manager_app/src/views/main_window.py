@@ -126,13 +126,6 @@ class MainWindow(FloatLayout):
 
     def make_cat_widget(self, category: Category) -> None:
         self.inputframe.add_category(category)
-    
-
-    def load_cat_widgets(self):
-        pass
-        
-
-
 
     def show_popup(self, message):
         """Creates popup for errors"""
@@ -150,7 +143,13 @@ class MainWindow(FloatLayout):
         try:
             tasks = self.controller.load_tasks()
             for task in reversed(tasks):
-                cat = self.cat_controller.get_category(task.catid)
+
+                cat = None
+                #If task has category grab it from db
+                if task.catid:
+                    cat_result = self.cat_controller.get_category(task.catid)
+                    cat = cat_result.return_val
+
                 widget = TaskItem(self, self.task_controller, task.task_id, task.task_name, task.text, cat, task.done, task.deadline)
                 self.todoitems.add_widget(widget)
 
@@ -162,7 +161,12 @@ class MainWindow(FloatLayout):
         """task input is sent to controller to check and add to db.
         New task widget is added to task list and evenly spaced with
         spacer widgets."""
-        result = self.controller.add_task(task_name, text, deadline, category.id)
+        cat_id = None
+        if category:
+            cat_id = category.id
+
+        result = self.controller.add_task(task_name, text, deadline, cat_id)
+
         if not result.success:
             self.show_popup(result.error)
         

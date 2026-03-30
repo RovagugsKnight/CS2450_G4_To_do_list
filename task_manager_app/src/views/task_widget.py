@@ -20,7 +20,7 @@ class TaskItem(MDBoxLayout):
     color = ListProperty([1,1,1,1])
     deadline = StringProperty(" ")
 
-    def __init__(self, main_window, controller:TaskController, item_id:int, task_name:str, description:str, category:Category,done=False, deadline:str="",**kwargs):
+    def __init__(self, main_window, controller:TaskController, item_id:int, task_name:str, description:str, category:Category|None,done=False, deadline:str="",**kwargs):
         super().__init__(**kwargs)
         self.item_id = item_id
         self.main_window = main_window
@@ -29,9 +29,14 @@ class TaskItem(MDBoxLayout):
         self.description = description
         self.deadline = deadline
         self.controller = controller
-        self.cat_name = category.name
-        self.color = get_color(category.color)
-        self.cat_id = category.id
+        if category:
+            self.cat_name = category.name
+            self.color = get_color(category.color)
+            self.cat_id = category.id
+        else:
+            self.cat_name = "None"
+            self.color = get_color('White')
+            self.cat_id = None
 
     def show_popup(self, message:str) -> None:
         """Creates popup for errors"""
@@ -92,7 +97,7 @@ class TaskItem(MDBoxLayout):
             new_deadline = deadline_box.text.strip()
 
             if new_text and new_name:
-                result = self.controller.update_task(self.item_id, new_name, new_text, new_deadline, self.color)
+                result = self.controller.update_task(self.item_id, new_name, new_text, new_deadline)
                 if result.success:
                     self.task_name = new_name
                     self.description = new_text

@@ -47,7 +47,8 @@ class CategoryController:
         """grab category with given id"""
         try:
             result = self.catlist.grab_category(id)
-            cat = Category(id, result[1], result[2])
-            return Result(True, return_val= cat)
+            category = result[0]
+            ret_cat = Category(id, category[1], category[2])
+            return Result(True, return_val= ret_cat)
         except ValueError as e:
             return Result(False, error = str(e))

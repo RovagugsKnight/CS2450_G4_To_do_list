@@ -58,7 +58,7 @@ class InputFrame(MDBoxLayout):
         name = self.ids.task_name.text
         desc = self.ids.description.text
         deadline = self.ids.deadline.text
-        category = self.ids.cat_list.get_selected_category()
+        category = self.catlist.get_selected_category()
 
         self.main_window.add_todo_item(name, desc, deadline, category)
         self.ids.extra_fields.disabled = True
