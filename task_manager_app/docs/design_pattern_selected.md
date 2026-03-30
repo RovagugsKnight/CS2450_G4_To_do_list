@@ -1,3 +1,8 @@
+Identify at least 3 design patterns that could address specific issues in your codebase or new features (e.g., handling varying behaviors, managing single instances, adapting interfaces).
+
+For each, evaluate: What problem does it solve? Is it necessary, or would a basic implementation work? Avoid forcing patterns—document alternatives considered.
+
+Draft initial implementations or pseudocode, ensuring compatibility with MVC (e.g., patterns in Controller or Model) and SOLID.
 # Design Patterns
 ## Pattern 1:
 ### Factory Pattern
@@ -43,9 +48,78 @@ Each task operation (create, update, delete, complete) can be represented as a c
 ### Example usage based on our code
 
 
-## Pattern 3:
-### 
+## Pattern 3:  
+### Observer Pattern
 
+#### Overview  
+The Observer pattern defines a one‑to‑many relationship between objects so that when the Subject (your data model) changes, all registered Observers (your UI components) are automatically notified. In a Python + Kivy application, this pattern keeps the View updated whenever the Model changes, without requiring manual refresh calls throughout the codebase.
 
+#### Why It’s Useful  
+The pattern ensures the UI always reflects the latest task data, removes scattered refresh logic, and keeps the Model independent of the View. It allows multiple UI components—such as task lists, counters, and filter widgets—to react to the same data changes. This fits naturally with MVC and Kivy’s event‑driven architecture, improving scalability and maintainability as the app grows.
+
+#### Core Pieces
+- **Subject (Observable)**: Holds changing data (e.g., TaskRepository). Manages observers and notifies them on updates. 
+- **Observer**: Any UI element that needs to react to changes (e.g., TaskListScreen, StatsWidget). 
+- **Notification Mechanism**: The Subject calls a notify method after any mutation to broadcast updates. 
+
+#### **Fit for This Project**  
+The Task Manager app frequently updates task data through operations like adding, editing, deleting, and completing tasks. Currently, the UI must be manually refreshed after each operation, which is brittle and easy to forget. Using the Observer pattern, the TaskRepository becomes the Subject, and Kivy screens or widgets become Observers. Whenever the repository changes, all observers automatically update their UI. This provides clean separation of concerns and a scalable update flow that aligns with MVC and Kivy’s architecture.
 ### Example usage based on our code
+# --- Observer Interface ---
+class Observer:
+    def update(self):
+        raise NotImplementedError
+
+
+# --- Subject Interface ---
+class Subject:
+    def __init__(self):
+        self._observers = []
+
+    def add_observer(self, observer: Observer):
+        self._observers.append(observer)
+
+    def remove_observer(self, observer: Observer):
+        self._observers.remove(observer)
+
+    def notify_observers(self):
+        for observer in self._observers:
+            observer.update()
+
+
+# --- Subject Implementation: TaskRepository ---
+class TaskRepository(Subject):
+    def __init__(self):
+        super().__init__()
+        self.tasks = []
+
+    def add_task(self, task):
+        self.tasks.append(task)
+        self.notify_observers()
+
+    def delete_task(self, task):
+        self.tasks.remove(task)
+        self.notify_observers()
+
+    def toggle_complete(self, task):
+        task.completed = not task.completed
+        self.notify_observers()
+
+
+# --- Observer Implementation: Kivy View ---
+from kivy.uix.boxlayout import BoxLayout
+
+class TaskListView(BoxLayout, Observer):
+    def __init__(self, repository: TaskRepository, **kwargs):
+        super().__init__(**kwargs)
+        self.repository = repository
+        self.repository.add_observer(self)
+
+    def update(self):
+        self.refresh_ui()
+
+    def refresh_ui(self):
+        self.clear_widgets()
+        for task in self.repository.tasks:
+            self.add_widget(TaskRow(task))
 
