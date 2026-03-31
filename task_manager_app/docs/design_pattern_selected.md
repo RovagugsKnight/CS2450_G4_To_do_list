@@ -19,6 +19,51 @@ The Factory Pattern centralizes and standardizes the creation of objects. Instea
 #### Fit for This Project
 The Factory Pattern ensures all tasks are created with consistent defaults (timestamps, status, priority, IDs) and validated fields. It also prepares the system for future variations of tasks without requiring changes across the entire codebase. 
 ### Example usage based on our code
+Right now, our `Task` model stores `task_id`, `task_name`, `text`, `done`, and `deadline`. A Factory would give us one clean place to build valid `Task` objects before they are saved in the repository.
+
+```python
+from models.tasks import Task
+
+class TaskFactory:
+    """Centralizes task creation so every Task is built the same way."""
+
+    @staticmethod
+    def create_task(task_id: int, task_name: str, text: str, deadline: str = "") -> Task:
+        task_name = task_name.strip()
+        text = text.strip()
+        deadline = deadline.strip() if deadline else ""
+
+        if not task_name:
+            raise ValueError("Name cannot be empty.")
+        if not text:
+            raise ValueError("Task cannot be empty.")
+        if len(task_name) > 20:
+            raise ValueError("Name should be 20 char or less.")
+        if len(text) > 150:
+            raise ValueError("Task is too long. Maximum length is 150 characters.")
+
+        return Task(
+            task_id=task_id,
+            task_name=task_name,
+            text=text,
+            done=False,
+            deadline=deadline
+        )
+```
+
+Example of how it could fit into the repository layer:
+
+```python
+class SQLiteTaskRepository(TaskRepository):
+    def add_task(self, task_id: int, task_name: str, text: str, deadline: str = ""):
+        task = TaskFactory.create_task(task_id, task_name, text, deadline)
+
+        # Save the created task to the database
+        # INSERT INTO tasks (task_id, task_name, text, done, deadline)
+        # VALUES (task.task_id, task.task_name, task.text, task.done, task.deadline)
+```
+
+This is a good fit because task creation rules are currently scattered between controllers and repositories. With a factory, the creation logic becomes reusable, easier to maintain, and easier to extend later if we add different task types.
 
 ## Pattern 2:
 ### Command Pattern
@@ -41,6 +86,84 @@ The Command Pattern separates the object that requests an action from the object
 #### Fit for This Project
 Each task operation (create, update, delete, complete) can be represented as a command. This enables undo/redo, history tracking, automation, and future scheduling features.
 ### Example usage based on our code
+Our current `TaskController` already has action-based methods like `mark_done`, `delete_task`, and `update_task`. That makes it a natural place to apply the Command Pattern by turning each action into its own command object.
+
+```python
+from abc import ABC, abstractmethod
+from controller.result import Result
+from models.task_repository import TaskRepository
+
+class Command(ABC):
+    @abstractmethod
+    def execute(self):
+        pass
+
+
+class MarkDoneCommand(Command):
+    def __init__(self, repo: TaskRepository, task_id: int):
+        self.repo = repo
+        self.task_id = task_id
+
+    def execute(self):
+        self.repo.mark_done(self.task_id)
+
+
+class DeleteTaskCommand(Command):
+    def __init__(self, repo: TaskRepository, task_id: int):
+        self.repo = repo
+        self.task_id = task_id
+
+    def execute(self):
+        self.repo.delete_task(self.task_id)
+
+
+class UpdateTaskCommand(Command):
+    def __init__(self, repo: TaskRepository, task_id: int, new_name: str, new_text: str, new_deadline: str):
+        self.repo = repo
+        self.task_id = task_id
+        self.new_name = new_name
+        self.new_text = new_text
+        self.new_deadline = new_deadline
+
+    def execute(self):
+        if not self.new_text:
+            raise ValueError("Task cannot be empty.")
+        if not self.new_name:
+            raise ValueError("Name cannot be empty.")
+        if len(self.new_text) > 150:
+            raise ValueError("Task is too long. Maximum length is 150 characters.")
+        if len(self.new_name) > 20:
+            raise ValueError("Name should be 20 char or less.")
+
+        deadline = self.new_deadline.strip() if self.new_deadline else ""
+        self.repo.update_task(self.task_id, self.new_name, self.new_text, deadline)
+```
+
+Then the controller can become the invoker:
+
+```python
+class TaskController:
+    def __init__(self, repo: TaskRepository):
+        self.repo = repo
+
+    def run_command(self, command: Command) -> Result:
+        try:
+            command.execute()
+            return Result(True)
+        except Exception as e:
+            return Result(False, str(e))
+
+    def mark_done(self, task_id: int):
+        return self.run_command(MarkDoneCommand(self.repo, task_id))
+
+    def delete_task(self, task_id: int):
+        return self.run_command(DeleteTaskCommand(self.repo, task_id))
+
+    def update_task(self, task_id: int, new_name: str, new_text: str, new_deadline: str):
+        return self.run_command(UpdateTaskCommand(self.repo, task_id, new_name, new_text, new_deadline))
+```
+
+This improves the design because each task action becomes its own object. That makes the system easier to extend later with features like undo/redo, action history, macro actions, or scheduled commands.
 
 
 ## Pattern 3:  
@@ -117,4 +240,3 @@ class TaskListView(BoxLayout, Observer):
         self.clear_widgets()
         for task in self.repository.tasks:
             self.add_widget(TaskRow(task))
-
