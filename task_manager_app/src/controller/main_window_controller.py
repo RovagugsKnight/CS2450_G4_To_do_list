@@ -27,8 +27,6 @@ class MainWindowController:
         if deadline:
             deadline = deadline.strip()
             
-        if not text:
-            return Result(False, "Task cannot be empty.")
         if not taskname:
             return Result(False, "Name cannot be empty.")
 

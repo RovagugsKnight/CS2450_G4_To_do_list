@@ -50,11 +50,6 @@ class MainWindow(FloatLayout):
             },
             {
                 "viewclass": "OneLineListItem",
-                "text": "Edit Category",
-                "on_release": lambda x="Edit Category": self.menu_click(x),
-            },
-            {
-                "viewclass": "OneLineListItem",
                 "text": "Remove Category",
                 "on_release": self.delete_category,
             }

@@ -123,7 +123,7 @@ class TaskItem(MDBoxLayout):
             new_text = input_box.text.strip()
             new_deadline = deadline_box.text.strip()
 
-            if new_text and new_name:
+            if new_name:
                 result = self.controller.update_task(self.item_id, new_name, new_text, new_deadline, cat_id)
                 if result.success:
                     self.task_name = new_name

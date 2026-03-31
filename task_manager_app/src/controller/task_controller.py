@@ -29,8 +29,6 @@ class TaskController:
         """check description length, update task name and description in repository, 
         and signals task view to change"""
         try:
-            if not new_text:
-                return Result(False, "Task cannot be empty.")
             if not new_name:
                 return Result(False, "Name cannot be empty.")
 
