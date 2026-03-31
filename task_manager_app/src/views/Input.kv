@@ -1,6 +1,6 @@
 <InputFrame>:
     orientation: "vertical"
-    spacing: "-15dp"
+    spacing: "10dp"
     padding: "0dp"
     
     # --- WIDTH CONTROL ---
@@ -9,7 +9,7 @@
     
     # --- HEIGHT CONTROL ---
     size_hint_y: None
-    height: "50dp" 
+    height: self.minimum_height
 
     # --- HEADER ROW (Always Visible) ---
     MDBoxLayout:
@@ -25,7 +25,8 @@
             multiline: False
             size_hint_y: 1  
             font_size: "18sp"
-            on_focus: if self.focus: root.expand_menu(self.focus)
+            on_focus: 
+                if self.focus: root.expand_menu(self.focus)
 
         YellowButton:
             text: "+"
@@ -61,3 +62,4 @@
             multiline: True
             size_hint_y: None
             height: "80dp"
+        

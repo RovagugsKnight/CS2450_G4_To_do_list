@@ -4,22 +4,22 @@ class TaskRepository(ABC):
     """Repository for tasks that can store, delete, modify, and grab task objects"""
         
     @abstractmethod
-    def add_task(self,task_name:str, text:str):
+    def add_task(self, task_name: str, text: str):
         """Add task to repository"""
         pass
     
     @abstractmethod
-    def delete_task(self, task_id):
+    def delete_task(self, task_id: int):
         """delete task from repository"""
         pass
 
     @abstractmethod
-    def mark_done(self, task_id):
+    def mark_done(self, task_id: int):
         """mark task done in repository"""
         pass
     
     @abstractmethod
-    def update_task(self, task_id, new_text):
+    def update_task(self, task_id: int, new_text: str):
         """update text in repository"""
         pass
 

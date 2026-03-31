@@ -1,7 +1,8 @@
 import pytest
 from unittest.mock import MagicMock
 
-from controller.task_controller import TaskController
+from src.controller.task_controller import TaskController
+from src.models.task_repository import TaskRepository
 
 
 @pytest.fixture
