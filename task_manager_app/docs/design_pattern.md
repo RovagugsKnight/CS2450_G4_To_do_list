@@ -1,0 +1,3 @@
+# Design Pattern Explanation
+
+After reviewing and doing sample code for our three selected design patterns (command, observer, and factory), we decided in favor of keeping our code clean, simple, and readable and opted not to include them in this project. We felt that doing so would over complicate the code uncessesarily. We do have them explained however, with examples writted out, in design_pattern_selected.md.
