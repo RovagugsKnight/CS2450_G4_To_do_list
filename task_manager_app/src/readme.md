@@ -43,6 +43,7 @@ project/
 - Kivy (latest stable)
 - KivyMD
 - Virtual environment recommended
+- pytest
 
 Create Venv:
 
@@ -68,10 +69,21 @@ Run the application:
 
 python main.py
 
+Install pytest:
+
+pip install pytest
+
+Run the tests:
+
+cd task_manager_app
+pytest -v
+
 ## Contributors
 
 - Nathan
-- 
+- Forrest
+- Andy
+- Drew
 
 
 - This project follows the MVC pattern for maintainability.
