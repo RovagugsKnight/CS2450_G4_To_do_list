@@ -1,40 +1,47 @@
 import os
 import tempfile
-import unittest
+import pytest
 from task_manager_app.src.models.task_repository import TaskRepository
 
-class TestTaskRepositoryDeadlines(unittest.TestCase):
-    def setUp(self):
-        self.db_fd, self.db_path = tempfile.mkstemp()
-        self.repo = TaskRepository(db_path=self.db_path)
 
-    def tearDown(self):
-        os.close(self.db_fd)
-        os.remove(self.db_path)
+@pytest.fixture
+def repo():
+    # Create a temporary file to act as the SQLite DB
+    db_fd, db_path = tempfile.mkstemp()
 
-    def test_set_deadline(self):
-        self.repo.set_deadline(1, "2025-04-01")
-        deadline = self.repo.get_deadline(1)
-        self.assertEqual(deadline, "2025-04-01")
+    try:
+        repo = TaskRepository(db_path=db_path)
+        yield repo
+    finally:
+        os.close(db_fd)
+        os.remove(db_path)
 
-    def test_update_deadline(self):
-        self.repo.set_deadline(1, "2025-04-01")
-        self.repo.update_deadline(1, "2025-04-02")
-        deadline = self.repo.get_deadline(1)
-        self.assertEqual(deadline, "2025-04-02")
 
-    def test_remove_deadline(self):
-        self.repo.set_deadline(1, "2025-04-01")
-        self.repo.remove_deadline(1)
-        deadline = self.repo.get_deadline(1)
-        self.assertIsNone(deadline)
+def test_set_deadline(repo):
+    repo.set_deadline(1, "2025-04-01")
+    deadline = repo.get_deadline(1)
+    assert deadline == "2025-04-01"
 
-    def test_get_overdue_tasks(self):
-        self.repo.set_deadline(1, "2000-01-01")
-        self.repo.set_deadline(2, "2050-01-01")
-        overdue = self.repo.get_overdue_tasks()
-        self.assertIn(1, overdue)
-        self.assertNotIn(2, overdue)
 
-if __name__ == "__main__":
-    unittest.main()
+def test_update_deadline(repo):
+    repo.set_deadline(1, "2025-04-01")
+    repo.update_deadline(1, "2025-04-02")
+    deadline = repo.get_deadline(1)
+    assert deadline == "2025-04-02"
+
+
+def test_remove_deadline(repo):
+    repo.set_deadline(1, "2025-04-01")
+    repo.remove_deadline(1)
+    deadline = repo.get_deadline(1)
+    assert deadline is None
+
+
+def test_get_overdue_tasks(repo):
+    repo.set_deadline(1, "2000-01-01")   # overdue
+    repo.set_deadline(2, "2050-01-01")   # not overdue
+
+    overdue = repo.get_overdue_tasks()
+
+    assert 1 in overdue
+    assert 2 not in overdue
