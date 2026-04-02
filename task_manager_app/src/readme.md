@@ -75,7 +75,7 @@ pip install pytest
 
 Run the tests:
 
-cd task_manager_app
+cd task_manager_app/tests
 pytest -v
 
 ## Contributors
