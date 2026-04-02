@@ -28,14 +28,29 @@ def test_update_task_calls_repo(controller):
     controller.update_task(3, "New name", "New text", "01-01-2025", None)
     controller.repo.update_task.assert_called_once_with(3, "New name", "New text", "01-01-2025", None)
 
+import src.models.sqllite_category_list as _cat
+
 @pytest.fixture
 def real_controller(tmp_path):
-    # Create a real repository using a temp DB file
     db_path = tmp_path / "test.db"
-    # ensure the concrete sqlite repo uses the temp DB
+
+    # Save originals
+    old_task_db = _sq.DATABASE_PATH
+    old_cat_db = _cat.DATABASE_PATH
+
+    # Override for test
     _sq.DATABASE_PATH = db_path
+    _cat.DATABASE_PATH = db_path
+
     repo = SqliteRepo()
-    return TaskController(repo)
+    controller = TaskController(repo)
+
+    yield controller
+
+    # Restore originals
+    _sq.DATABASE_PATH = old_task_db
+    _cat.DATABASE_PATH = old_cat_db
+
 
 
 def test_integration_edit_and_delete(real_controller):
@@ -69,4 +84,3 @@ def test_integration_edit_and_delete(real_controller):
     final_tasks = real_controller.repo.get_all_tasks()
     assert len(final_tasks) == 1
     assert final_tasks[0][0] == t1_id
-    
