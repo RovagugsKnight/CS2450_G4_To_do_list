@@ -10,13 +10,22 @@ DEFAULT_DATABASE_PATH = DATA_DIR / "task_manager.db"
 class SqliteRepo(TaskRepository):
     """sqlite3 implementation of task repository"""
     
+    _instance = None
+
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = super(SqliteRepo, cls).__new__(cls)
+        return cls._instance
+    
     def __init__(self, db_path=None):
-        self.db_path = db_path if db_path else DEFAULT_DATABASE_PATH
-        
-        self.connection = sqlite3.connect(self.db_path)
-        self.cursor = self.connection.cursor()
-        self.connection.execute('PRAGMA foreign_keys = ON') 
-        self.create_table()
+        if not hasattr(self, '_initialized'):
+            self.db_path = db_path if db_path else DEFAULT_DATABASE_PATH
+            
+            self.connection = sqlite3.connect(self.db_path)
+            self.cursor = self.connection.cursor()
+            self.connection.execute('PRAGMA foreign_keys = ON') 
+            self.create_table()
+            self._initialized = True
     
     def execute(self, query: str, *args: Any) -> sqlite3.Cursor:
         """Execute sql query on db"""
