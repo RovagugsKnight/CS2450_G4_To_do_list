@@ -27,7 +27,7 @@ class SqliteCategories(CategoryList):
         """Creates category db table"""
         query = """
             CREATE TABLE IF NOT EXISTS category(
-                category_id INTEGER PRIMARY KEY,
+                category_id INTEGER PRIMARY KEY AUTOINCREMENT,
                 category_name TEXT,
                 color TEXT
             );

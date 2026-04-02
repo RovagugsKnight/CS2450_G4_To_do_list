@@ -1,7 +1,8 @@
 import os
 import tempfile
 import pytest
-from task_manager_app.src.models.task_repository import TaskRepository
+# Matching the typo 'sqllite' from your sidebar
+from task_manager_app.src.models.sqllite_repository import SqliteRepo
 
 
 @pytest.fixture
@@ -10,38 +11,54 @@ def repo():
     db_fd, db_path = tempfile.mkstemp()
 
     try:
-        repo = TaskRepository(db_path=db_path)
+        repo = SqliteRepo(db_path=db_path) 
         yield repo
     finally:
+        repo.close() 
         os.close(db_fd)
         os.remove(db_path)
 
 
 def test_set_deadline(repo):
-    repo.set_deadline(1, "2025-04-01")
+    # We must add a task so the database has an ID 1 to work with
+    repo.add_task("Task 1", "Description") 
+    
+    repo.set_deadline(1, "2026-04-30")
     deadline = repo.get_deadline(1)
-    assert deadline == "2025-04-01"
+    assert deadline == "2026-04-30"
 
 
 def test_update_deadline(repo):
-    repo.set_deadline(1, "2025-04-01")
-    repo.update_deadline(1, "2025-04-02")
+    repo.add_task("Task 1", "Description")
+    
+    repo.set_deadline(1, "2026-04-30")
+    repo.update_deadline(1, "2026-05-05")
     deadline = repo.get_deadline(1)
-    assert deadline == "2025-04-02"
+    assert deadline == "2026-05-05"
 
 
 def test_remove_deadline(repo):
-    repo.set_deadline(1, "2025-04-01")
+    repo.add_task("Task 1", "Description")
+    
+    repo.set_deadline(1, "2026-05-05")
     repo.remove_deadline(1)
     deadline = repo.get_deadline(1)
     assert deadline is None
 
 
 def test_get_overdue_tasks(repo):
-    repo.set_deadline(1, "2000-01-01")   # overdue
-    repo.set_deadline(2, "2050-01-01")   # not overdue
+    # Seed two tasks for IDs 1 and 2
+    repo.add_task("Overdue Task", "Desc") # ID 1
+    repo.add_task("Future Task", "Desc")  # ID 2
+    
+    # Use YYYY-MM-DD for reliable SQL comparisons
+    repo.set_deadline(1, "2020-01-01")    
+    repo.set_deadline(2, "2050-01-01")   
 
-    overdue = repo.get_overdue_tasks()
+    overdue_rows = repo.get_overdue_tasks()
+    
+    # Extract IDs from the list of tuples returned by SQLite
+    overdue_ids = [row[0] for row in overdue_rows]
 
-    assert 1 in overdue
-    assert 2 not in overdue
+    assert 1 in overdue_ids
+    assert 2 not in overdue_ids
