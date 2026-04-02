@@ -27,8 +27,18 @@ class SqliteRepo(TaskRepository):
         return result
 
     def create_table(self) -> None:
-        """Creates task repository db table"""
-        query = """
+        """Creates task repository db tables"""
+
+        # Create category table first
+        self.execute("""
+            CREATE TABLE IF NOT EXISTS category(
+                category_id INTEGER PRIMARY KEY,
+                name TEXT NOT NULL
+            );
+        """)
+
+        # Now create todo table that references category
+        self.execute("""
             CREATE TABLE IF NOT EXISTS todo(
                 item_id INTEGER PRIMARY KEY,
                 item_name TEXT,
@@ -39,8 +49,8 @@ class SqliteRepo(TaskRepository):
                 FOREIGN KEY(category_id) REFERENCES category(category_id)
                 ON DELETE SET NULL
             );
-        """
-        self.execute(query)
+        """)
+
 
     def add_task(self, task_name:str, text:str, deadline:str, cat_id: int | None = None) -> int:
         """adds task to database and returns task id"""
@@ -64,7 +74,7 @@ class SqliteRepo(TaskRepository):
             task_id
         )
 
-    def update_task(self, task_id:int, new_name:str, new_text:str, new_deadline:str, cat_id:int) -> None:
+    def update_task(self, task_id:int, new_name:str, new_text:str, new_deadline:str, cat_id:int|None = None) -> None:
         """updates task info for task with task id"""
         self.execute(
             "UPDATE todo SET item = ?, item_name = ?, deadline = ?, category_id = ? WHERE item_id = ?;",
