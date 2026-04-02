@@ -9,6 +9,26 @@ class TaskController:
     def __init__(self, repo:TaskRepository):
         self.repo = repo
 
+    def add_task(self, taskname: str, text: str, deadline: str, catid: int) -> Result: 
+        """Checks and adds task to task repository. Signals for MainWindow view to show it."""
+        text = text.strip()
+        if deadline:
+            deadline = deadline.strip()
+            
+        if not taskname:
+            return Result(False, "Name cannot be empty.")
+
+        if len(text) > 150:
+            return Result(False, "Task is too long. Maximum length is 150 characters.")
+        if len(taskname) > 20:
+            return Result(False, "Name should be 20 char or less.")
+        
+        try:
+            task_id = self.repo.add_task(taskname, text, deadline, catid)
+            return Result(True, return_val =task_id)
+        except Exception as e:
+            return Result(False, str(e))
+        
     def mark_done(self, task_id:int):
         """Mark task done in repository"""
         try:
