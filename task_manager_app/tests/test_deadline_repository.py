@@ -1,7 +1,6 @@
 import os
 import tempfile
 import pytest
-# Matching the typo 'sqllite' from your sidebar
 from task_manager_app.src.models.sqllite_repository import SqliteRepo
 
 
@@ -12,6 +11,8 @@ def repo():
 
     try:
         repo = SqliteRepo(db_path=db_path) 
+        repo.execute("CREATE TABLE category (category_id INTEGER PRIMARY KEY);")
+        
         yield repo
     finally:
         repo.close() 
@@ -20,8 +21,7 @@ def repo():
 
 
 def test_set_deadline(repo):
-    # We must add a task so the database has an ID 1 to work with
-    repo.add_task("Task 1", "Description") 
+    repo.add_task("Task 1", "Description", "") 
     
     repo.set_deadline(1, "2026-04-30")
     deadline = repo.get_deadline(1)
@@ -29,7 +29,7 @@ def test_set_deadline(repo):
 
 
 def test_update_deadline(repo):
-    repo.add_task("Task 1", "Description")
+    repo.add_task("Task 1", "Description", "")
     
     repo.set_deadline(1, "2026-04-30")
     repo.update_deadline(1, "2026-05-05")
@@ -38,7 +38,7 @@ def test_update_deadline(repo):
 
 
 def test_remove_deadline(repo):
-    repo.add_task("Task 1", "Description")
+    repo.add_task("Task 1", "Description", "")
     
     repo.set_deadline(1, "2026-05-05")
     repo.remove_deadline(1)
@@ -48,8 +48,8 @@ def test_remove_deadline(repo):
 
 def test_get_overdue_tasks(repo):
     # Seed two tasks for IDs 1 and 2
-    repo.add_task("Overdue Task", "Desc") # ID 1
-    repo.add_task("Future Task", "Desc")  # ID 2
+    repo.add_task("Overdue Task", "Desc", "") # ID 1
+    repo.add_task("Future Task", "Desc", "")  # ID 2
     
     # Use YYYY-MM-DD for reliable SQL comparisons
     repo.set_deadline(1, "2020-01-01")    

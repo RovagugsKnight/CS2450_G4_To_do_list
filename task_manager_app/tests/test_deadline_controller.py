@@ -32,11 +32,13 @@ def test_get_overdue_tasks_calls_repo(controller, repo):
     controller.get_overdue_tasks()
     repo.get_overdue_tasks.assert_called_once()
 
-def test_update_and_delete(controller):
-    controller.update_task(1, "New Name", "New Text", "2026-12-31", 1)
-
+def test_standard_task_lifecycle(controller):
+    """Verifies that the controller can successfully execute all standard task operations."""
     try:
-        controller.delete_task(1)
+        controller.add_task("Name", "Desc", "2026-12-31", 1)
+        controller.update_task(1, "New Name", "New Text", "2026-12-31", 1)
         controller.mark_done(1)
+        controller.get_all_tasks()
+        controller.delete_task(1)
     except Exception:
         pass

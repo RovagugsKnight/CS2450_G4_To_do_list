@@ -20,8 +20,8 @@ class TaskRepository(ABC):
         pass
     
     @abstractmethod
-    def update_task(self, task_id: int, new_name: str, new_text: str, new_deadline: str, cat_id: int):
-        """Update task details"""
+    def update_task(self, task_id: int, new_name: str, new_text: str, new_deadline: str, cat_id: int | None = None):
+        """update task fields in repository"""
         pass
 
     @abstractmethod

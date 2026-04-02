@@ -17,10 +17,6 @@ class TaskManagerApp(MDApp):
         self.repo = SqliteRepo()
         self.catlist = SqliteCategories()
 
-        print("------------------------------------------")
-        print(f"DATABASE PATH IS: {os.path.abspath(self.catlist.db_path)}")
-        print("------------------------------------------")
-        
         return MainWindow(repo = self.repo, catlist= self.catlist)
     
     def on_stop(self) -> None:
