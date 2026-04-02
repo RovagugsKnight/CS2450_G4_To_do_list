@@ -1,7 +1,7 @@
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivy.uix.popup import Popup
 from kivy.uix.label import Label
-from views.buttons import YellowButton, LightTealButton
+from views.buttons import YellowButton
 from kivymd.uix.card import MDCard
 from kivy.properties import BooleanProperty, StringProperty, ListProperty
 from kivymd.uix.label import MDLabel
