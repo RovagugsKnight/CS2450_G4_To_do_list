@@ -84,3 +84,35 @@ def test_integration_edit_and_delete(real_controller):
     final_tasks = real_controller.repo.get_all_tasks()
     assert len(final_tasks) == 1
     assert final_tasks[0][0] == t1_id
+
+def test_integration_add_and_mark_done(real_controller):
+    # 1. Add a task through the controller
+    result = real_controller.add_task(
+        taskname="Test Task",
+        text="Some description",
+        deadline=None,
+        catid=None
+    )
+    assert result.success
+
+    task_id = result.return_val  # <-- correct field
+
+    # 2. Verify it was added
+    tasks = real_controller.repo.get_all_tasks()
+    assert len(tasks) == 1
+
+    row = tasks[0]
+    # SQLite schema: (item_id, item_name, item, done, deadline, category_id)
+    assert row[0] == task_id
+    assert row[1] == "Test Task"
+    assert row[2] == "Some description"
+    assert row[3] == 0  # not done yet
+
+    # 3. Mark the task done
+    result = real_controller.mark_done(task_id)
+    assert result.success
+
+    # 4. Verify it is now marked done
+    updated = real_controller.repo.get_all_tasks()
+    row = updated[0]
+    assert row[3] == 1  # done column should now be 1

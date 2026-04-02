@@ -1,6 +1,7 @@
 from models.task_repository import TaskRepository
 from models.tasks import Task
 from controller.result import Result
+from controller.category_controller import CategoryController
 
 class TaskController:
     """Accepts signals from task widget, updates 
@@ -9,7 +10,7 @@ class TaskController:
     def __init__(self, repo:TaskRepository):
         self.repo = repo
 
-    def add_task(self, taskname: str, text: str, deadline: str, catid: int) -> Result: 
+    def add_task(self, taskname: str, text: str, deadline: str, catid: int|None = None) -> Result: 
         """Checks and adds task to task repository. Signals for MainWindow view to show it."""
         text = text.strip()
         if deadline:
