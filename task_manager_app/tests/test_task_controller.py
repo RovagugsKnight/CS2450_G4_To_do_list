@@ -23,5 +23,5 @@ def test_delete_task_calls_repo(controller):
 
 
 def test_update_task_calls_repo(controller):
-    controller.update_task(3, "New name", "New text", "2025-01-01")
-    controller.repo.update_task.assert_called_once_with(3, "New name", "New text", "2025-01-01")
+    controller.update_task(3, "New name", "New text", "01-01-2025", None)
+    controller.repo.update_task.assert_called_once_with(3, "New name", "New text", "01-01-2025", None)

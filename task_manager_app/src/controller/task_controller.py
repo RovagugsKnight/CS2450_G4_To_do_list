@@ -39,7 +39,7 @@ class TaskController:
             
             if new_deadline:
                 new_deadline = new_deadline.strip()
-       
+
             self.repo.update_task(task_id, new_name, new_text, new_deadline, cat_id)
             return Result(True)
         
