@@ -48,7 +48,8 @@ class SqliteCategories(CategoryList):
             category.name, category.color
         )
         id = result.lastrowid
-        return Category(id, category.name, category.color)
+        category.id = id
+        return category
     
     def delete_category(self, cat_id: int) -> None:
         """delete a category from db"""
@@ -57,20 +58,13 @@ class SqliteCategories(CategoryList):
             cat_id
         )
     
-    def edit_category(self, category: Category) -> None:
-        """edit a category from db"""
-        self.execute(
-            "Update category SET category_name = ?, color = ? WHERE category_id = ?",
-            category.name, category.color, category.id
-        )
-    
     def grab_category(self, id:int) -> tuple[Any]:
         """return category with given id"""
         result = self.execute(
             "SELECT * FROM category WHERE category_id = ?",
             id
         )
-        return result.fetchall()
+        return result.fetchone()
 
     def close(self) -> None:
         """close connection to db"""
