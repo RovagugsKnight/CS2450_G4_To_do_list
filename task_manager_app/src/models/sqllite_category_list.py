@@ -37,14 +37,14 @@ class SqliteCategories(CategoryList):
     def load_categories(self) -> tuple[Any]:
         """ returns all categories from db"""
         result = self.execute(
-            "SELECT category_id, category_name, color FROM category;"
+            "SELECT * FROM category;"
         )
         return result.fetchall()
     
     def add_category(self, category: Category) -> int:
         """add a category to db"""
         result = self.execute(
-            "INSERT INTO category VALUES (NULL, ?, ? );",
+            "INSERT INTO category VALUES (NULL, ?, ?);",
             category.name, category.color
         )
         id = result.lastrowid
@@ -53,10 +53,12 @@ class SqliteCategories(CategoryList):
     
     def delete_category(self, cat_id: int) -> None:
         """delete a category from db"""
-        self.execute(
+        result = self.execute(
             "DELETE FROM category WHERE category_id = ?",
             cat_id
         )
+        if result.rowcount == 0:
+            raise ValueError("Category not in DataBase")
     
     def grab_category(self, id:int) -> tuple[Any]:
         """return category with given id"""
@@ -64,7 +66,10 @@ class SqliteCategories(CategoryList):
             "SELECT * FROM category WHERE category_id = ?",
             id
         )
-        return result.fetchone()
+        row = result.fetchone()
+        if row is None:
+            raise ValueError("Category not in DataBase")
+        return row
 
     def close(self) -> None:
         """close connection to db"""

@@ -1,7 +1,6 @@
 import pytest
 from unittest.mock import MagicMock
 from src.controller.category_controller import CategoryController
-from src.models.category import Category
 
 @pytest.fixture
 def repo():
