@@ -5,6 +5,7 @@ import pytest
 
 # Use the concrete sqlite repo implementation and point its DATABASE_PATH to
 # a temp file so each test runs against an isolated DB.
+import sqlite3
 from task_manager_app.src.models import sqllite_repository as _sq
 from task_manager_app.src.models.sqllite_repository import SqliteRepo
 
@@ -13,11 +14,20 @@ from task_manager_app.src.models.sqllite_repository import SqliteRepo
 def repo():
     tmp = tempfile.TemporaryDirectory()
     db_path = Path(tmp.name) / "test_tasks.db"
-
-    # override module-level DATABASE_PATH used by SqliteRepo
-    _sq.DATABASE_PATH = db_path
-
-    repo = SqliteRepo()
+    
+    # create a minimal `category` table so foreign key references succeed
+    conn = sqlite3.connect(db_path)
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS category(
+            category_id INTEGER PRIMARY KEY
+        );
+    """)
+    conn.commit()
+    conn.close()
+    
+    # ensure singleton is reset and create a repo using the temp DB path
+    SqliteRepo._instance = None
+    repo = SqliteRepo(db_path=db_path)
     yield repo
     try:
         repo.close()
@@ -26,7 +36,7 @@ def repo():
 
 
 def test_add_task_returns_new_id_and_persists(repo):
-    task_id = repo.add_task("Buy milk", "Buy milk", "")
+    task_id = repo.add_task("Buy milk", "Buy milk", "", None)
     assert isinstance(task_id, int)
 
     rows = repo.get_all_tasks()
@@ -38,7 +48,7 @@ def test_add_task_returns_new_id_and_persists(repo):
 
 
 def test_delete_task_removes_row(repo):
-    task_id = repo.add_task("Delete me", "Delete me", "")
+    task_id = repo.add_task("Delete me", "Delete me", "", None)
     repo.delete_task(task_id)
 
     rows = repo.get_all_tasks()
@@ -46,7 +56,7 @@ def test_delete_task_removes_row(repo):
 
 
 def test_mark_done_sets_done_to_1(repo):
-    task_id = repo.add_task("Do homework", "Do homework", "")
+    task_id = repo.add_task("Do homework", "Do homework", "", None)
     repo.mark_done(task_id)
 
     rows = repo.get_all_tasks()
@@ -55,8 +65,8 @@ def test_mark_done_sets_done_to_1(repo):
 
 
 def test_update_task_changes_text(repo):
-    task_id = repo.add_task("Old text", "Old text", "")
-    repo.update_task(task_id, "New name", "New text", "")
+    task_id = repo.add_task("Old text", "Old text", "", None)
+    repo.update_task(task_id, "New name", "New text", "", None)
 
     rows = repo.get_all_tasks()
     assert rows[0][0] == task_id
@@ -66,13 +76,13 @@ def test_update_task_changes_text(repo):
 
 
 def test_table_exists_on_init(repo):
-    task_id = repo.add_task("Table check", "Table check", "")
+    task_id = repo.add_task("Table check", "Table check", "", None)
     assert task_id is not None
 
 
 def test_multiple_tasks(repo):
-    id1 = repo.add_task("Task A", "Task A", "")
-    id2 = repo.add_task("Task B", "Task B", "")
+    id1 = repo.add_task("Task A", "Task A", "", None)
+    id2 = repo.add_task("Task B", "Task B", "", None)
 
     rows = repo.get_all_tasks()
     assert len(rows) == 2
