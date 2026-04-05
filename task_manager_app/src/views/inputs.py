@@ -1,3 +1,5 @@
+from os import name
+
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.textfield import MDTextField
 from views.buttons import YellowButton
@@ -62,16 +64,21 @@ class InputFrame(MDBoxLayout):
     
     
     def add_task(self) -> None:
-        name = self.ids.task_name.text
-        desc = self.ids.description.text
-        deadline = self.ids.deadline.text
+        name = self.ids.task_name.text.strip()        # <-- FIX
+        desc = self.ids.description.text.strip()      # <-- FIX
+        deadline = self.ids.deadline.text.strip()     # <-- FIX
         category = self.catlist.get_selected_category()
+
+        # UI-level validation
+        if not name:
+            self.main_window.show_popup("Task name cannot be empty.")
+            return
 
         self.main_window.add_todo_item(name, desc, deadline, category)
         self.ids.extra_fields.disabled = True
 
         anim_main = Animation(height=dp(50), duration=0.2)
         anim_main.start(self)
-        
+    
         anim_fields = Animation(height=dp(0), opacity=0, duration=0.2)
         anim_fields.start(self.ids.extra_fields)

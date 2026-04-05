@@ -13,6 +13,7 @@ class TaskController:
     def add_task(self, taskname: str, text: str, deadline: str, catid: int|None = None) -> Result: 
         """Checks and adds task to task repository. Signals for MainWindow view to show it."""
         text = text.strip()
+        taskname = taskname.strip()
         if deadline:
             deadline = deadline.strip()
             
@@ -50,6 +51,8 @@ class TaskController:
         """check description length, update task name and description in repository, 
         and signals task view to change"""
         try:
+            new_name = new_name.strip()
+            new_text = new_text.strip()
             if not new_name:
                 return Result(False, "Name cannot be empty.")
 
