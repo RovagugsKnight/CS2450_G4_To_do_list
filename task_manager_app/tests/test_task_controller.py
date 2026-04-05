@@ -1,5 +1,6 @@
 import pytest
 from unittest.mock import MagicMock
+import sqlite3
 
 from src.controller.task_controller import TaskController
 from src.models.task_repository import TaskRepository
@@ -27,8 +28,6 @@ def test_delete_task_calls_repo(controller):
 def test_update_task_calls_repo(controller):
     controller.update_task(3, "New name", "New text", "01-01-2025", None)
     controller.repo.update_task.assert_called_once_with(3, "New name", "New text", "01-01-2025", None)
-
-import src.models.sqllite_category_list as _cat
 
 def test_add_task_rejects_empty_name(controller):
     result = controller.add_task(
@@ -104,22 +103,28 @@ def test_update_task_handles_exception(controller, monkeypatch):
 def real_controller(tmp_path):
     db_path = tmp_path / "test.db"
 
-    # Save originals
-    old_task_db = _sq.DATABASE_PATH
-    old_cat_db = _cat.DATABASE_PATH
+    # Create minimal category table to avoid foreign key constraint errors
+    conn = sqlite3.connect(db_path)
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS category(
+            category_id INTEGER PRIMARY KEY
+        );
+    """)
+    conn.commit()
+    conn.close()
 
-    # Override for test
-    _sq.DATABASE_PATH = db_path
-    _cat.DATABASE_PATH = db_path
-
-    repo = SqliteRepo()
+    # Reset singleton and create repo with temp DB path
+    SqliteRepo._instance = None
+    repo = SqliteRepo(db_path=db_path)
     controller = TaskController(repo)
 
     yield controller
 
-    # Restore originals
-    _sq.DATABASE_PATH = old_task_db
-    _cat.DATABASE_PATH = old_cat_db
+    # Clean up
+    try:
+        repo.close()
+    except:
+        pass
 
 
 
