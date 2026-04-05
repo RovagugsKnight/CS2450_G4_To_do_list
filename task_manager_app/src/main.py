@@ -4,6 +4,7 @@ from views.main_window import MainWindow
 from models.sqllite_repository import SqliteRepo
 from models.sqllite_category_list import SqliteCategories
 from kivymd.uix.widget import Widget
+import os
 
 
 class TaskManagerApp(MDApp):
@@ -15,6 +16,7 @@ class TaskManagerApp(MDApp):
         self.theme_cls.theme_style = "Dark"
         self.repo = SqliteRepo()
         self.catlist = SqliteCategories()
+
         return MainWindow(repo = self.repo, catlist= self.catlist)
     
     def on_stop(self) -> None:
