@@ -5,7 +5,7 @@ from models.sqllite_repository import SqliteRepo
 @pytest.fixture
 def db():
     repo = SqliteRepo()
-    repo.execute("CREATE TABLE users(name TEXT)")
+    repo.execute("CREATE TABLE IF NOT EXISTS users(name TEXT)")
     return repo
 
 
