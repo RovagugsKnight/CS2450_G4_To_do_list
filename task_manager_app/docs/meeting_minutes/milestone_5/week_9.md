@@ -8,7 +8,7 @@
 - Code Tester: Everyone
 
 ## Agenda
-- Refactor anyhting failing the tests.
+- Refactor anything failing the tests.
 
 ## Discussion Notes
 - PowerPoint slides
