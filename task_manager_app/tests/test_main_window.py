@@ -1,0 +1,71 @@
+import pytest
+from unittest.mock import MagicMock, patch
+from kivy.base import EventLoop
+
+from task_manager_app.src.views.main_window import MainWindow
+from task_manager_app.src.models.task_repository import TaskRepository
+from task_manager_app.src.models.category_list import CategoryList
+from task_manager_app.src.models.category import Category
+
+
+@pytest.fixture
+def setup_window():
+    """Creates a MainWindow with mocked controllers and repo."""
+    EventLoop.ensure_window()
+
+    repo = MagicMock(spec=TaskRepository)
+    catlist = MagicMock(spec=CategoryList)
+
+    window = MainWindow(repo, catlist)
+
+    # Patch controllers so we can control behavior
+    window.controller = MagicMock()
+    window.task_controller = MagicMock()
+    window.cat_controller = MagicMock()
+
+    return window
+
+def test_load_existing_tasks(setup_window):
+    window = setup_window
+
+    # Fake tasks returned by controller
+    task1 = MagicMock(task_id=1, task_name="A", text="t1", catid=None, done=False, deadline=None)
+    task2 = MagicMock(task_id=2, task_name="B", text="t2", catid=10, done=True, deadline="2025-01-01")
+
+    window.controller.load_tasks.return_value = [task1, task2]
+
+    # Fake category lookup
+    fake_cat = Category(10, "School", "#FF0000")
+    window.cat_controller.get_category.return_value.return_val = fake_cat
+
+    window.load_existing_tasks()
+
+    assert len(window.todoitems.children) == 2
+    window.controller.load_tasks.assert_called_once()
+    window.cat_controller.get_category.assert_called_once_with(10)
+
+def test_add_todo_item_success(setup_window):
+    window = setup_window
+
+    # Fake successful result
+    result = MagicMock(success=True, return_val=99)
+    window.controller.add_task.return_value = result
+
+    cat = Category(5, "Work", "#00FF00")
+
+    window.add_todo_item("Task", "Desc", "2025-01-01", cat)
+
+    window.controller.add_task.assert_called_once_with("Task", "Desc", "2025-01-01", 5)
+    assert window.inputframe.ids.task_name.text == ""
+    assert window.inputframe.ids.description.text == ""
+    assert window.inputframe.ids.deadline.text == ""
+
+def test_add_todo_item_failure(setup_window):
+    window = setup_window
+
+    result = MagicMock(success=False, error="Bad input")
+    window.controller.add_task.return_value = result
+
+    with patch.object(window, "show_popup") as popup:
+        window.add_todo_item("X", "Y", "Z", None)
+        popup.assert_called_once_with("Bad input")
