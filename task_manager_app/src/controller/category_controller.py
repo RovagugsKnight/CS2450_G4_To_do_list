@@ -19,36 +19,36 @@ class CategoryController:
     
     def add_category(self, name: str, color: str) -> Result:
         """Validate and add category to db. Signal back to view with Result."""
+        # type validation
+        if not isinstance(name, str):
+            raise TypeError("name has to be a str")
+        if not isinstance(color, str):
+            raise TypeError("color has to be a str")
+        # try adding category
         try:
             new_cat = Category(None, name, color)
             ret_cat = self.catlist.add_category(new_cat)
             return Result(True, return_val= ret_cat )
+        # return error message on failure
         except ValueError as e:
             return Result(False, error = str(e))
     
     def delete_category(self, id: int) -> Result:
         """Delete category from db with given id"""
-        try:
-            self.catlist.delete_category(id)
-            return Result(True)
-        except ValueError as e:
-            return Result(False, error = str(e))
-    
-    def edit_category(self, id: int, name: str, color: str) -> Result:
-        """Edit Category from db with given id"""
-        try:
-            new_cat = Category(id, name, color)
-            self.catlist.edit_category(new_cat)
-            return Result(True)
-        except ValueError as e:
-            return Result(False, error = str(e))
+        if id <= 0:
+            raise ValueError("cat_id must be a positive integer")
+        if not isinstance(id, int):
+            raise TypeError("id must be an int")
+        self.catlist.delete_category(id)
+        return Result(True)
     
     def get_category(self, id: int) -> Result:
         """grab category with given id"""
-        try:
-            result = self.catlist.grab_category(id)
-            category = result[0]
-            ret_cat = Category(id, category[1], category[2])
-            return Result(True, return_val= ret_cat)
-        except ValueError as e:
-            return Result(False, error = str(e))
+        if id <= 0:
+            raise ValueError("cat_id must be a positive integer")
+        if not isinstance(id, int):
+            raise TypeError("id must be an int")
+        category = self.catlist.grab_category(id)
+        ret_cat = Category(id, category[1], category[2])
+        return Result(True, return_val= ret_cat)
+
