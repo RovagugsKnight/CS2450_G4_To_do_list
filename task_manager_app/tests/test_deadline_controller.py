@@ -1,7 +1,6 @@
 import pytest
 from unittest.mock import MagicMock
-from task_manager_app.src.controller.task_controller import TaskController
-
+from src.controller.task_controller import TaskController
 
 @pytest.fixture
 def repo():

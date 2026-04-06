@@ -6,6 +6,7 @@ from task_manager_app.src.models.sqllite_repository import SqliteRepo
 
 @pytest.fixture
 def repo():
+    SqliteRepo._instance = None
     # Create a temporary file to act as the SQLite DB
     db_fd, db_path = tempfile.mkstemp()
 

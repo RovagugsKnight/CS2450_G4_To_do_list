@@ -14,7 +14,7 @@ class CategoryList(ABC):
     @abstractmethod
     def delete_category(self, category_id: int):
         pass
-    
+
     @abstractmethod
-    def edit_category(self, category: Category):
+    def grab_category(self, category_id: int):
         pass

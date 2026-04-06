@@ -23,7 +23,7 @@ from views.buttons import YellowButton
 from kivy.logger import Logger
 
 class MainWindow(FloatLayout):
-    """Main window veiw. Has a title, input box, and scrollable list of tasks"""
+    """Main window veiw. Has a title, input form, and scrollable list of tasks"""
     def __init__(self, repo: TaskRepository, catlist: CategoryList,**kwargs):
         super().__init__(**kwargs)
         self.repo = repo
