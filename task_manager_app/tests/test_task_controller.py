@@ -2,10 +2,10 @@ import pytest
 from unittest.mock import MagicMock
 import sqlite3
 
-from src.controller.task_controller import TaskController
-from src.models.task_repository import TaskRepository
-from src.models.sqllite_repository import SqliteRepo
-import src.models.sqllite_repository as _sq
+from task_manager_app.src.controller.task_controller import TaskController
+from task_manager_app.src.models.task_repository import TaskRepository
+from task_manager_app.src.models.sqllite_repository import SqliteRepo
+import task_manager_app.src.models.sqllite_repository as _sq
 
 
 @pytest.fixture

@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import MagicMock, patch
-from src.models.sqllite_category_list import SqliteCategories, Category
+from task_manager_app.src.models.sqllite_category_list import SqliteCategories, Category
 
 class MockCategory:
     def __init__(self, id, name, color):
