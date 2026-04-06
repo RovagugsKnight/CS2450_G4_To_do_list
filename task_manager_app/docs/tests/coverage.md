@@ -6,13 +6,46 @@ Below is the screenshot of the coverage summary
 
 ## Coverage Summary (Text Version)
 
-| File | Coverage | Notes |
-|------|----------|--------|
-| `category_controller.py` | 92% | Well-tested logic, only minor branches untested |
-| `sqllite_category_list.py` | 100% | Fully covered due to deterministic behavior |
-| `sqllite_repository.py` | 98% | Only one error-handling branch untested |
-| `main_window.py` | 95% | High coverage despite UI mocking |
-| **Total** | **83%** | Above milestone target |
+## Coverage Summary (Text Version)
+
+| File | Stmts | Miss | Cover |
+|------|-------|-------|--------|
+| controller/category_controller.py | 37 | 3 | 92% |
+| controller/main_window_controller.py | 14 | 2 | 86% |
+| controller/result.py | 6 | 0 | 100% |
+| controller/task_controller.py | 59 | 7 | 88% |
+| main.py | 20 | 4 | 80% |
+| models/category.py | 13 | 2 | 85% |
+| models/category_list.py | 15 | 4 | 73% |
+| models/sqllite_category_list.py | 41 | 0 | 100% |
+| models/sqllite_repository.py | 57 | 1 | 98% |
+| models/task_repository.py | 31 | 10 | 68% |
+| models/tasks.py | 8 | 6 | 25% |
+| views/buttons.py | 20 | 2 | 90% |
+| views/category_button.py | 27 | 10 | 63% |
+| views/category_creator.py | 26 | 13 | 50% |
+| views/category_selector.py | 45 | 13 | 71% |
+| views/color_button.py | 20 | 9 | 55% |
+| views/color_selector.py | 21 | 10 | 52% |
+| views/colors.py | 6 | 1 | 83% |
+| views/grid_layout.py | 8 | 0 | 100% |
+| views/inputs.py | 57 | 30 | 47% |
+| views/main_window.py | 128 | 7 | 95% |
+| views/scrollable_list.py | 25 | 12 | 52% |
+| views/spacer.py | 6 | 0 | 100% |
+| views/task_widget.py | 100 | 74 | 26% |
+| tests/conftest.py | 39 | 16 | 59% |
+| tests/test_category_controller.py | 73 | 0 | 100% |
+| tests/test_category_database.py | 87 | 3 | 97% |
+| tests/test_deadline_controller.py | 30 | 1 | 97% |
+| tests/test_deadline_repository.py | 41 | 0 | 100% |
+| tests/test_hamburger_menu.py | 40 | 0 | 100% |
+| tests/test_main_window.py | 119 | 1 | 99% |
+| tests/test_task_controller.py | 96 | 2 | 98% |
+| tests/test_task_database.py | 18 | 0 | 100% |
+| tests/test_task_main.py | 15 | 0 | 100% |
+| tests/test_task_repository.py | 56 | 0 | 100% |
+| **TOTAL** | **1404** | **243** | **83%** |
 
 ---
 
