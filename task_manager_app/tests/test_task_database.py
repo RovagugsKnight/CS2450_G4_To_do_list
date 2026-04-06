@@ -1,15 +1,23 @@
 import pytest
-from models.sqllite_repository import SqliteRepo
+import tempfile
+import sqlite3
+from pathlib import Path
 
 
 @pytest.fixture
 def db():
-    repo = SqliteRepo()
-    repo.execute("CREATE TABLE IF NOT EXISTS users(name TEXT)")
-    return repo
+    """Create a temporary in-memory database for testing"""
+    conn = sqlite3.connect(":memory:")
+    cursor = conn.cursor()
+    cursor.execute("CREATE TABLE IF NOT EXISTS users(name TEXT)")
+    conn.commit()
+    yield conn
+    conn.close()
 
 
 def test_insert_data(db):
-    db.execute("INSERT INTO users VALUES (?)", "Drew")
-    result = db.execute("SELECT name FROM users").fetchone()
+    cursor = db.cursor()
+    cursor.execute("INSERT INTO users VALUES (?)", ("Drew",))
+    db.commit()
+    result = cursor.execute("SELECT name FROM users").fetchone()
     assert result[0] == "Drew"

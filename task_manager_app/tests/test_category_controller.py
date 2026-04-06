@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import MagicMock
-from src.controller.category_controller import CategoryController
+from task_manager_app.src.controller.category_controller import CategoryController
 
 @pytest.fixture
 def repo():

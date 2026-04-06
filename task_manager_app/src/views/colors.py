@@ -2,6 +2,9 @@ color_dict = {'yellow' : (0.90, 0.82, 0.35, 1),
 'red' : (0.8, 0.1, 0.1, 1),
 'light teal' : (0, 0.41, 0.41, 1.0),
 'white' : (1, 1, 1, 1),
+'mint' : (0.6, 1, 0.6, 1),
+'light blue' : (0.68, 0.85, 0.9, 1),
+'soft teal' : (0.25, 0.88, 0.82, 1),
 }
 
 def get_color(color: str):
