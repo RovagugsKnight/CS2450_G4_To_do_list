@@ -1,72 +1,78 @@
 <TaskItem>:
-    orientation: "horizontal"
-    size_hint: 0.33, None
-    height: "200dp"
-    spacing: "6dp"
-    padding: "8dp"
+    size_hint_y: None
+    height: "160dp"
+    padding: "10dp"
+    spacing: "10dp"
 
-    # --- Left side: card ---
+    # --- Main Card ---
     MDCard:
         radius: [20, 20, 20, 20]
-        md_bg_color: root.color
-        padding: "12dp"
-        size_hint: 1, 1
+        elevation: 6
+        shadow_softness: 4
+        shadow_offset: 0, -2
+        md_bg_color: 1, 1, 1, 1
+        padding: "14dp"
+        size_hint_x: 1
 
         MDBoxLayout:
-            orientation: "vertical"
-            spacing: "6dp"
-            size_hint_y: 1
+            orientation: "horizontal"
+            spacing: "12dp"
 
-            MDLabel:
-                text: root.task_name
-                font_size: "20sp"
-                size_hint_y: None
-                height: self.texture_size[1]
-                halign: "center"
-                size_hint: 1, 1
-                color: "black"
+            # --- Category Color Accent ---
+            MDBoxLayout:
+                size_hint_x: None
+                width: "6dp"
+                md_bg_color: root.color
+                radius: [20, 0, 0, 20]
 
-            MDLabel:
-                text: root.description
-                font_size: "15sp"
-                size_hint_y: None
-                height: self.texture_size[1]
-                color: "black"
+            # --- Text Content ---
+            MDBoxLayout:
+                orientation: "vertical"
+                spacing: "6dp"
 
-            MDLabel:
-                text: root.deadline
-                font_size: "12sp"
-                italic: True
-                size_hint_y: None
-                height: self.texture_size[1]
-                halign: "right"
-                theme_text_color: "Custom"
-                text_color: 1, 1, 1, 0.8
-                color: "black"
+                MDLabel:
+                    text: root.task_name
+                    font_style: "H6"
+                    theme_text_color: "Primary"
+                    halign: "left"
 
+                MDLabel:
+                    text: root.description
+                    font_style: "Body2"
+                    theme_text_color: "Secondary"
+                    halign: "left"
+                    text_size: self.width, None
 
-    # --- Right side: buttons ---
+                MDLabel:
+                    text: root.deadline
+                    font_style: "Caption"
+                    theme_text_color: "Hint"
+                    halign: "right"
+                    italic: True
+
+    # --- Button Column ---
     MDBoxLayout:
         orientation: "vertical"
-        size_hint: None, 1
-        width: "80dp"
-        spacing: "6dp"
+        size_hint_x: None
+        width: "60dp"
+        spacing: "4dp"
+        padding: "4dp"
 
-        YellowButton:
-            text: "Done"
-            color: 0, 0, 0, 1    
-            font_size: "16sp"       
+        MDIconButton:
+            icon: "check"
+            theme_text_color: "Custom"
+            text_color: 0, 0.6, 0, 1
             disabled: root.done
             on_release: root.mark_done()
 
-        YellowButton:
-            text: "-"
-            color: 0, 0, 0, 1       
-            font_size: "25sp"
-            on_release: root.remove()
-
-        YellowButton:
-            text: "Edit"
-            color: 0, 0, 0, 1        
-            font_size: "16sp"
+        MDIconButton:
+            icon: "pencil"
+            theme_text_color: "Custom"
+            text_color: 0.2, 0.2, 0.2, 1
             on_release: root.edit_task()
+
+        MDIconButton:
+            icon: "trash-can"
+            theme_text_color: "Custom"
+            text_color: 0.7, 0, 0, 1
+            on_release: root.remove()

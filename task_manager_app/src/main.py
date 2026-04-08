@@ -1,29 +1,34 @@
 from kivymd.app import MDApp
-from kivy.core.window import Window
-from views.main_window import MainWindow
+from kivymd.uix.screenmanager import MDScreenManager
+
 from models.sqllite_repository import SqliteRepo
 from models.sqllite_category_list import SqliteCategories
-from kivymd.uix.widget import Widget
-import os
+
+from views.main_window import MainWindow   # same file, same class name
 
 
 class TaskManagerApp(MDApp):
     title = "Task Manager App"
 
-    def build(self) -> MainWindow:
-        """build app data and start first window
-        widget"""
+    def build(self):
+        # Theme
         self.theme_cls.theme_style = "Dark"
+        self.theme_cls.primary_palette = "Blue"
+
+        # Backend
         self.repo = SqliteRepo()
         self.catlist = SqliteCategories()
 
-        return MainWindow(repo = self.repo, catlist= self.catlist)
-    
-    def on_stop(self) -> None:
-        """close sql repository"""
+        # Screen Manager
+        sm = MDScreenManager()
+        sm.add_widget(MainWindow(name="main", repo=self.repo, catlist=self.catlist))
+
+        return sm
+
+    def on_stop(self):
         self.repo.close()
         self.catlist.close()
 
+
 if __name__ == "__main__":
-    taskManager = TaskManagerApp()
-    taskManager.run()
+    TaskManagerApp().run()

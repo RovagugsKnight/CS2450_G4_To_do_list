@@ -1,0 +1,38 @@
+<MainWindow>:
+    md_bg_color: 0.96, 0.96, 0.96, 1   # soft neutral background
+
+    MDBoxLayout:
+        orientation: "vertical"
+
+        # -------------------------------
+        # Top App Bar
+        # -------------------------------
+        MDTopAppBar:
+            title: "Task Manager"
+            elevation: 4
+            left_action_items: [["menu", lambda x: root.delete_category()]]
+            right_action_items: [["plus", lambda x: root.open_add_dialog()]]
+
+        # -------------------------------
+        # Task List Area
+        # -------------------------------
+        ScrollView:
+            MDBoxLayout:
+                orientation: "vertical"
+                padding: "12dp"
+                spacing: "12dp"
+                size_hint_y: None
+                height: self.minimum_height
+
+                MDList:
+                    id: task_list
+                    spacing: "12dp"
+
+        # -------------------------------
+        # Floating Action Button
+        # -------------------------------
+        MDFloatingActionButton:
+            icon: "plus"
+            md_bg_color: 0.2, 0.47, 0.85, 1   # accessible blue
+            pos_hint: {"center_x": 0.9, "center_y": 0.1}
+            on_release: root.open_add_dialog()
