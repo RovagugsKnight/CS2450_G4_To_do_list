@@ -1,0 +1,85 @@
+#:include task_manager_app/src/views/main_window.kv
+
+MDBoxLayout:
+    orientation: "vertical"
+    md_bg_color: 0.96, 0.96, 0.96, 1
+
+    # -------------------------
+    # FLOATING HEADER (FIXED)
+    # -------------------------
+    MDBoxLayout:
+        orientation: "horizontal"
+        size_hint_y: None
+        height: "72dp"
+        padding: [16, 8, 16, -8]   # <-- lets the MDCard float downward
+        spacing: "12dp"
+
+        canvas.before:
+            Color:
+                rgba: 0, 0, 0, 0   # <-- prevents clipping of shadow
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
+        MDIconButton:
+            icon: "menu"
+            theme_text_color: "Custom"
+            text_color: 0.20, 0.20, 0.20, 1
+            on_release: nav_drawer.set_state("open")
+
+        MDCard:
+            size_hint_y: None
+            height: "64dp"
+            radius: [12, 12, 12, 12]
+            elevation: 2
+            padding: "12dp"
+            size_hint_x: 1
+            md_bg_color: 0.94, 0.94, 0.94, 1
+
+            MDBoxLayout:
+                orientation: "horizontal"
+                spacing: "16dp"
+
+                MDLabel:
+                    text: "Task Manager"
+                    font_style: "H5"
+                    valign: "center"
+                    size_hint_x: 1
+                    theme_text_color: "Custom"
+                    text_color: 0.20, 0.20, 0.20, 1
+
+                MDRaisedButton:
+                    text: "Create Task"
+                    icon: "plus"
+                    md_bg_color: 0.25, 0.45, 0.85, 1
+                    on_release: main_window.open_add_dialog()
+
+    # -------------------------
+    # NAVIGATION + CONTENT
+    # -------------------------
+    MDNavigationLayout:
+
+        ScreenManager:
+            MainWindow:
+                id: main_window
+                name: "main"
+
+        MDNavigationDrawer:
+            id: nav_drawer
+
+            BoxLayout:
+                orientation: "vertical"
+                padding: "16dp"
+                spacing: "16dp"
+
+                MDFlatButton:
+                    text: "Tasks"
+                    on_release:
+                        main_window.ids.screen_manager.current = "tasks"
+                        nav_drawer.set_state("close")
+
+                MDFlatButton:
+                    text: "Kanban"
+                    on_release:
+                        main_window.ids.screen_manager.current = "kanban"
+                        nav_drawer.set_state("close")

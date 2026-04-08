@@ -1,29 +1,40 @@
 from kivymd.app import MDApp
-from kivymd.uix.screenmanager import MDScreenManager
+from kivy.lang import Builder
 
 from models.sqllite_repository import SqliteRepo
 from models.sqllite_category_list import SqliteCategories
 
-from views.main_window import MainWindow   # same file, same class name
+from views.main_window import MainWindow
+from controller.main_window_controller import MainWindowController
+from controller.task_controller import TaskController
+from controller.category_controller import CategoryController
 
 
 class TaskManagerApp(MDApp):
     title = "Task Manager App"
 
     def build(self):
-        # Theme
         self.theme_cls.theme_style = "Dark"
         self.theme_cls.primary_palette = "Blue"
 
-        # Backend
+        # 1. Initialize backend FIRST
         self.repo = SqliteRepo()
         self.catlist = SqliteCategories()
 
-        # Screen Manager
-        sm = MDScreenManager()
-        sm.add_widget(MainWindow(name="main", repo=self.repo, catlist=self.catlist))
+        # 2. Load KV
+        root = Builder.load_file("views/app.kv")
 
-        return sm
+        # 3. Inject backend into MainWindow
+        main_window = root.ids.main_window
+        main_window.repo = self.repo
+        main_window.catlist = self.catlist
+
+        # 4. Initialize controllers AFTER injection
+        main_window.controller = MainWindowController(main_window.repo)
+        main_window.task_controller = TaskController(main_window.repo)
+        main_window.cat_controller = CategoryController(main_window.catlist)
+
+        return root
 
     def on_stop(self):
         self.repo.close()

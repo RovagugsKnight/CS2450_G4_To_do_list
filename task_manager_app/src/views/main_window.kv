@@ -1,38 +1,44 @@
 <MainWindow>:
-    md_bg_color: 0.96, 0.96, 0.96, 1   # soft neutral background
+    md_bg_color: 0.96, 0.96, 0.96, 1
+    padding: [0, 24, 0, 0]   # <-- FIX: pushes content down so header floats cleanly
 
-    MDBoxLayout:
-        orientation: "vertical"
+    # MainWindow should ONLY contain the screens.
+    # The drawer now lives in the root file.
 
-        # -------------------------------
-        # Top App Bar
-        # -------------------------------
-        MDTopAppBar:
-            title: "Task Manager"
-            elevation: 4
-            left_action_items: [["menu", lambda x: root.delete_category()]]
-            right_action_items: [["plus", lambda x: root.open_add_dialog()]]
+    MDScreenManager:
+        id: screen_manager
 
-        # -------------------------------
-        # Task List Area
-        # -------------------------------
-        ScrollView:
+        MDScreen:
+            name: "tasks"
+            md_bg_color: 0.90, 0.90, 0.90, 1
+
             MDBoxLayout:
                 orientation: "vertical"
-                padding: "12dp"
-                spacing: "12dp"
-                size_hint_y: None
-                height: self.minimum_height
+                padding: "24dp"
+                spacing: "24dp"
 
-                MDList:
-                    id: task_list
-                    spacing: "12dp"
+                MDBoxLayout:
+                    orientation: "vertical"
+                    size_hint_x: None
+                    width: min(self.parent.width, dp(900))
+                    pos_hint: {"center_x": 0.5}
 
-        # -------------------------------
-        # Floating Action Button
-        # -------------------------------
-        MDFloatingActionButton:
-            icon: "plus"
-            md_bg_color: 0.2, 0.47, 0.85, 1   # accessible blue
-            pos_hint: {"center_x": 0.9, "center_y": 0.1}
-            on_release: root.open_add_dialog()
+                    ScrollView:
+                        MDBoxLayout:
+                            orientation: "vertical"
+                            padding: "12dp"
+                            spacing: "12dp"
+                            size_hint_y: None
+                            height: self.minimum_height
+
+                            MDList:
+                                id: task_list
+                                spacing: "12dp"
+
+        MDScreen:
+            name: "kanban"
+            md_bg_color: 0.90, 0.90, 0.90, 1
+
+            MDLabel:
+                text: "Kanban goes here"
+                halign: "center"

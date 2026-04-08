@@ -24,18 +24,18 @@ class MainWindow(MDScreen):
     UI layout is defined in main_window.kv.
     This class handles logic, controllers, and modal dialogs.
     """
-
-    def __init__(self, repo: TaskRepository, catlist: CategoryList, **kwargs):
+    def __init__(self, repo: TaskRepository = None, catlist: CategoryList = None, **kwargs):
         super().__init__(**kwargs)
 
-        # Backend references
         self.repo = repo
         self.catlist = catlist
 
-        # Controllers
-        self.controller = MainWindowController(self.repo)
-        self.task_controller = TaskController(self.repo)
-        self.cat_controller = CategoryController(self.catlist)
+        # Only initialize controllers if repo/catlist were provided
+        if self.repo and self.catlist:
+            self.controller = MainWindowController(self.repo)
+            self.task_controller = TaskController(self.repo)
+            self.cat_controller = CategoryController(self.catlist)
+
 
     # ---------------------------------------------------------
     #  SCREEN LIFECYCLE
