@@ -11,7 +11,7 @@ MDBoxLayout:
         orientation: "horizontal"
         size_hint_y: None
         height: "72dp"
-        padding: [16, 8, 16, -8]   # <-- lets the MDCard float downward
+        padding: [16, 8, 16, 4]
         spacing: "12dp"
 
         canvas.before:
@@ -23,6 +23,8 @@ MDBoxLayout:
 
         MDIconButton:
             icon: "menu"
+            icon_size: "42dp"
+            padding: "6dp"
             theme_text_color: "Custom"
             text_color: 0.20, 0.20, 0.20, 1
             on_release: nav_drawer.set_state("open")
