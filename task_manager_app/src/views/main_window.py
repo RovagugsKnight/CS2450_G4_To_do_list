@@ -16,6 +16,8 @@ from kivymd.uix.menu import MDDropdownMenu
 from kivymd.uix.button import MDFlatButton, MDRaisedButton
 from kivymd.uix.textfield import MDTextField
 from kivymd.uix.boxlayout import MDBoxLayout
+from kivymd.uix.card import MDCard
+from kivymd.uix.label import MDLabel
 
 
 class MainWindow(MDScreen):
@@ -114,6 +116,24 @@ class MainWindow(MDScreen):
             if isinstance(widget, TaskItem) and widget.item_id == item_id:
                 self.ids.task_list.remove_widget(widget)
                 break
+
+    def build_column(self, category):
+        return MDCard(
+            orientation="vertical",
+            size_hint=(None, None),
+            width="280dp",
+            height=self.ids.board_columns.height,
+            padding="12dp",
+            radius=[12, 12, 12, 12],
+            children=[
+                MDLabel(
+                    text=category.name,
+                    halign="center",
+                    bold=True,
+                )
+                # then add TaskItem widgets for tasks in this category
+            ],
+        )
 
     # ---------------------------------------------------------
     #  CATEGORY MANAGEMENT (UI will be replaced with MDDialog)
@@ -350,3 +370,15 @@ class MainWindow(MDScreen):
             self.edit_target.change_to_none()
 
         self.edit_dialog.dismiss()
+
+    # ---------------------------------------------------------
+    #  Board Loading
+    # ---------------------------------------------------------
+
+    def load_board(self):
+        container = self.ids.board_columns
+        container.clear_widgets()
+
+        for category in self.catlist.categories:
+            column = self.build_column(category)
+            container.add_widget(column)

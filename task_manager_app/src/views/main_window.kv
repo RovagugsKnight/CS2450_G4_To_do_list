@@ -1,15 +1,15 @@
 <MainWindow>:
     md_bg_color: 0.96, 0.96, 0.96, 1
-    padding: [0, 24, 0, 0]   # <-- FIX: pushes content down so header floats cleanly
-
-    # MainWindow should ONLY contain the screens.
-    # The drawer now lives in the root file.
+    padding: [0, 24, 0, 0]
 
     MDScreenManager:
         id: screen_manager
 
+        # -------------------------
+        # DASHBOARD SCREEN
+        # -------------------------
         MDScreen:
-            name: "tasks"
+            name: "Dashboard"
             md_bg_color: 0.90, 0.90, 0.90, 1
 
             MDBoxLayout:
@@ -23,22 +23,24 @@
                     width: min(self.parent.width, dp(900))
                     pos_hint: {"center_x": 0.5}
 
-                    ScrollView:
-                        MDBoxLayout:
-                            orientation: "vertical"
-                            padding: "12dp"
-                            spacing: "12dp"
-                            size_hint_y: None
-                            height: self.minimum_height
+                    # <-- Dashboard content goes here
+                    # (progress bars, stats, etc.)
 
-                            MDList:
-                                id: task_list
-                                spacing: "12dp"
-
+        # -------------------------
+        # TASK BOARD SCREEN
+        # -------------------------
         MDScreen:
-            name: "kanban"
+            name: "Task View"
             md_bg_color: 0.90, 0.90, 0.90, 1
 
-            MDLabel:
-                text: "Kanban goes here"
-                halign: "center"
+            ScrollView:
+                do_scroll_y: False
+                do_scroll_x: True
+
+                MDBoxLayout:
+                    id: board_columns
+                    orientation: "horizontal"
+                    spacing: "24dp"
+                    padding: "24dp"
+                    size_hint_y: None
+                    height: self.minimum_height

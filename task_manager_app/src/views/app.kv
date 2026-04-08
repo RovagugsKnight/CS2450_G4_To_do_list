@@ -2,7 +2,7 @@
 
 MDBoxLayout:
     orientation: "vertical"
-    md_bg_color: 0.96, 0.96, 0.96, 1
+    md_bg_color: 0.90, 0.90, 0.90, 1
 
     # -------------------------
     # FLOATING HEADER (FIXED)
@@ -10,8 +10,8 @@ MDBoxLayout:
     MDBoxLayout:
         orientation: "horizontal"
         size_hint_y: None
-        height: "72dp"
-        padding: [16, 8, 16, 4]
+        height: "96dp"
+        padding: [16, 8, 24, 20]
         spacing: "12dp"
 
         canvas.before:
@@ -75,13 +75,13 @@ MDBoxLayout:
                 spacing: "16dp"
 
                 MDFlatButton:
-                    text: "Tasks"
+                    text: "Dashboard"
                     on_release:
                         main_window.ids.screen_manager.current = "tasks"
                         nav_drawer.set_state("close")
 
                 MDFlatButton:
-                    text: "Kanban"
+                    text: "Task View"
                     on_release:
                         main_window.ids.screen_manager.current = "kanban"
                         nav_drawer.set_state("close")
