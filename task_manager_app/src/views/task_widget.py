@@ -52,9 +52,9 @@ class TaskItem(MDBoxLayout):
         else:
             self.change_to_none()
 
-    # ---------------------------------------------------------
-    # CATEGORY HANDLING
-    # ---------------------------------------------------------
+    """
+    CATEGORY HANDLING
+    """
 
     def change_to_none(self):
         """Set category to None and use neutral accent color."""
@@ -62,9 +62,9 @@ class TaskItem(MDBoxLayout):
         self.cat_name = "None"
         self.color = get_color("white")
 
-    # ---------------------------------------------------------
-    # ERROR POPUP (will be replaced with MDDialog)
-    # ---------------------------------------------------------
+    """
+    ERROR POPUP (will be replaced with MDDialog)
+    """
 
     def show_popup(self, message: str):
         """Temporary popup for errors (will be replaced with MDDialog)."""
@@ -77,9 +77,9 @@ class TaskItem(MDBoxLayout):
             size_hint=(0.6, 0.3),
         ).open()
 
-    # ---------------------------------------------------------
-    # TASK ACTIONS
-    # ---------------------------------------------------------
+    """
+    TASK ACTIONS
+    """
 
     def mark_done(self):
         """Mark task as done in DB and update UI."""
@@ -97,9 +97,9 @@ class TaskItem(MDBoxLayout):
         else:
             self.show_popup(result.error)
 
-    # ---------------------------------------------------------
-    # EDIT TASK (UI will be replaced with MDDialog)
-    # ---------------------------------------------------------
+    """
+    EDIT TASK (UI will be replaced with MDDialog)
+    """
 
     def edit_task(self):
         """

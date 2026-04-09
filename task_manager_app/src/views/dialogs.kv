@@ -1,13 +1,13 @@
-<AddTaskContent@MDBoxLayout>:
+<AddTaskContent>:
     orientation: "vertical"
     spacing: "12dp"
-    padding: "12dp"
+    padding: "0dp", "40dp", "0dp", "12dp"   # <-- pushes content down
+    size_hint_y: None
+    height: self.minimum_height
 
     MDTextField:
         id: task_name
         hint_text: "Task Name"
-        helper_text: "Required"
-        helper_text_mode: "on_focus"
 
     MDTextField:
         id: description
@@ -24,16 +24,16 @@
         hint_text: "Category"
 
 
-<EditTaskContent@MDBoxLayout>:
+<EditTaskContent>:
     orientation: "vertical"
     spacing: "12dp"
     padding: "12dp"
+    size_hint_y: None
+    height: self.minimum_height
 
     MDTextField:
         id: task_name
         hint_text: "Task Name"
-        helper_text: "Required"
-        helper_text_mode: "on_focus"
 
     MDTextField:
         id: description

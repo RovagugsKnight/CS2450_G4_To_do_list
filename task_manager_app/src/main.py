@@ -17,28 +17,27 @@ class TaskManagerApp(MDApp):
         self.theme_cls.theme_style = "Dark"
         self.theme_cls.primary_palette = "Blue"
 
-        # 1. Initialize backend FIRST
+        # Backend
         self.repo = SqliteRepo()
         self.catlist = SqliteCategories()
 
-        # 2. Load dialog KV BEFORE main app KV
+        # Load dialog KV FIRST
         Builder.load_file("views/dialogs.kv")
 
-        # 3. Load main KV
+        # Load main KV
         root = Builder.load_file("views/app.kv")
 
-        # 4. Inject backend into MainWindow
+        # Inject backend
         main_window = root.ids.main_window
         main_window.repo = self.repo
         main_window.catlist = self.catlist
 
-        # 5. Initialize controllers AFTER injection
+        # Controllers
         main_window.controller = MainWindowController(main_window.repo)
         main_window.task_controller = TaskController(main_window.repo)
         main_window.cat_controller = CategoryController(main_window.catlist)
 
         return root
-
 
     def on_stop(self):
         self.repo.close()

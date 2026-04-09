@@ -11,7 +11,9 @@ from models.task_repository import TaskRepository
 
 from views.task_widget import TaskItem
 from views.deadline_selector import DeadlineSelector
+from views.dialogs import AddTaskContent, EditTaskContent
 
+from kivy.lang import Builder
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.menu import MDDropdownMenu
 from kivymd.uix.button import MDFlatButton, MDRaisedButton
@@ -43,9 +45,9 @@ class MainWindow(MDScreen):
         self.add_deadline = None
         self.edit_deadline = None
 
-    # ---------------------------------------------------------
-    # DROPDOWN MENU
-    # ---------------------------------------------------------
+    """
+    DROPDOWN MENU
+    """
     def on_kv_post(self, base_widget):
         root = self.parent.parent
 
@@ -84,16 +86,16 @@ class MainWindow(MDScreen):
         self.ids.screen_manager.current = name
         self.nav_menu.dismiss()
 
-    # ---------------------------------------------------------
-    # SCREEN ENTER
-    # ---------------------------------------------------------
+    """
+    SCREEN ENTER
+    """
     def on_pre_enter(self):
         self.load_existing_tasks()
         self.update_dashboard()
 
-    # ---------------------------------------------------------
-    # TASK LOADING
-    # ---------------------------------------------------------
+    """
+    TASK LOADING
+    """
     def load_existing_tasks(self):
         try:
             tasks = self.controller.load_tasks()
@@ -124,9 +126,9 @@ class MainWindow(MDScreen):
         except Exception as e:
             self.show_error(str(e))
 
-    # ---------------------------------------------------------
-    # ADD TASK
-    # ---------------------------------------------------------
+    """
+    ADD TASK
+    """
     def add_todo_item(self, task_name, text, deadline, category):
         cat_id = category.id if category else None
         result = self.controller.add_task(task_name, text, deadline, cat_id)
@@ -151,9 +153,9 @@ class MainWindow(MDScreen):
 
         self.ids.task_list.add_widget(task_widget)
 
-    # ---------------------------------------------------------
-    # REMOVE TASK
-    # ---------------------------------------------------------
+    """
+    REMOVE TASK
+    """
     def remove_task_widget(self, item_id):
         if not hasattr(self.ids, "task_list"):
             return
@@ -165,9 +167,9 @@ class MainWindow(MDScreen):
 
         self.update_dashboard()
 
-    # ---------------------------------------------------------
-    # KANBAN COLUMN
-    # ---------------------------------------------------------
+    """
+    KANBAN COLUMN
+    """
     def build_column(self, category):
         return MDCard(
             orientation="vertical",
@@ -185,9 +187,9 @@ class MainWindow(MDScreen):
             ]
         )
 
-    # ---------------------------------------------------------
-    # ERROR POPUP
-    # ---------------------------------------------------------
+    """
+    ERROR POPUP
+    """
     def show_error(self, message):
         from kivy.uix.popup import Popup
         from kivy.uix.label import Label
@@ -198,9 +200,9 @@ class MainWindow(MDScreen):
             size_hint=(0.6, 0.3)
         ).open()
 
-    # ---------------------------------------------------------
-    # DEADLINE PICKER
-    # ---------------------------------------------------------
+    """
+    DEADLINE PICKER
+    """
     def open_deadline_selector(self, mode):
         self.deadline_mode = mode
         DeadlineSelector(self.on_deadline_selected).open()
@@ -211,29 +213,23 @@ class MainWindow(MDScreen):
         elif self.deadline_mode == "edit" and self.edit_deadline:
             self.edit_deadline.text = date_str
 
-    # ---------------------------------------------------------
-    # ADD TASK DIALOG
-    # ---------------------------------------------------------
+    """
+    ADD TASK DIALOG
+    """
     def open_add_dialog(self):
-        self.add_task_name = MDTextField(
-            hint_text="Task Name",
-            helper_text="Required",
-            helper_text_mode="on_focus"
-        )
-        self.add_description = MDTextField(
-            hint_text="Description",
-            multiline=True
-        )
-        self.add_deadline = MDTextField(
-            hint_text="Deadline (optional)",
-            readonly=True,
-            on_focus=lambda inst, val: self.open_deadline_selector("add") if val else None
+        content = AddTaskContent()
+
+        self.add_task_name = content.ids.task_name
+        self.add_description = content.ids.description
+        self.add_deadline = content.ids.deadline
+        self.category_field = content.ids.category
+
+        self.add_deadline.on_focus = (
+            lambda inst, val: self.open_deadline_selector("add") if val else None
         )
 
-        # Load categories from SQLite
         categories = self.catlist.load_categories()
         menu_items = []
-
         for row in categories:
             cat = Category(id=row[0], name=row[1], color=row[2])
             menu_items.append({
@@ -243,31 +239,19 @@ class MainWindow(MDScreen):
 
         self.selected_category = None
         self.category_menu = MDDropdownMenu(
-            caller=None,
+            caller=self.category_field,
             items=menu_items,
             width_mult=4
         )
 
-        self.category_field = MDTextField(
-            hint_text="Category",
-            on_focus=lambda inst, val: self.category_menu.open() if val else None
+        self.category_field.on_focus = (
+            lambda inst, val: self.category_menu.open() if val else None
         )
-        self.category_menu.caller = self.category_field
 
         self.add_dialog = MDDialog(
             title="Create Task",
             type="custom",
-            content_cls=MDBoxLayout(
-                orientation="vertical",
-                spacing="12dp",
-                padding="12dp",
-                children=[
-                    self.add_task_name,
-                    self.add_description,
-                    self.add_deadline,
-                    self.category_field
-                ]
-            ),
+            content_cls=content,
             buttons=[
                 MDFlatButton(text="Cancel", on_release=lambda x: self.add_dialog.dismiss()),
                 MDRaisedButton(text="Create", on_release=lambda x: self.submit_add_task())
@@ -295,33 +279,29 @@ class MainWindow(MDScreen):
         self.add_dialog.dismiss()
         self.update_dashboard()
 
-    # ---------------------------------------------------------
-    # EDIT TASK DIALOG
-    # ---------------------------------------------------------
+    """
+    EDIT TASK DIALOG
+    """
     def open_edit_dialog(self, task_widget):
         self.edit_target = task_widget
 
-        self.edit_task_name = MDTextField(
-            text=task_widget.task_name,
-            hint_text="Task Name",
-            helper_text="Required",
-            helper_text_mode="on_focus"
-        )
-        self.edit_description = MDTextField(
-            text=task_widget.description,
-            hint_text="Description",
-            multiline=True
-        )
-        self.edit_deadline = MDTextField(
-            text=task_widget.deadline,
-            hint_text="Deadline (optional)",
-            readonly=True,
-            on_focus=lambda inst, val: self.open_deadline_selector("edit") if val else None
+        content = EditTaskContent()
+
+        self.edit_task_name = content.ids.task_name
+        self.edit_description = content.ids.description
+        self.edit_deadline = content.ids.deadline
+        self.edit_category_field = content.ids.category
+
+        self.edit_task_name.text = task_widget.task_name
+        self.edit_description.text = task_widget.description
+        self.edit_deadline.text = task_widget.deadline
+
+        self.edit_deadline.on_focus = (
+            lambda inst, val: self.open_deadline_selector("edit") if val else None
         )
 
         categories = self.catlist.load_categories()
         menu_items = []
-
         for row in categories:
             cat = Category(id=row[0], name=row[1], color=row[2])
             menu_items.append({
@@ -335,32 +315,19 @@ class MainWindow(MDScreen):
         )
 
         self.edit_category_menu = MDDropdownMenu(
-            caller=None,
+            caller=self.edit_category_field,
             items=menu_items,
             width_mult=4
         )
 
-        self.edit_category_field = MDTextField(
-            text=self.edit_selected_category.name if self.edit_selected_category else "",
-            hint_text="Category",
-            on_focus=lambda inst, val: self.edit_category_menu.open() if val else None
+        self.edit_category_field.on_focus = (
+            lambda inst, val: self.edit_category_menu.open() if val else None
         )
-        self.edit_category_menu.caller = self.edit_category_field
 
         self.edit_dialog = MDDialog(
             title="Edit Task",
             type="custom",
-            content_cls=MDBoxLayout(
-                orientation="vertical",
-                spacing="12dp",
-                padding="12dp",
-                children=[
-                    self.edit_task_name,
-                    self.edit_description,
-                    self.edit_deadline,
-                    self.edit_category_field
-                ]
-            ),
+            content_cls=content,
             buttons=[
                 MDFlatButton(text="Cancel", on_release=lambda x: self.edit_dialog.dismiss()),
                 MDRaisedButton(text="Save", on_release=lambda x: self.submit_edit_task())
@@ -403,16 +370,18 @@ class MainWindow(MDScreen):
         if category:
             self.edit_target.cat_id = category.id
             self.edit_target.cat_name = category.name
-            self.edit_target.color = self.edit_target.cat_controller.get_category(category.id).return_val.color
+            self.edit_target.color = (
+                self.edit_target.cat_controller.get_category(category.id).return_val.color
+            )
         else:
             self.edit_target.change_to_none()
 
         self.edit_dialog.dismiss()
         self.update_dashboard()
 
-    # ---------------------------------------------------------
-    # KANBAN BOARD
-    # ---------------------------------------------------------
+    """
+    KANBAN BOARD
+    """
     def load_board(self):
         container = self.ids.board_columns
         container.clear_widgets()
@@ -422,9 +391,9 @@ class MainWindow(MDScreen):
             column = self.build_column(cat)
             container.add_widget(column)
 
-    # ---------------------------------------------------------
-    # DASHBOARD
-    # ---------------------------------------------------------
+    """
+    DASHBOARD
+    """
     def update_dashboard(self):
         try:
             tasks = self.controller.load_tasks()
