@@ -29,9 +29,10 @@
                         orientation: "vertical"
                         spacing: "24dp"
                         size_hint_x: None
-                        width: min(self.parent.width if self.parent and self.parent.width > 0 else dp(900), dp(900))
+                        width: min(self.parent.width if self.parent else dp(900), dp(900))
                         pos_hint: {"center_x": 0.5}
-                        adaptive_height: True
+                        size_hint_y: None
+                        height: self.minimum_height
 
                         # -------------------------
                         # DASHBOARD TITLE
@@ -51,7 +52,8 @@
                         MDBoxLayout:
                             orientation: "vertical"
                             spacing: "16dp"
-                            adaptive_height: True
+                            size_hint_y: None
+                            height: self.minimum_height
 
                             MDLabel:
                                 text: "Progress Overview"
@@ -65,17 +67,21 @@
                                 radius: 12
                                 padding: "16dp"
                                 md_bg_color: 0.94, 0.94, 0.94, 1
-                                adaptive_height: True
+                                size_hint_y: None
+                                height: self.minimum_height
 
                                 MDBoxLayout:
                                     orientation: "vertical"
                                     spacing: "12dp"
-                                    adaptive_height: True
+                                    size_hint_y: None
+                                    height: self.minimum_height
 
                                     MDLabel:
                                         text: "Tasks Completed Today"
                                         theme_text_color: "Custom"
                                         text_color: 0.25, 0.25, 0.25, 1
+                                        size_hint_y: None
+                                        height: self.texture_size[1]
 
                                     MDProgressBar:
                                         id: progress_today
@@ -85,7 +91,8 @@
                                         text: "Weekly Completion"
                                         theme_text_color: "Custom"
                                         text_color: 0.25, 0.25, 0.25, 1
-                                        
+                                        size_hint_y: None
+                                        height: self.texture_size[1]
 
                                     MDProgressBar:
                                         id: progress_week
@@ -97,7 +104,8 @@
                         MDBoxLayout:
                             orientation: "horizontal"
                             spacing: "16dp"
-                            adaptive_height: True
+                            size_hint_y: None
+                            height: self.minimum_height
 
                             MDCard:
                                 radius: 12
@@ -117,7 +125,7 @@
 
                                     MDLabel:
                                         id: stat_total_tasks
-                                        text: "12"
+                                        text: ""
                                         theme_text_color: "Custom"
                                         text_color: 0.25, 0.25, 0.25, 1
                                         font_style: "H6"
@@ -141,7 +149,7 @@
 
                                     MDLabel:
                                         id: stat_due_today
-                                        text: "3"
+                                        text: ""
                                         font_style: "H6"
                                         theme_text_color: "Custom"
                                         text_color: 0.25, 0.25, 0.25, 1
@@ -166,11 +174,13 @@
                             height: "200dp"
 
                             ScrollView:
-                                size_hint_y: None
-                                height: "200dp"
+                                do_scroll_y: True
+                                do_scroll_x: False
 
                                 MDList:
                                     id: dashboard_today_list
+                                    size_hint_y: None
+                                    height: self.minimum_height
 
         # ---------------------------------------------------
         # TASK BOARD SCREEN
@@ -182,8 +192,6 @@
             ScrollView:
                 do_scroll_y: False
                 do_scroll_x: True
-                size_hint_y: None
-                height: root.height
 
                 MDBoxLayout:
                     id: board_columns

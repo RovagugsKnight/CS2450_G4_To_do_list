@@ -21,20 +21,24 @@ class TaskManagerApp(MDApp):
         self.repo = SqliteRepo()
         self.catlist = SqliteCategories()
 
-        # 2. Load KV
+        # 2. Load dialog KV BEFORE main app KV
+        Builder.load_file("views/dialogs.kv")
+
+        # 3. Load main KV
         root = Builder.load_file("views/app.kv")
 
-        # 3. Inject backend into MainWindow
+        # 4. Inject backend into MainWindow
         main_window = root.ids.main_window
         main_window.repo = self.repo
         main_window.catlist = self.catlist
 
-        # 4. Initialize controllers AFTER injection
+        # 5. Initialize controllers AFTER injection
         main_window.controller = MainWindowController(main_window.repo)
         main_window.task_controller = TaskController(main_window.repo)
         main_window.cat_controller = CategoryController(main_window.catlist)
 
         return root
+
 
     def on_stop(self):
         self.repo.close()

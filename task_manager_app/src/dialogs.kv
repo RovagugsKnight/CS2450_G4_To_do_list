@@ -1,0 +1,50 @@
+<AddTaskContent@MDBoxLayout>:
+    orientation: "vertical"
+    spacing: "12dp"
+    padding: "12dp"
+
+    MDTextField:
+        id: task_name
+        hint_text: "Task Name"
+        helper_text: "Required"
+        helper_text_mode: "on_focus"
+
+    MDTextField:
+        id: description
+        hint_text: "Description"
+        multiline: True
+
+    MDTextField:
+        id: deadline
+        hint_text: "Deadline (optional)"
+        readonly: True
+
+    MDTextField:
+        id: category
+        hint_text: "Category"
+
+
+<EditTaskContent@MDBoxLayout>:
+    orientation: "vertical"
+    spacing: "12dp"
+    padding: "12dp"
+
+    MDTextField:
+        id: task_name
+        hint_text: "Task Name"
+        helper_text: "Required"
+        helper_text_mode: "on_focus"
+
+    MDTextField:
+        id: description
+        hint_text: "Description"
+        multiline: True
+
+    MDTextField:
+        id: deadline
+        hint_text: "Deadline (optional)"
+        readonly: True
+
+    MDTextField:
+        id: category
+        hint_text: "Category"
