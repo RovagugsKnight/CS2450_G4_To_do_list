@@ -382,3 +382,59 @@ class MainWindow(MDScreen):
         for category in self.catlist.categories:
             column = self.build_column(category)
             container.add_widget(column)
+    # ---------------------------------------------------------
+    #  DASHBOARD DYNAMIC STATS
+    # ---------------------------------------------------------
+
+    def update_dashboard(self):
+        """Update Dashboard stats and today's task preview."""
+        try:
+            tasks = self.controller.load_tasks()
+
+            # --- Total Tasks ---
+            total = len(tasks)
+            if "stat_total_tasks" in self.ids:
+                self.ids.stat_total_tasks.text = str(total)
+
+            # --- Due Today ---
+            from datetime import date
+            today = date.today()
+
+            due_today = []
+            for t in tasks:
+                if hasattr(t, "deadline") and t.deadline:
+                    try:
+                        if t.deadline == today:
+                            due_today.append(t)
+                    except Exception:
+                        pass
+
+            if "stat_due_today" in self.ids:
+                self.ids.stat_due_today.text = str(len(due_today))
+
+            # --- Today's Tasks List ---
+            if "dashboard_today_list" in self.ids:
+                lst = self.ids.dashboard_today_list
+                lst.clear_widgets()
+
+                if not due_today:
+                    lst.add_widget(
+                        MDLabel(
+                            text="No tasks due today",
+                            theme_text_color="Hint",
+                            halign="left",
+                            padding=(16, 16)
+                        )
+                    )
+                else:
+                    for task in due_today:
+                        lst.add_widget(
+                            MDLabel(
+                                text=task.task_name,
+                                theme_text_color="Primary",
+                                halign="left"
+                            )
+                        )
+
+        except Exception as e:
+            self.show_error(f"Dashboard update failed: {e}")
