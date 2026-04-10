@@ -12,6 +12,7 @@ from models.task_repository import TaskRepository
 from views.task_widget import TaskItem
 from views.deadline_selector import DeadlineSelector
 from views.dialogs import AddTaskContent, EditTaskContent
+from views.category_creator import CategoryCreator
 
 from kivy.lang import Builder
 from kivymd.uix.dialog import MDDialog
@@ -20,13 +21,14 @@ from kivymd.uix.button import MDFlatButton, MDRaisedButton
 from kivymd.uix.label import MDLabel
 from kivymd.uix.card import MDCard
 from kivy.clock import Clock
+from kivy.uix.popup import Popup
 
 from datetime import date, datetime
 
 
 class MainWindow(MDScreen):
     """
-    Main window for the Dribbble-style UI.
+    MAIN WINDOW
     """
 
     def __init__(self, repo: TaskRepository = None, catlist: CategoryList = None, **kwargs):
@@ -55,44 +57,115 @@ class MainWindow(MDScreen):
         # Load tasks immediately on startup
         Clock.schedule_once(lambda dt: (self.load_existing_tasks(), self.update_dashboard()), 0)
 
-
         # Build nav menu
         root = self.parent.parent
 
         menu_items = [
             {
-                "text": "Dashboard",
+                "text": "Switch View",
                 "viewclass": "OneLineListItem",
-                "on_release": lambda: self.switch_view("Dashboard"),
-                "theme_text_color": "Custom",
-                "text_color": (0.20, 0.20, 0.20, 1)
+                "on_release": lambda: self.open_view_submenu(),
+                "divider": "Full",
+                "text_color": (0.1, 0.1, 0.1, 1),
             },
             {
-                "text": "Task View",
+                "text": "Create Category",
                 "viewclass": "OneLineListItem",
-                "on_release": lambda: self.switch_view("Task View"),
-                "theme_text_color": "Custom",
-                "text_color": (0.20, 0.20, 0.20, 1)
-            }
+                "on_release": lambda: self.open_category_creator(),
+                "divider": "Full",
+                "text_color": (0.1, 0.1, 0.1, 1),
+            },
+            {
+                "text": "Manage Categories",
+                "viewclass": "OneLineListItem",
+                "on_release": lambda: self.open_category_manager(),
+                "divider": "Full",
+                "text_color": (0.1, 0.1, 0.1, 1),
+            },
         ]
 
         self.nav_menu = MDDropdownMenu(
             caller=root.ids.nav_button,
             items=menu_items,
             width_mult=4,
-            md_bg_color=(0.94, 0.94, 0.94, 1),
+            md_bg_color=(0.97, 0.97, 0.97, 1),
             border_margin=8,
             radius=[12, 12, 12, 12],
-            elevation=4
+            elevation=4,
         )
 
     def open_nav_menu(self):
         if hasattr(self, "nav_menu"):
             self.nav_menu.open()
 
+    """
+    SWITCH VIEW SUBMENU
+    """
+    def open_view_submenu(self):
+        submenu_items = [
+            {
+                "text": "Dashboard",
+                "viewclass": "OneLineListItem",
+                "on_release": lambda: self.switch_view("Dashboard"),
+            },
+            {
+                "text": "Task View",
+                "viewclass": "OneLineListItem",
+                "on_release": lambda: self.switch_view("Task View"),
+            },
+            {
+                "text": "Kanban Board",
+                "viewclass": "OneLineListItem",
+                "on_release": lambda: self.switch_view("Kanban"),
+            },
+        ]
+
+        root = self.parent.parent
+
+        self.view_submenu = MDDropdownMenu(
+            caller=root.ids.nav_button,
+            items=submenu_items,
+            width_mult=4,
+            md_bg_color=(0.94, 0.94, 0.94, 1),
+            border_margin=8,
+            radius=[12, 12, 12, 12],
+            elevation=4,
+        )
+
+        if hasattr(self, "nav_menu"):
+            self.nav_menu.dismiss()
+
+        self.view_submenu.open()
+
     def switch_view(self, name):
         self.ids.screen_manager.current = name
-        self.nav_menu.dismiss()
+
+        if hasattr(self, "view_submenu"):
+            self.view_submenu.dismiss()
+        if hasattr(self, "nav_menu"):
+            self.nav_menu.dismiss()
+
+    """
+    CATEGORY CREATOR ENTRY
+    """
+    def open_category_creator(self):
+        creator = CategoryCreator(self)
+        popup = Popup(
+            title="Create Category",
+            content=creator,
+            size_hint=(0.8, 0.6),
+            auto_dismiss=True,
+        )
+
+        creator.popup = popup
+        popup.open()
+
+        if hasattr(self, "nav_menu"):
+            self.nav_menu.dismiss()
+
+    def open_category_manager(self):
+        Logger.info("MainWindow: open_category_manager called (stub).")
+        # Placeholder: wire this to your category manager screen or dialog when ready.
 
     """
     LOAD EXISTING TASKS
@@ -127,7 +200,7 @@ class MainWindow(MDScreen):
                     category=category,
                     cat_controller=self.cat_controller,
                     done=task.done,
-                    deadline=task.deadline
+                    deadline=task.deadline,
                 )
 
                 if "task_list" in self.ids:
@@ -147,7 +220,7 @@ class MainWindow(MDScreen):
                                 category=category,
                                 cat_controller=self.cat_controller,
                                 done=task.done,
-                                deadline=task.deadline
+                                deadline=task.deadline,
                             )
                             self.ids.dashboard_task_list.add_widget(focused_widget)
                     except Exception:
@@ -178,7 +251,7 @@ class MainWindow(MDScreen):
             category=category,
             cat_controller=self.cat_controller,
             done=False,
-            deadline=deadline
+            deadline=deadline,
         )
 
         # Add to Task View
@@ -218,13 +291,10 @@ class MainWindow(MDScreen):
     ERROR POPUP
     """
     def show_error(self, message):
-        from kivy.uix.popup import Popup
-        from kivy.uix.label import Label
-
         Popup(
             title="Error",
-            content=Label(text=message),
-            size_hint=(0.6, 0.3)
+            content=MDLabel(text=message),
+            size_hint=(0.6, 0.3),
         ).open()
 
     """
@@ -279,14 +349,14 @@ class MainWindow(MDScreen):
             cat = Category(id=row[0], name=row[1], color=row[2])
             menu_items.append({
                 "text": cat.name,
-                "on_release": lambda c=cat: self.set_add_category(c)
+                "on_release": lambda c=cat: self.set_add_category(c),
             })
 
         self.selected_category = None
         self.category_menu = MDDropdownMenu(
             caller=self.category_field,
             items=menu_items,
-            width_mult=4
+            width_mult=4,
         )
 
         self.category_field.on_focus = (
@@ -299,8 +369,8 @@ class MainWindow(MDScreen):
             content_cls=content,
             buttons=[
                 MDFlatButton(text="Cancel", on_release=lambda x: self.add_dialog.dismiss()),
-                MDRaisedButton(text="Create", on_release=lambda x: self.submit_add_task())
-            ]
+                MDRaisedButton(text="Create", on_release=lambda x: self.submit_add_task()),
+            ],
         )
 
         self.add_dialog.open()
@@ -353,7 +423,7 @@ class MainWindow(MDScreen):
             cat = Category(id=row[0], name=row[1], color=row[2])
             menu_items.append({
                 "text": cat.name,
-                "on_release": lambda c=cat: self.set_edit_category(c)
+                "on_release": lambda c=cat: self.set_edit_category(c),
             })
 
         self.edit_selected_category = (
@@ -364,7 +434,7 @@ class MainWindow(MDScreen):
         self.edit_category_menu = MDDropdownMenu(
             caller=self.edit_category_field,
             items=menu_items,
-            width_mult=4
+            width_mult=4,
         )
 
         self.edit_category_field.on_focus = (
@@ -377,8 +447,8 @@ class MainWindow(MDScreen):
             content_cls=content,
             buttons=[
                 MDFlatButton(text="Cancel", on_release=lambda x: self.edit_dialog.dismiss()),
-                MDRaisedButton(text="Save", on_release=lambda x: self.submit_edit_task())
-            ]
+                MDRaisedButton(text="Save", on_release=lambda x: self.submit_edit_task()),
+            ],
         )
 
         self.edit_dialog.open()
@@ -403,7 +473,7 @@ class MainWindow(MDScreen):
             name,
             desc,
             deadline,
-            category.id if category else None
+            category.id if category else None,
         )
 
         if not result.success:

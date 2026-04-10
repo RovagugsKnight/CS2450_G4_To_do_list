@@ -1,13 +1,20 @@
 <CategoryCreator>:
-    spacing: "10dp"
-    padding: "10dp"
+    spacing: "16dp"
+    padding: "16dp"
     orientation: "vertical"
+    size_hint_y: None
+    height: self.minimum_height
 
     MDTextField:
         id: cat_name
         hint_text: "Category Name"
+        mode: "rectangle"
+        size_hint_y: None
+        height: "48dp"
         multiline: False
-    
-        
 
+    # Color selector injected from Python
+    # (ColorSelector is added dynamically in __init__)
 
+    # Submit button injected from Python
+    # (MDRaisedButton is added dynamically in __init__)
