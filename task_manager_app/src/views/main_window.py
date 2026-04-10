@@ -17,10 +17,9 @@ from kivy.lang import Builder
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.menu import MDDropdownMenu
 from kivymd.uix.button import MDFlatButton, MDRaisedButton
-from kivymd.uix.textfield import MDTextField
-from kivymd.uix.boxlayout import MDBoxLayout
-from kivymd.uix.card import MDCard
 from kivymd.uix.label import MDLabel
+from kivymd.uix.card import MDCard
+from kivy.clock import Clock
 
 from datetime import date, datetime
 
@@ -41,14 +40,23 @@ class MainWindow(MDScreen):
             self.task_controller = TaskController(self.repo)
             self.cat_controller = CategoryController(self.catlist)
 
-        self.deadline_mode = None
-        self.add_deadline = None
-        self.edit_deadline = None
+    """
+    UNIVERSAL DEADLINE PICKER
+    """
+    def open_deadline_for_field(self, field):
+        def _set_date(date_str):
+            field.text = date_str
+        DeadlineSelector(_set_date).open()
 
     """
-    DROPDOWN MENU
+    NAV MENU + INITIAL LOAD
     """
     def on_kv_post(self, base_widget):
+        # Load tasks immediately on startup
+        Clock.schedule_once(lambda dt: (self.load_existing_tasks(), self.update_dashboard()), 0)
+
+
+        # Build nav menu
         root = self.parent.parent
 
         menu_items = [
@@ -87,21 +95,21 @@ class MainWindow(MDScreen):
         self.nav_menu.dismiss()
 
     """
-    SCREEN ENTER
-    """
-    def on_pre_enter(self):
-        self.load_existing_tasks()
-        self.update_dashboard()
-
-    """
-    TASK LOADING
+    LOAD EXISTING TASKS
     """
     def load_existing_tasks(self):
         try:
             tasks = self.controller.load_tasks()
 
-            if hasattr(self.ids, "task_list"):
+            # Clear Task View list
+            if "task_list" in self.ids:
                 self.ids.task_list.clear_widgets()
+
+            # Clear Today’s Tasks list
+            if "dashboard_task_list" in self.ids:
+                self.ids.dashboard_task_list.clear_widgets()
+
+            today = date.today()
 
             for task in reversed(tasks):
                 category = None
@@ -109,10 +117,11 @@ class MainWindow(MDScreen):
                     cat_result = self.cat_controller.get_category(task.catid)
                     category = cat_result.return_val
 
+                # Main list widget
                 task_widget = TaskItem(
                     main_window=self,
                     controller=self.task_controller,
-                    item_id=task.id,
+                    item_id=task.task_id,
                     task_name=task.task_name,
                     description=task.text,
                     category=category,
@@ -121,7 +130,28 @@ class MainWindow(MDScreen):
                     deadline=task.deadline
                 )
 
-                self.ids.task_list.add_widget(task_widget)
+                if "task_list" in self.ids:
+                    self.ids.task_list.add_widget(task_widget)
+
+                # Focused list widget (Today’s Tasks)
+                if task.deadline and "dashboard_task_list" in self.ids:
+                    try:
+                        d = datetime.strptime(task.deadline, "%m/%d/%Y").date()
+                        if d == today:
+                            focused_widget = TaskItem(
+                                main_window=self,
+                                controller=self.task_controller,
+                                item_id=task.task_id,
+                                task_name=task.task_name,
+                                description=task.text,
+                                category=category,
+                                cat_controller=self.cat_controller,
+                                done=task.done,
+                                deadline=task.deadline
+                            )
+                            self.ids.dashboard_task_list.add_widget(focused_widget)
+                    except Exception:
+                        pass
 
         except Exception as e:
             self.show_error(str(e))
@@ -151,41 +181,38 @@ class MainWindow(MDScreen):
             deadline=deadline
         )
 
-        self.ids.task_list.add_widget(task_widget)
+        # Add to Task View
+        if "task_list" in self.ids:
+            self.ids.task_list.add_widget(task_widget)
+
+        # Add to Today’s Tasks if due today
+        if deadline:
+            try:
+                d = datetime.strptime(deadline, "%m/%d/%Y").date()
+                if d == date.today() and "dashboard_task_list" in self.ids:
+                    self.ids.dashboard_task_list.add_widget(task_widget)
+            except Exception:
+                pass
 
     """
     REMOVE TASK
     """
     def remove_task_widget(self, item_id):
-        if not hasattr(self.ids, "task_list"):
-            return
+        # Remove from Task View
+        if "task_list" in self.ids:
+            for widget in list(self.ids.task_list.children):
+                if isinstance(widget, TaskItem) and widget.item_id == item_id:
+                    self.ids.task_list.remove_widget(widget)
+                    break
 
-        for widget in list(self.ids.task_list.children):
-            if isinstance(widget, TaskItem) and widget.item_id == item_id:
-                self.ids.task_list.remove_widget(widget)
-                break
+        # Remove from Today’s Tasks
+        if "dashboard_task_list" in self.ids:
+            for widget in list(self.ids.dashboard_task_list.children):
+                if isinstance(widget, TaskItem) and widget.item_id == item_id:
+                    self.ids.dashboard_task_list.remove_widget(widget)
+                    break
 
         self.update_dashboard()
-
-    """
-    KANBAN COLUMN
-    """
-    def build_column(self, category):
-        return MDCard(
-            orientation="vertical",
-            size_hint=(None, None),
-            width="280dp",
-            height=self.ids.board_columns.height,
-            padding="12dp",
-            radius=[12, 12, 12, 12],
-            children=[
-                MDLabel(
-                    text=category.name,
-                    halign="center",
-                    bold=True
-                )
-            ]
-        )
 
     """
     ERROR POPUP
@@ -201,17 +228,39 @@ class MainWindow(MDScreen):
         ).open()
 
     """
-    DEADLINE PICKER
+    DASHBOARD STATS ONLY
+    (Cards are populated in load_existing_tasks and add_todo_item)
     """
-    def open_deadline_selector(self, mode):
-        self.deadline_mode = mode
-        DeadlineSelector(self.on_deadline_selected).open()
+    def update_dashboard(self):
+        try:
+            tasks = self.controller.load_tasks()
 
-    def on_deadline_selected(self, date_str):
-        if self.deadline_mode == "add" and self.add_deadline:
-            self.add_deadline.text = date_str
-        elif self.deadline_mode == "edit" and self.edit_deadline:
-            self.edit_deadline.text = date_str
+            # Total tasks
+            if "stat_total_tasks" in self.ids:
+                self.ids.stat_total_tasks.text = str(len(tasks))
+
+            # Due today
+            today = date.today()
+            due_today = []
+
+            for t in tasks:
+                if getattr(t, "deadline", None):
+                    try:
+                        d = datetime.strptime(t.deadline, "%m/%d/%Y").date()
+                        if d == today:
+                            due_today.append(t)
+                    except Exception:
+                        pass
+
+            # Update header
+            if "stat_due_today_header" in self.ids:
+                if due_today:
+                    self.ids.stat_due_today_header.text = f"{len(due_today)} due today"
+                else:
+                    self.ids.stat_due_today_header.text = "No tasks due today"
+
+        except Exception as e:
+            self.show_error(f"Dashboard update failed: {e}")
 
     """
     ADD TASK DIALOG
@@ -223,10 +272,6 @@ class MainWindow(MDScreen):
         self.add_description = content.ids.description
         self.add_deadline = content.ids.deadline
         self.category_field = content.ids.category
-
-        self.add_deadline.on_focus = (
-            lambda inst, val: self.open_deadline_selector("add") if val else None
-        )
 
         categories = self.catlist.load_categories()
         menu_items = []
@@ -275,8 +320,14 @@ class MainWindow(MDScreen):
             self.show_error("Task name is required.")
             return
 
+        # Save the task
         self.add_todo_item(name, desc, deadline, category)
+
+        # Close dialog
         self.add_dialog.dismiss()
+
+        # Refresh both lists + dashboard
+        self.load_existing_tasks()
         self.update_dashboard()
 
     """
@@ -295,10 +346,6 @@ class MainWindow(MDScreen):
         self.edit_task_name.text = task_widget.task_name
         self.edit_description.text = task_widget.description
         self.edit_deadline.text = task_widget.deadline
-
-        self.edit_deadline.on_focus = (
-            lambda inst, val: self.open_deadline_selector("edit") if val else None
-        )
 
         categories = self.catlist.load_categories()
         menu_items = []
@@ -377,68 +424,7 @@ class MainWindow(MDScreen):
             self.edit_target.change_to_none()
 
         self.edit_dialog.dismiss()
+
+        # Refresh both lists and dashboard
+        self.load_existing_tasks()
         self.update_dashboard()
-
-    """
-    KANBAN BOARD
-    """
-    def load_board(self):
-        container = self.ids.board_columns
-        container.clear_widgets()
-
-        for row in self.catlist.load_categories():
-            cat = Category(id=row[0], name=row[1], color=row[2])
-            column = self.build_column(cat)
-            container.add_widget(column)
-
-    """
-    DASHBOARD
-    """
-    def update_dashboard(self):
-        try:
-            tasks = self.controller.load_tasks()
-
-            total = len(tasks)
-            if "stat_total_tasks" in self.ids:
-                self.ids.stat_total_tasks.text = str(total)
-
-            today = date.today()
-            due_today = []
-
-            for t in tasks:
-                if getattr(t, "deadline", None):
-                    try:
-                        d = datetime.strptime(t.deadline, "%m/%d/%Y").date()
-                        if d == today:
-                            due_today.append(t)
-                    except Exception:
-                        pass
-
-            if "stat_due_today" in self.ids:
-                self.ids.stat_due_today.text = str(len(due_today))
-
-            if "dashboard_today_list" in self.ids:
-                lst = self.ids.dashboard_today_list
-                lst.clear_widgets()
-
-                if not due_today:
-                    lst.add_widget(
-                        MDLabel(
-                            text="No tasks due today",
-                            theme_text_color="Hint",
-                            halign="left",
-                            padding=(16, 16)
-                        )
-                    )
-                else:
-                    for task in due_today:
-                        lst.add_widget(
-                            MDLabel(
-                                text=task.task_name,
-                                theme_text_color="Primary",
-                                halign="left"
-                            )
-                        )
-
-        except Exception as e:
-            self.show_error(f"Dashboard update failed: {e}")

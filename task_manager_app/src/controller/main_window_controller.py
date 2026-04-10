@@ -23,8 +23,5 @@ class MainWindowController:
     
     def add_task(self, task_name: str, text: str, deadline: str, cat_id: int):
         """Passes new task data from the UI to the database repository"""
-        self.repo.add_task(task_name, text, deadline, cat_id)
-        return Result(success=True)
-    
-
-    
+        task_id = self.repo.add_task(task_name, text, deadline, cat_id)
+        return Result(True, return_val=task_id)

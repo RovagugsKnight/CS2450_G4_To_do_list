@@ -23,154 +23,186 @@
                     size_hint_y: None
                     height: self.minimum_height
 
-                    # Centered max-width container
                     MDBoxLayout:
                         id: dashboard_container
                         orientation: "vertical"
                         spacing: "24dp"
+                        padding: [20, 0, 20, 0]
                         size_hint_x: None
                         width: min(self.parent.width if self.parent and self.parent.width > 0 else dp(900), dp(900))
                         pos_hint: {"center_x": 0.5}
                         adaptive_height: True
 
-                        # -------------------------
-                        # DASHBOARD TITLE
-                        # -------------------------
-                        MDLabel:
-                            text: "Dashboard"
-                            font_style: "H5"
-                            halign: "left"
-                            theme_text_color: "Custom"
-                            text_color: 0.20, 0.20, 0.20, 1
-                            size_hint_y: None
-                            height: self.texture_size[1]
-
-                        # -------------------------
-                        # PROGRESS OVERVIEW
-                        # -------------------------
-                        MDBoxLayout:
-                            orientation: "vertical"
+                        # ---------------------------------------------------
+                        # TWO-ROW DASHBOARD HEADER (WRAPPED IN A CARD)
+                        # ---------------------------------------------------
+                        MDCard:
+                            radius: 16
+                            padding: "24dp"
                             spacing: "16dp"
+                            md_bg_color: 0.94, 0.94, 0.94, 1
+                            elevation: 2
                             adaptive_height: True
-
-                            MDLabel:
-                                text: "Progress Overview"
-                                font_style: "Subtitle1"
-                                theme_text_color: "Custom"
-                                text_color: 0.25, 0.25, 0.25, 1
-                                size_hint_y: None
-                                height: self.texture_size[1]
-
-                            MDCard:
-                                radius: 12
-                                padding: "16dp"
-                                md_bg_color: 0.94, 0.94, 0.94, 1
+                            
+                            MDBoxLayout:
+                                orientation: "horizontal"
+                                spacing: "16dp"
                                 adaptive_height: True
 
+                                # LEFT COLUMN (Dashboard title + Progress card)
                                 MDBoxLayout:
                                     orientation: "vertical"
-                                    spacing: "12dp"
+                                    spacing: "16dp"
+                                    size_hint_x: 0.65
                                     adaptive_height: True
 
                                     MDLabel:
-                                        text: "Tasks Completed Today"
+                                        text: "Dashboard"
+                                        font_style: "H5"
+                                        halign: "left"
+                                        valign: "top"
                                         theme_text_color: "Custom"
-                                        text_color: 0.25, 0.25, 0.25, 1
+                                        text_color: 0.20, 0.20, 0.20, 1
+                                        size_hint_y: None
+                                        height: self.texture_size[1]
 
-                                    MDProgressBar:
-                                        id: progress_today
-                                        value: 40
+                                    MDCard:
+                                        radius: 12
+                                        padding: "16dp"
+                                        size_hint_y: None
+                                        height: "130dp"
+                                        elevation: 1
+                                        md_bg_color: 0.98, 0.98, 0.98, 1
 
-                                    MDLabel:
-                                        text: "Weekly Completion"
-                                        theme_text_color: "Custom"
-                                        text_color: 0.25, 0.25, 0.25, 1
-                                        
+                                        MDBoxLayout:
+                                            orientation: "vertical"
+                                            spacing: "6dp"
 
-                                    MDProgressBar:
-                                        id: progress_week
-                                        value: 70
+                                            MDLabel:
+                                                text: "Progress Overview"
+                                                font_style: "Subtitle1"
+                                                theme_text_color: "Custom"
+                                                text_color: 0.25, 0.25, 0.25, 1
 
-                        # -------------------------
-                        # QUICK STATS ROW
-                        # -------------------------
-                        MDBoxLayout:
-                            orientation: "horizontal"
+                                            MDSeparator:
+                                                height: "1dp"
+                                                color: 0.80, 0.80, 0.80, 1
+
+                                            MDLabel:
+                                                text: "Tasks Completed Today"
+                                                font_style: "Subtitle2"
+                                                theme_text_color: "Custom"
+                                                text_color: 0.25, 0.25, 0.25, 1
+
+                                            MDProgressBar:
+                                                id: progress_today
+                                                value: 0
+
+                                            MDLabel:
+                                                text: "Weekly Completion"
+                                                font_style: "Subtitle2"
+                                                theme_text_color: "Custom"
+                                                text_color: 0.25, 0.25, 0.25, 1
+
+                                            MDProgressBar:
+                                                id: progress_week
+                                                value: 0
+
+                                # VERTICAL SEPARATOR
+                                MDSeparator:
+                                    orientation: "vertical"
+                                    size_hint_x: None
+                                    width: "1dp"
+                                    color: 0.80, 0.80, 0.80, 1
+
+                                # RIGHT COLUMN (Total Tasks)
+                                MDCard:
+                                    radius: 12
+                                    padding: "16dp"
+                                    size_hint_x: 0.25
+                                    size_hint_y: None
+                                    height: "150dp"
+                                    elevation: 1
+                                    md_bg_color: 0.98, 0.98, 0.98, 1
+
+                                    MDBoxLayout:
+                                        orientation: "vertical"
+                                        spacing: "8dp"
+
+                                        MDLabel:
+                                            text: "Total Tasks"
+                                            font_style: "Subtitle1"
+                                            theme_text_color: "Custom"
+                                            text_color: 0.25, 0.25, 0.25, 1
+                                            size_hint_y: None
+                                            height: self.texture_size[1]
+
+                                        MDSeparator:
+                                            height: "1dp"
+                                            color: 0.80, 0.80, 0.80, 1
+
+                                        MDLabel:
+                                            id: stat_total_tasks
+                                            text: ""
+                                            font_style: "H6"
+                                            theme_text_color: "Custom"
+                                            text_color: 0.25, 0.25, 0.25, 1
+
+                        # ---------------------------------------------------
+                        # SEPARATOR LINE
+                        # ---------------------------------------------------
+                        MDSeparator:
+                            height: "1dp"
+                            color: 0.80, 0.80, 0.80, 1
+
+                        # ---------------------------------------------------
+                        # TODAY'S TASKS CARD
+                        # ---------------------------------------------------
+                        MDCard:
+                            radius: 16
+                            padding: "24dp"
                             spacing: "16dp"
+                            elevation: 2
+                            md_bg_color: 0.94, 0.94, 0.94, 1
                             adaptive_height: True
 
-                            MDCard:
-                                radius: 12
-                                padding: "16dp"
-                                size_hint: None, None
-                                size: "200dp", "120dp"
-                                md_bg_color: 0.94, 0.94, 0.94, 1
+                            MDBoxLayout:
+                                orientation: "vertical"
+                                spacing: "12dp"
+                                adaptive_height: True
 
+                                # HEADER ROW
                                 MDBoxLayout:
-                                    orientation: "vertical"
-                                    spacing: "8dp"
+                                    orientation: "horizontal"
+                                    size_hint_y: None
+                                    height: "32dp"
 
                                     MDLabel:
-                                        text: "Total Tasks"
+                                        text: "Today's Tasks"
+                                        font_style: "H5"
                                         theme_text_color: "Custom"
                                         text_color: 0.25, 0.25, 0.25, 1
 
                                     MDLabel:
-                                        id: stat_total_tasks
+                                        id: stat_due_today_header
                                         text: ""
-                                        theme_text_color: "Custom"
-                                        text_color: 0.25, 0.25, 0.25, 1
-                                        font_style: "H6"
-                                        halign: "left"
-
-                            MDCard:
-                                radius: 12
-                                padding: "16dp"
-                                size_hint: None, None
-                                size: "200dp", "120dp"
-                                md_bg_color: 0.94, 0.94, 0.94, 1
-
-                                MDBoxLayout:
-                                    orientation: "vertical"
-                                    spacing: "8dp"
-
-                                    MDLabel:
-                                        text: "Due Today"
+                                        halign: "right"
+                                        font_style: "Subtitle2"
                                         theme_text_color: "Custom"
                                         text_color: 0.25, 0.25, 0.25, 1
 
-                                    MDLabel:
-                                        id: stat_due_today
-                                        text: ""
-                                        font_style: "H6"
-                                        theme_text_color: "Custom"
-                                        text_color: 0.25, 0.25, 0.25, 1
-                                        halign: "left"
+                                # FULL-WIDTH UNDERLINE
+                                MDSeparator:
+                                    height: "1dp"
+                                    size_hint_x: 1
+                                    color: 0.80, 0.80, 0.80, 1
 
-                        # -------------------------
-                        # TODAY'S TASKS PREVIEW
-                        # -------------------------
-                        MDLabel:
-                            text: "Today's Tasks"
-                            font_style: "Subtitle1"
-                            theme_text_color: "Custom"
-                            text_color: 0.25, 0.25, 0.25, 1
-                            size_hint_y: None
-                            height: self.texture_size[1]
+                                ScrollView:
+                                    size_hint_y: None
+                                    height: max(dp(200), dashboard_task_list.height)   # base height + adaptive
 
-                        MDCard:
-                            radius: 12
-                            padding: "16dp"
-                            md_bg_color: 0.94, 0.94, 0.94, 1
-                            size_hint_y: None
-                            height: "200dp"
-
-                            ScrollView:
-                                size_hint_y: None
-                                height: "200dp"
-
-                                MDList:
-                                    id: dashboard_today_list
+                                    MDList:
+                                        id: dashboard_task_list 
 
         # ---------------------------------------------------
         # TASK BOARD SCREEN
@@ -180,15 +212,30 @@
             md_bg_color: 0.90, 0.90, 0.90, 1
 
             ScrollView:
-                do_scroll_y: False
-                do_scroll_x: True
+                do_scroll_y: True
+                do_scroll_x: False
                 size_hint_y: None
                 height: root.height
 
                 MDBoxLayout:
-                    id: board_columns
-                    orientation: "horizontal"
-                    spacing: "24dp"
+                    orientation: "vertical"
                     padding: "24dp"
+                    spacing: "16dp"
                     size_hint_y: None
                     height: self.minimum_height
+
+                    MDLabel:
+                        text: "All Tasks"
+                        font_style: "H5"
+                        theme_text_color: "Custom"
+                        text_color: 0.25, 0.25, 0.25, 1
+                        size_hint_y: None
+                        height: self.texture_size[1]
+
+                    # --- MAIN TASK LIST ---
+                    ScrollView:
+                        size_hint_y: None
+                        height: root.height - dp(120)
+
+                        MDList:
+                            id: task_list

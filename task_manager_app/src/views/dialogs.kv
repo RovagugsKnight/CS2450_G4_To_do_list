@@ -1,28 +1,37 @@
 <AddTaskContent>:
     orientation: "vertical"
     spacing: "12dp"
-    padding: "0dp", "40dp", "0dp", "12dp"   # <-- pushes content down
+    padding: "12dp"
     size_hint_y: None
     height: self.minimum_height
 
     MDTextField:
         id: task_name
         hint_text: "Task Name"
+        size_hint_y: None
+        height: "48dp"
 
     MDTextField:
         id: description
-        hint_text: "Description"
+        hint_text: "Description (Optional)"
+        size_hint_y: None
+        height: "120dp"
         multiline: True
 
     MDTextField:
         id: deadline
         hint_text: "Deadline (optional)"
         readonly: True
+        size_hint_y: None
+        height: "48dp"
+        on_focus:
+            if self.focus: app.root.ids.main_window.open_deadline_for_field(self)
 
     MDTextField:
         id: category
-        hint_text: "Category"
-
+        hint_text: "Category (Default None)"
+        size_hint_y: None
+        height: "48dp"
 
 <EditTaskContent>:
     orientation: "vertical"
@@ -34,17 +43,27 @@
     MDTextField:
         id: task_name
         hint_text: "Task Name"
+        size_hint_y: None
+        height: "48dp"
 
     MDTextField:
         id: description
-        hint_text: "Description"
+        hint_text: "Description (Optional)"
+        size_hint_y: None
+        height: "120dp"
         multiline: True
 
     MDTextField:
         id: deadline
         hint_text: "Deadline (optional)"
         readonly: True
+        size_hint_y: None
+        height: "48dp"
+        on_focus:
+            if self.focus: app.root.ids.main_window.open_deadline_for_field(self)
 
     MDTextField:
         id: category
-        hint_text: "Category"
+        hint_text: "Category (Default None)"
+        size_hint_y: None
+        height: "48dp"

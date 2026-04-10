@@ -22,19 +22,20 @@ class TaskItem(MDBoxLayout):
 
     def __init__(
         self,
-        main_window,
-        controller: TaskController,
-        item_id: int,
-        task_name: str,
-        description: str,
-        category: Category | None,
-        cat_controller: CategoryController,
-        done: bool = False,
-        deadline: str = "",
+        main_window=None,
+        controller: TaskController = None,
+        item_id=None,
+        task_name="",
+        description="",
+        category: Category | None = None,
+        cat_controller: CategoryController = None,
+        done=False,
+        deadline="",
         **kwargs
     ):
         super().__init__(**kwargs)
 
+        # Allow KV to instantiate safely
         self.main_window = main_window
         self.controller = controller
         self.cat_controller = cat_controller
@@ -63,11 +64,10 @@ class TaskItem(MDBoxLayout):
         self.color = get_color("white")
 
     """
-    ERROR POPUP (will be replaced with MDDialog)
+    ERROR POPUP
     """
 
     def show_popup(self, message: str):
-        """Temporary popup for errors (will be replaced with MDDialog)."""
         from kivy.uix.popup import Popup
         from kivy.uix.label import Label
 
@@ -81,32 +81,32 @@ class TaskItem(MDBoxLayout):
     TASK ACTIONS
     """
 
-    def mark_done(self):
-        """Mark task as done in DB and update UI."""
+    def mark_done(self, *args):
+        """Mark task as done in DB and refresh UI."""
+        if not self.controller or not self.main_window:
+            return
+
         result = self.controller.mark_done(self.item_id)
         if result.success:
-            self.done = True
+            self.main_window.load_existing_tasks()
+            self.main_window.update_dashboard()
         else:
             self.show_popup(result.error)
 
-    def remove(self):
+    def remove(self, *args):
         """Delete task from DB and remove widget from UI."""
+        if not self.controller or not self.main_window:
+            return
+
         result = self.controller.delete_task(self.item_id)
         if result.success:
             self.main_window.remove_task_widget(self.item_id)
         else:
             self.show_popup(result.error)
 
-    """
-    EDIT TASK (UI will be replaced with MDDialog)
-    """
-
-    def edit_task(self):
-        """
-        Opens the edit modal.
-        The old popup UI is removed — this now calls MainWindow to open MDDialog.
-        """
-        if hasattr(self.main_window, "open_edit_dialog"):
+    def edit_task(self, *args):
+        """Open edit dialog."""
+        if self.main_window and hasattr(self.main_window, "open_edit_dialog"):
             self.main_window.open_edit_dialog(self)
         else:
             self.show_popup("Edit dialog not implemented yet.")

@@ -24,6 +24,9 @@ class TaskManagerApp(MDApp):
         # Load dialog KV FIRST
         Builder.load_file("views/dialogs.kv")
 
+        # Load task widget KV before main KV
+        Builder.load_file("views/task_widget.kv")
+
         # Load main KV
         root = Builder.load_file("views/app.kv")
 
@@ -36,6 +39,8 @@ class TaskManagerApp(MDApp):
         main_window.controller = MainWindowController(main_window.repo)
         main_window.task_controller = TaskController(main_window.repo)
         main_window.cat_controller = CategoryController(main_window.catlist)
+        main_window.load_existing_tasks()
+        main_window.update_dashboard()
 
         return root
 
