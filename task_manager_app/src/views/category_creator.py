@@ -11,31 +11,31 @@ Builder.load_file('views/category_creator.kv')
 
 class CategoryCreator(MDBoxLayout):
     """
-    CATEGORY CREATOR
+    CATEGORY CREATOR POPUP
     """
 
-    def __init__(self, mainwindow, popup: Popup | None = None, **kwargs):
+    def __init__(self, mainwindow, source="nav", popup: Popup | None = None, **kwargs):
         super().__init__(**kwargs)
 
         self.mainwindow = mainwindow
+        self.source = source
         self.popup = popup
 
         # Color selector widget
         self.col_selector = ColorSelector(color_dict)
-        self.add_widget(self.col_selector)
+        self.ids.color_area.add_widget(self.col_selector)
 
-        # Submit button (replaces YellowButton)
+        # Submit button
         self.submit_button = MDRaisedButton(
             text="Submit",
-            size_hint_y=None,
+            size_hint=(1, None),
             height="50dp",
-            md_bg_color=(0.2, 0.2, 0.2, 1),  # neutral dark gray
-            radius=[10, 10, 10, 10],
+            md_bg_color=(0.2, 0.2, 0.2, 1),
         )
-        self.add_widget(self.submit_button)
+        self.ids.submit_area.add_widget(self.submit_button)
 
         self.submit_button.bind(on_release=self.end_creation)
-    
+
     """
     END CREATION
     """
@@ -59,7 +59,8 @@ class CategoryCreator(MDBoxLayout):
             Logger.error("CategoryCreator: White cannot be used as a category color")
             return
 
-        self.mainwindow.create_category(cat_name, color_key)
+        # Route creation through MainWindow (Option C)
+        self.mainwindow.create_category(cat_name, color_key, source=self.source)
 
         if self.popup:
             self.popup.dismiss()

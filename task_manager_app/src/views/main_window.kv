@@ -199,7 +199,7 @@
 
                                 ScrollView:
                                     size_hint_y: None
-                                    height: max(dp(200), dashboard_task_list.height)   # base height + adaptive
+                                    height: max(dp(200), dashboard_task_list.height)
 
                                     MDList:
                                         id: dashboard_task_list 
@@ -232,10 +232,46 @@
                         size_hint_y: None
                         height: self.texture_size[1]
 
-                    # --- MAIN TASK LIST ---
                     ScrollView:
                         size_hint_y: None
                         height: root.height - dp(120)
 
                         MDList:
                             id: task_list
+
+        # ---------------------------------------------------
+        # MANAGE CATEGORIES SCREEN (NEW)
+        # ---------------------------------------------------
+        MDScreen:
+            name: "ManageCategories"
+            md_bg_color: 0.90, 0.90, 0.90, 1
+
+            ScrollView:
+                do_scroll_y: True
+                do_scroll_x: False
+
+                MDBoxLayout:
+                    orientation: "vertical"
+                    padding: "24dp"
+                    spacing: "16dp"
+                    size_hint_y: None
+                    height: self.minimum_height
+
+                    MDLabel:
+                        text: "Manage Categories"
+                        font_style: "H5"
+                        theme_text_color: "Custom"
+                        text_color: 0.25, 0.25, 0.25, 1
+                        size_hint_y: None
+                        height: self.texture_size[1]
+
+                    MDSeparator:
+                        height: "1dp"
+                        color: 0.80, 0.80, 0.80, 1
+
+                    ScrollView:
+                        size_hint_y: None
+                        height: root.height - dp(120)
+
+                        MDList:
+                            id: category_list

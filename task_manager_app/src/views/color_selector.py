@@ -3,15 +3,10 @@ from kivymd.uix.button import MDRaisedButton
 from kivy.properties import StringProperty
 from kivy.logger import Logger
 
-"""
-COLOR SELECTOR
-"""
 
 class ColorSelector(MDBoxLayout):
     """
-    A simple color selection widget that displays color swatches
-    based on the provided color dictionary. Returns the selected
-    color key (string).
+    Displays color swatches and returns selected color key.
     """
 
     selected_color_key = StringProperty(None)
@@ -26,10 +21,13 @@ class ColorSelector(MDBoxLayout):
         self._build_swatches()
 
     def _build_swatches(self):
-        """Create a button for each color in the palette."""
+        """
+        Build a row of color buttons based on the color_dict.
+        Skips 'white' because it's not allowed as a category color.
+        """
         for key, data in self.color_dict.items():
 
-            # Skip white so users cannot select it
+            # Skip white — not allowed for categories
             if key == "white":
                 continue
 
@@ -41,18 +39,15 @@ class ColorSelector(MDBoxLayout):
                 size_hint=(None, None),
                 width="90dp",
                 height="40dp",
-                radius=[10, 10, 10, 10],
             )
 
+            # Bind selection
             btn.bind(on_release=lambda inst, k=key: self._select_color(k))
             self.add_widget(btn)
 
-
     def _select_color(self, key: str):
-        """Store the selected color key."""
         Logger.info(f"ColorSelector: Selected color key = {key}")
         self.selected_color_key = key
 
     def get_selected_color_key(self) -> str:
-        """Return the selected color key."""
         return self.selected_color_key

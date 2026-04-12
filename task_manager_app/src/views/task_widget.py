@@ -90,7 +90,7 @@ class TaskItem(MDBoxLayout):
             self.show_popup(result.error)
 
 
-    def remove(self):
+    def delete_task(self):
         """Delete task from DB and remove widget from UI."""
         result = self.controller.delete_task(self.item_id)
         if result.success:

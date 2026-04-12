@@ -19,7 +19,6 @@ from kivymd.uix.dialog import MDDialog
 from kivymd.uix.menu import MDDropdownMenu
 from kivymd.uix.button import MDFlatButton, MDRaisedButton
 from kivymd.uix.label import MDLabel
-from kivymd.uix.card import MDCard
 from kivy.clock import Clock
 from kivy.uix.popup import Popup
 
@@ -50,36 +49,44 @@ class MainWindow(MDScreen):
             field.text = date_str
         DeadlineSelector(_set_date).open()
 
+    def _divider(self):
+        return {
+            "viewclass": "MDBoxLayout",
+            "size_hint_y": None,
+            "height": 1,
+            "md_bg_color": (0.7, 0.7, 0.7, 1),
+        }
+
     """
     NAV MENU + INITIAL LOAD
     """
     def on_kv_post(self, base_widget):
-        # Load tasks immediately on startup
         Clock.schedule_once(lambda dt: (self.load_existing_tasks(), self.update_dashboard()), 0)
 
-        # Build nav menu
         root = self.parent.parent
 
         menu_items = [
             {
+                "viewclass": "OneLineListItem",
                 "text": "Switch View",
-                "viewclass": "OneLineListItem",
                 "on_release": lambda: self.open_view_submenu(),
-                "divider": "Full",
+                "theme_text_color": "Custom",
                 "text_color": (0.1, 0.1, 0.1, 1),
             },
+            self._divider(),
             {
+                "viewclass": "OneLineListItem",
                 "text": "Create Category",
-                "viewclass": "OneLineListItem",
-                "on_release": lambda: self.open_category_creator(),
-                "divider": "Full",
+                "on_release": lambda: self.open_category_creator(source="nav"),
+                "theme_text_color": "Custom",
                 "text_color": (0.1, 0.1, 0.1, 1),
             },
+            self._divider(),
             {
-                "text": "Manage Categories",
                 "viewclass": "OneLineListItem",
+                "text": "Manage Categories",
                 "on_release": lambda: self.open_category_manager(),
-                "divider": "Full",
+                "theme_text_color": "Custom",
                 "text_color": (0.1, 0.1, 0.1, 1),
             },
         ]
@@ -107,17 +114,18 @@ class MainWindow(MDScreen):
                 "text": "Dashboard",
                 "viewclass": "OneLineListItem",
                 "on_release": lambda: self.switch_view("Dashboard"),
+                "theme_text_color": "Custom",
+                "text_color": (0.1, 0.1, 0.1, 1),
             },
+            self._divider(),
             {
                 "text": "Task View",
                 "viewclass": "OneLineListItem",
                 "on_release": lambda: self.switch_view("Task View"),
+                "theme_text_color": "Custom",
+                "text_color": (0.1, 0.1, 0.1, 1),
             },
-            {
-                "text": "Kanban Board",
-                "viewclass": "OneLineListItem",
-                "on_release": lambda: self.switch_view("Kanban"),
-            },
+            self._divider(),
         ]
 
         root = self.parent.parent
@@ -148,8 +156,8 @@ class MainWindow(MDScreen):
     """
     CATEGORY CREATOR ENTRY
     """
-    def open_category_creator(self):
-        creator = CategoryCreator(self)
+    def open_category_creator(self, source="nav"):
+        creator = CategoryCreator(self, source=source)
         popup = Popup(
             title="Create Category",
             content=creator,
@@ -163,9 +171,69 @@ class MainWindow(MDScreen):
         if hasattr(self, "nav_menu"):
             self.nav_menu.dismiss()
 
+    """
+    MANAGE CATEGORIES
+    """
+    def populate_category_manager(self):
+        """Populate the Manage Categories screen."""
+        if "category_list" not in self.ids:
+            return
+
+        self.ids.category_list.clear_widgets()
+
+        categories = self.cat_controller.load_categories()
+
+        from kivymd.uix.list import OneLineIconListItem, IconLeftWidget
+
+        for cat in categories:
+            item = OneLineIconListItem(
+                text=f"{cat.name} ({cat.color})",
+                on_release=lambda inst, c=cat: Logger.info(f"Selected category: {c.name}"),
+            )
+            icon = IconLeftWidget(icon="folder")
+            item.add_widget(icon)
+            self.ids.category_list.add_widget(item)
+
     def open_category_manager(self):
-        Logger.info("MainWindow: open_category_manager called (stub).")
-        # Placeholder: wire this to your category manager screen or dialog when ready.
+        self.populate_category_manager()
+        self.ids.screen_manager.current = "ManageCategories"
+
+    """
+    UNIFIED CATEGORY CREATION (OPTION C)
+    """
+    def create_category(self, name, color_key, *, source="nav"):
+        result = self.cat_controller.add_category(name, color_key)
+
+        if not result.success:
+            self.show_error(result.error)
+            return
+
+        new_cat = result.return_val
+
+        # Refresh UI
+        self.load_existing_tasks()
+        self.update_dashboard()
+
+        # Refresh category menus
+        if hasattr(self, "category_menu"):
+            self.category_menu.dismiss()
+        if hasattr(self, "edit_category_menu"):
+            self.edit_category_menu.dismiss()
+
+        # Behavior depends on source
+        if source == "nav":
+            self.populate_category_manager()
+            self.ids.screen_manager.current = "ManageCategories"
+
+        elif source == "add_task":
+            self.selected_category = new_cat
+            self.category_field.text = new_cat.name
+
+        elif source == "edit_task":
+            self.edit_selected_category = new_cat
+            self.edit_category_field.text = new_cat.name
+
+        Logger.info(f"MainWindow: Created category '{name}' ({color_key}) from {source}")
 
     """
     LOAD EXISTING TASKS
@@ -174,11 +242,9 @@ class MainWindow(MDScreen):
         try:
             tasks = self.controller.load_tasks()
 
-            # Clear Task View list
             if "task_list" in self.ids:
                 self.ids.task_list.clear_widgets()
 
-            # Clear Today’s Tasks list
             if "dashboard_task_list" in self.ids:
                 self.ids.dashboard_task_list.clear_widgets()
 
@@ -190,7 +256,6 @@ class MainWindow(MDScreen):
                     cat_result = self.cat_controller.get_category(task.catid)
                     category = cat_result.return_val
 
-                # Main list widget
                 task_widget = TaskItem(
                     main_window=self,
                     controller=self.task_controller,
@@ -206,7 +271,6 @@ class MainWindow(MDScreen):
                 if "task_list" in self.ids:
                     self.ids.task_list.add_widget(task_widget)
 
-                # Focused list widget (Today’s Tasks)
                 if task.deadline and "dashboard_task_list" in self.ids:
                     try:
                         d = datetime.strptime(task.deadline, "%m/%d/%Y").date()
@@ -254,11 +318,9 @@ class MainWindow(MDScreen):
             deadline=deadline,
         )
 
-        # Add to Task View
         if "task_list" in self.ids:
             self.ids.task_list.add_widget(task_widget)
 
-        # Add to Today’s Tasks if due today
         if deadline:
             try:
                 d = datetime.strptime(deadline, "%m/%d/%Y").date()
@@ -271,14 +333,12 @@ class MainWindow(MDScreen):
     REMOVE TASK
     """
     def remove_task_widget(self, item_id):
-        # Remove from Task View
         if "task_list" in self.ids:
             for widget in list(self.ids.task_list.children):
                 if isinstance(widget, TaskItem) and widget.item_id == item_id:
                     self.ids.task_list.remove_widget(widget)
                     break
 
-        # Remove from Today’s Tasks
         if "dashboard_task_list" in self.ids:
             for widget in list(self.ids.dashboard_task_list.children):
                 if isinstance(widget, TaskItem) and widget.item_id == item_id:
@@ -298,18 +358,15 @@ class MainWindow(MDScreen):
         ).open()
 
     """
-    DASHBOARD STATS ONLY
-    (Cards are populated in load_existing_tasks and add_todo_item)
+    DASHBOARD STATS
     """
     def update_dashboard(self):
         try:
             tasks = self.controller.load_tasks()
 
-            # Total tasks
             if "stat_total_tasks" in self.ids:
                 self.ids.stat_total_tasks.text = str(len(tasks))
 
-            # Due today
             today = date.today()
             due_today = []
 
@@ -322,7 +379,6 @@ class MainWindow(MDScreen):
                     except Exception:
                         pass
 
-            # Update header
             if "stat_due_today_header" in self.ids:
                 if due_today:
                     self.ids.stat_due_today_header.text = f"{len(due_today)} due today"
@@ -390,13 +446,10 @@ class MainWindow(MDScreen):
             self.show_error("Task name is required.")
             return
 
-        # Save the task
         self.add_todo_item(name, desc, deadline, category)
 
-        # Close dialog
         self.add_dialog.dismiss()
 
-        # Refresh both lists + dashboard
         self.load_existing_tasks()
         self.update_dashboard()
 
@@ -495,6 +548,5 @@ class MainWindow(MDScreen):
 
         self.edit_dialog.dismiss()
 
-        # Refresh both lists and dashboard
         self.load_existing_tasks()
         self.update_dashboard()
