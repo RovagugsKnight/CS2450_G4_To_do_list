@@ -52,19 +52,11 @@ class TaskItem(MDBoxLayout):
         else:
             self.change_to_none()
 
-    """
-    CATEGORY HANDLING
-    """
-
     def change_to_none(self):
         """Set category to None and use neutral accent color."""
         self.cat_id = None
         self.cat_name = "None"
         self.color = get_color("white")
-
-    """
-    ERROR POPUP (will be replaced with MDDialog)
-    """
 
     def show_popup(self, message: str):
         """Temporary popup for errors (will be replaced with MDDialog)."""
@@ -77,18 +69,21 @@ class TaskItem(MDBoxLayout):
             size_hint=(0.6, 0.3),
         ).open()
 
-    """
-    TASK ACTIONS
-    """
-
     def mark_done(self):
+        """
+        Mark task as done in DB and refresh UI.
+        Kanban logic:
+          - Non-Done columns show only not-done tasks
+          - Done column shows all done tasks
+        """
         result = self.controller.mark_done(self.item_id)
         if result.success:
+            self.done = True
             self.main_window.load_existing_tasks()
             self.main_window.update_dashboard()
+            self.main_window.build_kanban_board()
         else:
             self.show_popup(result.error)
-
 
     def delete_task(self):
         """Delete task from DB and remove widget from UI."""
@@ -97,10 +92,6 @@ class TaskItem(MDBoxLayout):
             self.main_window.remove_task_widget(self.item_id)
         else:
             self.show_popup(result.error)
-
-    """
-    EDIT TASK (UI will be replaced with MDDialog)
-    """
 
     def edit_task(self):
         """

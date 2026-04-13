@@ -4,7 +4,7 @@ from kivy.lang import Builder
 from models.sqllite_repository import SqliteRepo
 from models.sqllite_category_list import SqliteCategories
 
-from views.main_window import MainWindow
+from views.main_window.main_window import MainWindow
 from controller.main_window_controller import MainWindowController
 from controller.task_controller import TaskController
 from controller.category_controller import CategoryController

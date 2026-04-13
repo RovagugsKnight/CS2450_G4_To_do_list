@@ -27,11 +27,32 @@
         on_focus:
             if self.focus: app.root.ids.main_window.open_deadline_for_field(self)
 
-    MDTextField:
-        id: category
-        hint_text: "Category (Default None)"
+    MDBoxLayout:
+        orientation: "horizontal"
+        spacing: "8dp"
         size_hint_y: None
         height: "48dp"
+
+        MDTextField:
+            id: category
+            hint_text: "Category"
+            readonly: True
+            size_hint_x: 1
+
+        MDRaisedButton:
+            text: "▼"
+            size_hint_x: None
+            width: "48dp"
+            on_release:
+                app.root.ids.main_window.category_menu.open()
+
+        MDRaisedButton:
+            text: "+"
+            size_hint_x: None
+            width: "48dp"
+            on_release:
+                app.root.ids.main_window.open_category_creator(source="add_task")
+
 
 <EditTaskContent>:
     orientation: "vertical"
@@ -62,8 +83,28 @@
         on_focus:
             if self.focus: app.root.ids.main_window.open_deadline_for_field(self)
 
-    MDTextField:
-        id: category
-        hint_text: "Category (Default None)"
+    MDBoxLayout:
+        orientation: "horizontal"
+        spacing: "8dp"
         size_hint_y: None
         height: "48dp"
+
+        MDTextField:
+            id: category
+            hint_text: "Category"
+            readonly: True
+            size_hint_x: 1
+
+        MDRaisedButton:
+            text: "▼"
+            size_hint_x: None
+            width: "48dp"
+            on_release:
+                app.root.ids.main_window.edit_category_menu.open()
+
+        MDRaisedButton:
+            text: "+"
+            size_hint_x: None
+            width: "48dp"
+            on_release:
+                app.root.ids.main_window.open_category_creator(source="edit_task")

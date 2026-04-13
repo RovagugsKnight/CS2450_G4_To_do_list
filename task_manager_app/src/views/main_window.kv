@@ -204,43 +204,30 @@
                                     MDList:
                                         id: dashboard_task_list 
 
+
         # ---------------------------------------------------
-        # TASK BOARD SCREEN
+        # TASK BOARD SCREEN (KANBAN)
         # ---------------------------------------------------
         MDScreen:
             name: "Task View"
             md_bg_color: 0.90, 0.90, 0.90, 1
 
             ScrollView:
-                do_scroll_y: True
-                do_scroll_x: False
-                size_hint_y: None
-                height: root.height
+                do_scroll_y: False
+                do_scroll_x: True
 
                 MDBoxLayout:
-                    orientation: "vertical"
-                    padding: "24dp"
+                    id: board_columns
+                    orientation: "horizontal"
                     spacing: "16dp"
-                    size_hint_y: None
-                    height: self.minimum_height
+                    padding: "24dp"
+                    size_hint_y: 1
+                    size_hint_x: None
+                    width: self.minimum_width
 
-                    MDLabel:
-                        text: "All Tasks"
-                        font_style: "H5"
-                        theme_text_color: "Custom"
-                        text_color: 0.25, 0.25, 0.25, 1
-                        size_hint_y: None
-                        height: self.texture_size[1]
-
-                    ScrollView:
-                        size_hint_y: None
-                        height: root.height - dp(120)
-
-                        MDList:
-                            id: task_list
 
         # ---------------------------------------------------
-        # MANAGE CATEGORIES SCREEN (NEW)
+        # MANAGE CATEGORIES SCREEN
         # ---------------------------------------------------
         MDScreen:
             name: "ManageCategories"
