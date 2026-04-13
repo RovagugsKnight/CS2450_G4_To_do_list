@@ -13,6 +13,7 @@ from views.main_window.task_dialogs import (
     set_edit_category,
     submit_edit_task,
 )
+from views.main_window.menu_view import build_nav_menu, open_nav_menu
 
 from models.task_repository import TaskRepository
 from models.category_list import CategoryList
@@ -137,3 +138,5 @@ class MainWindow(MDScreen):
     open_edit_dialog = open_edit_dialog
     set_edit_category = set_edit_category
     submit_edit_task = submit_edit_task
+    open_nav_menu = open_nav_menu
+    build_nav_menu = build_nav_menu
