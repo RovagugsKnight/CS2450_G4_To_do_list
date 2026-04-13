@@ -18,7 +18,13 @@ class ColorSelector(MDBoxLayout):
         self.padding = "8dp"
 
         self.color_dict = color_dict
+        self._buttons = []
         self._build_swatches()
+
+        # Default to first non-white color if nothing selected
+        if self.selected_color_key is None and self._buttons:
+            first_key = self._buttons[0][0]
+            self._select_color(first_key)
 
     def _build_swatches(self):
         """
@@ -26,8 +32,6 @@ class ColorSelector(MDBoxLayout):
         Skips 'white' because it's not allowed as a category color.
         """
         for key, data in self.color_dict.items():
-
-            # Skip white — not allowed for categories
             if key == "white":
                 continue
 
@@ -41,9 +45,9 @@ class ColorSelector(MDBoxLayout):
                 height="40dp",
             )
 
-            # Bind selection
             btn.bind(on_release=lambda inst, k=key: self._select_color(k))
             self.add_widget(btn)
+            self._buttons.append((key, btn))
 
     def _select_color(self, key: str):
         Logger.info(f"ColorSelector: Selected color key = {key}")

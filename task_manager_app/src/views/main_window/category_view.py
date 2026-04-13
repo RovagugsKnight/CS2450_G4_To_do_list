@@ -1,69 +1,111 @@
 # views/main_window/category_view.py
 
-from kivymd.uix.list import OneLineIconListItem, IconLeftWidget
 from kivy.uix.popup import Popup
+from kivymd.uix.card import MDCard
+from kivymd.uix.boxlayout import MDBoxLayout
+from kivymd.uix.button import MDRaisedButton, MDIconButton
 from kivymd.uix.label import MDLabel
+from views.colors import get_color
+from views.category_creator import CategoryCreator
 
 
-def populate_category_manager(self):
-    """Populate the Manage Categories screen."""
-    if "category_list" not in self.ids:
-        return
+class ManageCategoriesPopup(Popup):
+    """
+    Popup that lists all categories with Edit/Delete controls.
+    """
 
-    self.ids.category_list.clear_widgets()
+    def __init__(self, mainwindow, **kwargs):
+        super().__init__(**kwargs)
+        self.mainwindow = mainwindow
+        self.title = "Manage Categories"
+        self.size_hint = (0.9, 0.9)
 
-    categories = self.cat_controller.load_categories()
+        root = MDBoxLayout(orientation="vertical", spacing="12dp", padding="12dp")
+        self.content = root
 
-    for cat in categories:
-        item = OneLineIconListItem(
-            text=f"{cat.name} ({cat.color})",
-            on_release=lambda inst, c=cat: print(f"Selected category: {c.name}"),
+        # Scrollable list area
+        self.list_area = MDBoxLayout(
+            orientation="vertical",
+            spacing="8dp",
+            size_hint_y=None,
         )
-        icon = IconLeftWidget(icon="folder")
-        item.add_widget(icon)
-        self.ids.category_list.add_widget(item)
+        self.list_area.bind(minimum_height=self.list_area.setter("height"))
+
+        from kivy.uix.scrollview import ScrollView
+        scroll = ScrollView(do_scroll_y=True)
+        scroll.add_widget(self.list_area)
+
+        root.add_widget(scroll)
+
+        # Close button
+        root.add_widget(
+            MDRaisedButton(
+                text="Close",
+                size_hint_y=None,
+                height="48dp",
+                on_release=lambda inst: self.dismiss(),
+            )
+        )
+
+        self.refresh()
 
 
-def open_category_manager(self):
-    """Switch to the Manage Categories screen."""
-    populate_category_manager(self)
-    self.ids.screen_manager.current = "ManageCategories"
+    def refresh(self):
+        """Rebuild the category list."""
+        self.list_area.clear_widgets()
+        categories = self.mainwindow.cat_controller.load_categories()
 
+        for cat in categories:
+            # Skip system categories
+            if cat.name.lower() in ("todo", "done"):
+                continue
 
-def create_category(self, name, color_key, *, source="nav"):
-    """Create a new category and update UI depending on source."""
-    result = self.cat_controller.add_category(name, color_key)
+            rgba = get_color(cat.color)["rgba"]
 
-    if not result.success:
-        Popup(
-            title="Error",
-            content=MDLabel(text=result.error),
-            size_hint=(0.6, 0.3),
-        ).open()
-        return
+            row = MDCard(
+                orientation="horizontal",
+                padding="8dp",
+                radius=12,
+                size_hint_y=None,
+                height="60dp",
+                md_bg_color=(1, 1, 1, 1),
+            )
 
-    new_cat = result.return_val
+            # Color swatch
+            row.add_widget(
+                MDCard(
+                    size_hint=(None, None),
+                    width="40dp",
+                    height="40dp",
+                    radius=8,
+                    md_bg_color=rgba,
+                    elevation=2,
+                )
+            )
 
-    # Refresh dashboard + tasks
-    self.load_existing_tasks()
-    from views.main_window.dashboard_view import update_dashboard
-    update_dashboard(self)
+            # Category name
+            row.add_widget(
+                MDLabel(
+                    text=cat.name,
+                    halign="left",
+                    valign="middle",
+                )
+            )
 
-    # Close dropdowns if open
-    if hasattr(self, "category_menu"):
-        self.category_menu.dismiss()
-    if hasattr(self, "edit_category_menu"):
-        self.edit_category_menu.dismiss()
+            # Edit button
+            row.add_widget(
+                MDIconButton(
+                    icon="pencil",
+                    on_release=lambda inst, c=cat: self.mainwindow.open_edit_category(c),
+                )
+            )
 
-    # Handle context
-    if source == "nav":
-        populate_category_manager(self)
-        self.ids.screen_manager.current = "ManageCategories"
+            # Delete button
+            row.add_widget(
+                MDIconButton(
+                    icon="trash-can",
+                    on_release=lambda inst, c=cat: self.mainwindow.delete_category(c),
+                )
+            )
 
-    elif source == "add_task":
-        self.selected_category = new_cat
-        self.category_field.text = new_cat.name
-
-    elif source == "edit_task":
-        self.edit_selected_category = new_cat
-        self.edit_category_field.text = new_cat.name
+            self.list_area.add_widget(row)

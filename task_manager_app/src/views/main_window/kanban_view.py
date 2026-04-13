@@ -5,6 +5,7 @@ from kivy.uix.scrollview import ScrollView
 from kivy.metrics import dp
 
 from views.task_widget import TaskItem
+from views.colors import get_color, pastelize
 
 
 def build_kanban_board(self):
@@ -19,16 +20,10 @@ def build_kanban_board(self):
     tasks = self.controller.load_tasks()
 
     for cat in categories:
-        base_color = self.resolve_color(
-            self.cat_controller.get_category(cat.id).return_val.color
-        )
-
-        pastel = (
-            (base_color[0] + 1.0) / 2.0,
-            (base_color[1] + 1.0) / 2.0,
-            (base_color[2] + 1.0) / 2.0,
-            1.0,
-        )
+        # cat.color is the key ("teal", "gray", etc.)
+        color_data = get_color(cat.color)
+        base_color = color_data["rgba"]
+        pastel = pastelize(base_color)
 
         col = MDCard(
             orientation="vertical",
@@ -61,30 +56,34 @@ def build_kanban_board(self):
         for t in tasks:
             if cat.name.lower() == "done":
                 if t.done:
-                    task_list.add_widget(TaskItem(
-                        main_window=self,
-                        controller=self.task_controller,
-                        item_id=t.task_id,
-                        task_name=t.task_name,
-                        description=t.text,
-                        category=cat,
-                        cat_controller=self.cat_controller,
-                        done=t.done,
-                        deadline=t.deadline,
-                    ))
+                    task_list.add_widget(
+                        TaskItem(
+                            main_window=self,
+                            controller=self.task_controller,
+                            item_id=t.task_id,
+                            task_name=t.task_name,
+                            description=t.text,
+                            category=cat,
+                            cat_controller=self.cat_controller,
+                            done=t.done,
+                            deadline=t.deadline,
+                        )
+                    )
             else:
                 if (t.catid == cat.id) and (not t.done):
-                    task_list.add_widget(TaskItem(
-                        main_window=self,
-                        controller=self.task_controller,
-                        item_id=t.task_id,
-                        task_name=t.task_name,
-                        description=t.text,
-                        category=cat,
-                        cat_controller=self.cat_controller,
-                        done=t.done,
-                        deadline=t.deadline,
-                    ))
+                    task_list.add_widget(
+                        TaskItem(
+                            main_window=self,
+                            controller=self.task_controller,
+                            item_id=t.task_id,
+                            task_name=t.task_name,
+                            description=t.text,
+                            category=cat,
+                            cat_controller=self.cat_controller,
+                            done=t.done,
+                            deadline=t.deadline,
+                        )
+                    )
 
         scroll = ScrollView(do_scroll_x=False, do_scroll_y=True, bar_width="6dp")
         scroll.add_widget(task_list)

@@ -59,9 +59,12 @@ MDBoxLayout:
                     on_release: main_window.open_add_dialog()
 
     # -------------------------
-    # CONTENT ONLY (NO DRAWER)
+    # CONTENT AREA
     # -------------------------
     ScreenManager:
+        id: screen_manager
+        size_hint_y: 1
+
         MainWindow:
             id: main_window
             name: "main"

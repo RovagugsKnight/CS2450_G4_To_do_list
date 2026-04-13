@@ -53,3 +53,8 @@ class TaskRepository(ABC):
     @abstractmethod
     def get_overdue_tasks(self):
         pass
+    
+    @abstractmethod
+    def reassign_tasks_from_category(self, cat_id: int) -> None:
+        """Reassign all tasks belonging to a deleted category."""
+        pass

@@ -97,6 +97,12 @@ class SqliteRepo(TaskRepository):
             "SELECT * FROM todo WHERE deadline < date('now', 'localtime') AND deadline IS NOT NULL AND deadline != '' AND done = 0;"
         )
         return result.fetchall()
+    
+    def reassign_tasks_from_category(self, cat_id: int) -> None:
+        self.execute(
+        "UPDATE todo SET category_id = NULL WHERE category_id = ?;",
+        cat_id
+        )
 
     def close(self) -> None:
         self.connection.close()

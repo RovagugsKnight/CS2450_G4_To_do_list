@@ -5,6 +5,8 @@ from views.colors import color_dict
 from kivy.lang import Builder
 from kivy.uix.popup import Popup
 from kivy.logger import Logger
+from views.main_window.dashboard_view import update_dashboard
+from kivymd.uix.label import MDLabel
 
 Builder.load_file('views/category_creator.kv')
 
@@ -36,9 +38,6 @@ class CategoryCreator(MDBoxLayout):
 
         self.submit_button.bind(on_release=self.end_creation)
 
-    """
-    END CREATION
-    """
     def end_creation(self, instance):
         cat_name = self.ids.cat_name.text.strip()
         color_key = self.col_selector.get_selected_color_key()
@@ -54,13 +53,42 @@ class CategoryCreator(MDBoxLayout):
             Logger.error("CategoryCreator: Cannot create system category names")
             return
 
+        # Ensure a color is selected
+        if not color_key:
+            Logger.error("CategoryCreator: No color selected")
+            return
+
         # Prevent white from being used as a category color
         if color_key == "white":
             Logger.error("CategoryCreator: White cannot be used as a category color")
             return
 
-        # Route creation through MainWindow (Option C)
-        self.mainwindow.create_category(cat_name, color_key, source=self.source)
+        # CREATE CATEGORY DIRECTLY THROUGH CONTROLLER
+        result = self.mainwindow.cat_controller.add_category(cat_name, color_key)
 
+        if not result.success:
+            Popup(
+                title="Error",
+                content=MDLabel(text=result.error),
+                size_hint=(0.6, 0.3),
+            ).open()
+            return
+
+        new_cat = result.return_val
+
+        # Refresh UI
+        self.mainwindow.refresh_kanban()
+        update_dashboard(self.mainwindow)
+
+        # Handle context (Add Task / Edit Task)
+        if self.source == "add_task":
+            self.mainwindow.selected_category = new_cat
+            self.mainwindow.category_field.text = new_cat.name
+
+        elif self.source == "edit_task":
+            self.mainwindow.edit_selected_category = new_cat
+            self.mainwindow.edit_category_field.text = new_cat.name
+
+        # Close popup
         if self.popup:
             self.popup.dismiss()

@@ -4,8 +4,8 @@ Modern, minimal, light‑mode friendly palette
 
 color_dict = {
     "white": {
-    "label": "White",
-    "rgba": (1, 1, 1, 1)
+        "label": "White",
+        "rgba": (1, 1, 1, 1)
     },
     "amber": {
         "label": "Amber",
@@ -37,19 +37,26 @@ color_dict = {
     },
 }
 
-"""
-Utility: get RGBA from palette key
-"""
+
 def get_color(key: str):
-    """Return RGBA for a palette key."""
+    """Return color dict {label, rgba} for a palette key."""
     key = key.lower().replace(" ", "_")
     if key in color_dict:
         return color_dict[key]
     raise ValueError(f"Color '{key}' not available")
 
 
-"""
-Semantic defaults for your app
-"""
+def pastelize(rgba):
+    """Return a pastel version of an RGBA color."""
+    r, g, b, a = rgba
+    return (
+        (r + 1.0) / 2.0,
+        (g + 1.0) / 2.0,
+        (b + 1.0) / 2.0,
+        1.0,
+    )
+
+
+# Semantic defaults for your app
 DEFAULT_CATEGORY_COLOR = "teal"   # main todo
 DONE_CATEGORY_COLOR = "gray"      # auto-done

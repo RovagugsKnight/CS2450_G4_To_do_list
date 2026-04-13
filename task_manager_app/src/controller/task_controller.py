@@ -81,3 +81,15 @@ class TaskController:
 
     def get_overdue_tasks(self):
         return self.repo.get_overdue_tasks()
+    
+    def reassign_tasks_from_category(self, cat_id: int):
+        """
+        When a category is deleted, move all tasks that belonged to it
+        into the default 'Todo' category (id = 1), or set catid=None
+        depending on your app's design.
+        """
+        try:
+            self.repo.reassign_tasks_from_category(cat_id)
+            return Result(True)
+        except Exception as e:
+            return Result(False, str(e))

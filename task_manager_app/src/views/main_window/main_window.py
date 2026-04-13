@@ -1,10 +1,8 @@
+from dataclasses import field
+
 from views.main_window.dashboard_view import update_dashboard
 from views.main_window.kanban_view import build_kanban_board
-from views.main_window.category_view import (
-    populate_category_manager,
-    open_category_manager,
-    create_category,
-)
+from views.main_window.category_view import ManageCategoriesPopup
 from views.main_window.task_dialogs import (
     open_add_dialog,
     set_add_category,
@@ -14,21 +12,26 @@ from views.main_window.task_dialogs import (
     submit_edit_task,
 )
 from views.main_window.menu_view import build_nav_menu, open_nav_menu
+from views.main_window.submenu_view import open_view_submenu
 
 from models.task_repository import TaskRepository
 from models.category_list import CategoryList
 from controller.main_window_controller import MainWindowController
 from controller.task_controller import TaskController
 from controller.category_controller import CategoryController
+from views.deadline_selector import DeadlineSelector
+from views.category_creator import CategoryCreator
+from views.task_widget import TaskItem
 
 from kivymd.uix.screen import MDScreen
 from kivy.clock import Clock
 from kivy.uix.popup import Popup
 from kivymd.uix.label import MDLabel
 
+
 class MainWindow(MDScreen):
     """
-    MAIN WINDOW — now clean and minimal.
+    MAIN WINDOW — clean and minimal.
     Handles:
         - screen switching
         - high-level orchestration
@@ -50,6 +53,7 @@ class MainWindow(MDScreen):
         Clock.schedule_once(lambda dt: (
             self.load_existing_tasks(),
             update_dashboard(self),
+            self.build_nav_menu()
         ), 0)
 
     def switch_view(self, name):
@@ -63,7 +67,6 @@ class MainWindow(MDScreen):
             build_kanban_board(self)
 
     def load_existing_tasks(self):
-        """Existing logic stays — this is fine here."""
         try:
             tasks = self.controller.load_tasks()
 
@@ -73,9 +76,7 @@ class MainWindow(MDScreen):
             if "dashboard_task_list" in self.ids:
                 self.ids.dashboard_task_list.clear_widgets()
 
-            from views.task_widget import TaskItem
             from datetime import date, datetime
-
             today = date.today()
 
             for task in reversed(tasks):
@@ -117,26 +118,87 @@ class MainWindow(MDScreen):
             size_hint=(0.6, 0.3),
         ).open()
 
-    # Delegate UI actions to modules
-    open_add_dialog = open_add_dialog
-    open_edit_dialog = open_edit_dialog
-    populate_category_manager = populate_category_manager
-    open_category_manager = open_category_manager
-    create_category = create_category
-    # Attach modular functions to MainWindow so KV + main.py still work
-    update_dashboard = update_dashboard
-    build_kanban_board = build_kanban_board
+    def open_deadline_for_field(self, field):
+        def _set_date(date_str):
+            field.text = date_str
+        DeadlineSelector(_set_date).open()
 
-    populate_category_manager = populate_category_manager
-    open_category_manager = open_category_manager
-    create_category = create_category
+    #
+    # CATEGORY MANAGER (POPUP)
+    #
+
+    def open_category_manager(self):
+        popup = ManageCategoriesPopup(self)
+        popup.open()
+
+    def open_edit_category(self, category):
+        popup = Popup(
+            title=f"Edit Category: {category.name}",
+            size_hint=(0.9, 0.6),
+        )
+
+        creator = CategoryCreator(
+            mainwindow=self,
+            source="edit",
+            popup=popup,
+        )
+
+        creator.ids.cat_name.text = category.name
+        creator.col_selector._select_color(category.color)
+
+        def save_changes(*args):
+            new_name = creator.ids.cat_name.text.strip()
+            new_color = creator.col_selector.get_selected_color_key()
+
+            self.cat_controller.update_category(category.id, new_name, new_color)
+            popup.dismiss()
+            self.refresh_kanban()
+
+        creator.submit_button.unbind(on_release=creator.end_creation)
+        creator.submit_button.bind(on_release=save_changes)
+
+        popup.content = creator
+        popup.open()
+
+    def delete_category(self, category):
+        if category.name.lower() in ("todo", "done"):
+            return
+
+        self.task_controller.reassign_tasks_from_category(category.id)
+        self.cat_controller.delete_category(category.id)
+        self.refresh_kanban()
+
+    def open_category_creator(self, source="nav"):
+        """Open the CategoryCreator popup for creating a new category."""
+        popup = Popup(
+            title="Create Category",
+            size_hint=(0.9, 0.6),
+        )
+
+        creator = CategoryCreator(
+            mainwindow=self,
+            source=source,
+            popup=popup,
+        )
+
+        popup.content = creator
+        popup.open()
+
+    def refresh_kanban(self):
+        build_kanban_board(self)
+
+    #
+    # DELEGATED UI ACTIONS
+    #
 
     open_add_dialog = open_add_dialog
     set_add_category = set_add_category
     submit_add_task = submit_add_task
-
     open_edit_dialog = open_edit_dialog
     set_edit_category = set_edit_category
     submit_edit_task = submit_edit_task
     open_nav_menu = open_nav_menu
     build_nav_menu = build_nav_menu
+    open_view_submenu = open_view_submenu
+    update_dashboard = update_dashboard
+    build_kanban_board = build_kanban_board
