@@ -1,59 +1,47 @@
-from kivymd.uix.scrollview import MDScrollView
-from kivymd.uix.label import MDLabel
 from kivymd.uix.boxlayout import MDBoxLayout
-from kivymd.uix.stacklayout import MDStackLayout
-from views.category_button import CategoryButton
+from kivymd.uix.button import MDRaisedButton
 from kivy.properties import StringProperty
-from controller.category_controller import CategoryController
-from models.category import Category
 from kivy.logger import Logger
-from kivy.lang import Builder
 
-Builder.load_file('views/category_selector.kv')
 
-class CategorySelector(MDStackLayout):
-    """category selection widget with buttons and optional none value"""
-    groupname = StringProperty("categories")
-    def __init__(self, controller: CategoryController, none: bool = True, 
-                 groupname: str = "categories", **kwargs):
+class ColorSelector(MDBoxLayout):
+    """
+    Displays color swatches and returns selected color key.
+    """
+
+    selected_color_key = StringProperty(None)
+
+    def __init__(self, color_dict: dict, **kwargs):
         super().__init__(**kwargs)
-        self.groupname = groupname
-        self.controller = controller
-        self.none = none
-        self.give_none()
-        self.load_categories()
-    
-    def get_selected_category(self) -> Category | None:
-        Logger.info("DEBUG: get_selected_category called")
-        """grab category from selected button"""
-        for child in self.children:
-            if getattr(child, "state", None) == "down":
-                return child.get_category()
-        return None
-    
-    def check_selected(self) -> bool:
-        """check if a button is selected"""
-        for child in self.children:
-            if getattr(child, "state", None) == "down":
-                return True
-        return False
+        self.orientation = "horizontal"
+        self.spacing = "8dp"
+        self.padding = "8dp"
 
-    def load_categories(self) -> None:
-        """Load categories from db"""
-        categories = self.controller.load_categories()
+        self.color_dict = color_dict
+        self._build_swatches()
 
-        for category in categories:
-            btn = CategoryButton(category)
-            btn.group = self.groupname
-            self.add_widget(btn)
-    
-    def give_none(self) -> None:
-        """Gives a none option for selection"""
-        if self.none:
-            btn = CategoryButton()
-            btn.md_bg_color = "white"
-            btn.text = "None"
-            btn.group = self.groupname
+    def _build_swatches(self):
+        for key, data in self.color_dict.items():
+
+            if key == "white":
+                continue
+
+            rgba = data["rgba"]
+
+            btn = MDRaisedButton(
+                text=data["label"],
+                md_bg_color=rgba,
+                size_hint=(None, None),
+                width="90dp",
+                height="40dp",
+            )
+
+            btn.bind(on_release=lambda inst, k=key: self._select_color(k))
             self.add_widget(btn)
 
-        
+    def _select_color(self, key: str):
+        Logger.info(f"ColorSelector: Selected color key = {key}")
+        self.selected_color_key = key
+
+    def get_selected_color_key(self) -> str:
+        return self.selected_color_key

@@ -1,72 +1,128 @@
 <TaskItem>:
     orientation: "horizontal"
-    size_hint: 0.33, None
-    height: "200dp"
+    size_hint_y: None
+    height: self.minimum_height
+    md_bg_color: 0.96, 0.96, 0.96, 1
+    radius: [10, 10, 10, 10]
+    elevation: 3
+    padding: "10dp"
     spacing: "6dp"
-    padding: "8dp"
+    on_release: root.toggle_expand()
 
-    # --- Left side: card ---
-    MDCard:
-        radius: [20, 20, 20, 20]
-        md_bg_color: root.color
-        padding: "12dp"
-        size_hint: 1, 1
+    # LEFT COLUMN (expands)
+    MDBoxLayout:
+        orientation: "vertical"
+        spacing: "4dp"
+        size_hint_x: 1
+        size_hint_y: None
+        height: self.minimum_height
 
+        MDLabel:
+            text: root.task_name
+            font_style: "H6"
+            theme_text_color: "Custom"
+            text_color: 0.1, 0.1, 0.1, 1
+            size_hint_y: None
+            height: self.texture_size[1]
+
+        MDLabel:
+            text: "Due: " + root.deadline if root.deadline else "No deadline"
+            font_style: "Caption"
+            theme_text_color: "Custom"
+            text_color: 0.25, 0.25, 0.25, 1
+            size_hint_y: None
+            height: self.texture_size[1]
+
+        MDLabel:
+            text: "Category: " + root.cat_name
+            font_style: "Caption"
+            theme_text_color: "Custom"
+            text_color: 0.25, 0.25, 0.25, 1
+            size_hint_y: None
+            height: self.texture_size[1]
+
+        # EXPANDABLE DESCRIPTION
         MDBoxLayout:
+            id: desc_box
             orientation: "vertical"
-            spacing: "6dp"
-            size_hint_y: 1
-
-            MDLabel:
-                text: root.task_name
-                font_size: "20sp"
-                size_hint_y: None
-                height: self.texture_size[1]
-                halign: "center"
-                size_hint: 1, 1
-                color: "black"
+            size_hint_y: None
+            height: self.minimum_height if root.is_expanded else 0
+            opacity: 1 if root.is_expanded else 0
 
             MDLabel:
                 text: root.description
-                font_size: "15sp"
-                size_hint_y: None
-                height: self.texture_size[1]
-                color: "black"
-
-            MDLabel:
-                text: root.deadline
-                font_size: "12sp"
-                italic: True
-                size_hint_y: None
-                height: self.texture_size[1]
-                halign: "right"
+                font_style: "Body2"
                 theme_text_color: "Custom"
-                text_color: 1, 1, 1, 0.8
-                color: "black"
+                text_color: 0.2, 0.2, 0.2, 1
+                text_size: self.width, None
+                size_hint_y: None
+                height: self.texture_size[1]
 
-
-    # --- Right side: buttons ---
+    # RIGHT COLUMN (fixed height — buttons never move)
     MDBoxLayout:
         orientation: "vertical"
-        size_hint: None, 1
+        size_hint_x: None
         width: "80dp"
-        spacing: "6dp"
+        size_hint_y: None
+        height: "90dp"   # ← FIXED HEIGHT = buttons stay put
+        padding: 0
+        spacing: 0
 
-        YellowButton:
-            text: "Done"
-            color: 0, 0, 0, 1    
-            font_size: "16sp"       
-            disabled: root.done
-            on_release: root.mark_done()
+        # TOP ROW — checkbox + edit
+        MDBoxLayout:
+            orientation: "horizontal"
+            size_hint_y: None
+            height: "40dp"
+            spacing: "4dp"
 
-        YellowButton:
-            text: "-"
-            color: 0, 0, 0, 1       
-            font_size: "25sp"
-            on_release: root.remove()
+            # CHECKBOX HITBOX
+            MDBoxLayout:
+                size_hint_x: None
+                width: "36dp"
+                padding: [6, 6, 0, 0]
 
-        YellowButton:
-            text: "Edit"
-            color: 0, 0, 0, 1        
-            font_size: "16sp"
-            on_release: root.edit_task()
+                MDCheckbox:
+                    size_hint: None, None
+                    size: "22dp", "22dp"
+                    pos_hint: {"center_x": 0.5, "center_y": 0.5}
+                    theme_text_color: "Custom"
+                    color: 0.1, 0.1, 0.1, 1
+                    active: root.done
+                    on_release: root.toggle_done(self, self.active)
+
+            # EDIT HITBOX
+            MDBoxLayout:
+                size_hint_x: None
+                width: "36dp"
+
+                MDIconButton:
+                    icon: "pencil"
+                    icon_size: "20dp"
+                    padding: 0
+                    pos_hint: {"center_x": 0.5, "center_y": 0.5}
+                    theme_text_color: "Custom"
+                    text_color: 0.2, 0.2, 0.2, 1
+                    on_release: root.edit_task()
+
+        # BOTTOM ROW — trashcan (triangle layout)
+        MDBoxLayout:
+            orientation: "horizontal"
+            size_hint_y: None
+            height: "50dp"
+
+            Widget:
+                size_hint_x: None
+                width: "20dp"
+
+            MDBoxLayout:
+                size_hint_x: None
+                width: "36dp"
+
+                MDIconButton:
+                    icon: "trash-can"
+                    icon_size: "20dp"
+                    padding: 0
+                    pos_hint: {"center_x": 0.5, "center_y": 0.3}  # lower position
+                    theme_text_color: "Custom"
+                    text_color: 0.8, 0, 0, 1
+                    on_release: root.delete_task()

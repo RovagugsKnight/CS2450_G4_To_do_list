@@ -38,6 +38,14 @@ class TaskController:
             return Result(True)
         except Exception as e:
             return Result(False, e)
+        
+    def mark_undone(self, task_id: int) -> Result:
+        try:
+            updated = self.repo.mark_undone(task_id)
+            return Result(True, return_val=updated)
+        except Exception as e:
+            return Result(False, error=str(e))
+
     
     def delete_task(self, task_id:int):
         """Deletes task from repository."""
@@ -81,3 +89,15 @@ class TaskController:
 
     def get_overdue_tasks(self):
         return self.repo.get_overdue_tasks()
+    
+    def reassign_tasks_from_category(self, cat_id: int):
+        """
+        When a category is deleted, move all tasks that belonged to it
+        into the default 'Todo' category (id = 1), or set catid=None
+        depending on your app's design.
+        """
+        try:
+            self.repo.reassign_tasks_from_category(cat_id)
+            return Result(True)
+        except Exception as e:
+            return Result(False, str(e))
