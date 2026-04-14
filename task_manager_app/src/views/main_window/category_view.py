@@ -1,5 +1,3 @@
-# views/main_window/category_view.py
-
 from kivy.uix.popup import Popup
 from kivymd.uix.card import MDCard
 from kivymd.uix.boxlayout import MDBoxLayout
@@ -49,6 +47,10 @@ class ManageCategoriesPopup(Popup):
 
         self.refresh()
 
+    def _delete_and_refresh(self, category):
+        """Delete category, refresh popup, refresh main UI."""
+        self.mainwindow.delete_category(category)
+        self.refresh()
 
     def refresh(self):
         """Rebuild the category list."""
@@ -83,10 +85,10 @@ class ManageCategoriesPopup(Popup):
                 )
             )
 
-            # Category name
+            # Category name (display‑side capitalization)
             row.add_widget(
                 MDLabel(
-                    text=cat.name,
+                    text=" ".join(word.capitalize() for word in cat.name.split()),
                     halign="left",
                     valign="middle",
                 )
@@ -104,7 +106,7 @@ class ManageCategoriesPopup(Popup):
             row.add_widget(
                 MDIconButton(
                     icon="trash-can",
-                    on_release=lambda inst, c=cat: self.mainwindow.delete_category(c),
+                    on_release=lambda inst, c=cat: self._delete_and_refresh(c),
                 )
             )
 

@@ -38,6 +38,14 @@ class TaskController:
             return Result(True)
         except Exception as e:
             return Result(False, e)
+        
+    def mark_undone(self, task_id: int) -> Result:
+        try:
+            updated = self.repo.mark_undone(task_id)
+            return Result(True, return_val=updated)
+        except Exception as e:
+            return Result(False, error=str(e))
+
     
     def delete_task(self, task_id:int):
         """Deletes task from repository."""

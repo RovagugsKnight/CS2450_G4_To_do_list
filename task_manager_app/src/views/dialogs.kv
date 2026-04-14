@@ -1,4 +1,6 @@
 <AddTaskContent>:
+    selected_category: "Todo"
+
     orientation: "vertical"
     spacing: "12dp"
     padding: "12dp"
@@ -28,26 +30,32 @@
             if self.focus: app.root.ids.main_window.open_deadline_for_field(self)
 
     MDBoxLayout:
+        id: category
         orientation: "horizontal"
         spacing: "8dp"
         size_hint_y: None
         height: "48dp"
 
-        MDTextField:
-            id: category
-            hint_text: "Category"
-            readonly: True
+        MDLabel:
+            id: category_label
+            text: "Category: " + root.selected_category
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
             size_hint_x: 1
+            theme_text_color: "Custom"
+            text_color: 0.87, 0.87, 0.87, 1   # EXACT MDTextField dark-mode color
 
-        MDRaisedButton:
-            text: "▼"
+        MDIconButton:
+            icon: "chevron-down"
             size_hint_x: None
             width: "48dp"
             on_release:
+                app.root.ids.main_window.category_menu.caller = root
                 app.root.ids.main_window.category_menu.open()
 
-        MDRaisedButton:
-            text: "+"
+        MDIconButton:
+            icon: "plus"
             size_hint_x: None
             width: "48dp"
             on_release:
@@ -55,6 +63,8 @@
 
 
 <EditTaskContent>:
+    selected_category: root.cat_name if hasattr(root, "cat_name") else "Todo"
+
     orientation: "vertical"
     spacing: "12dp"
     padding: "12dp"
@@ -84,27 +94,25 @@
             if self.focus: app.root.ids.main_window.open_deadline_for_field(self)
 
     MDBoxLayout:
+        id: category
         orientation: "horizontal"
         spacing: "8dp"
         size_hint_y: None
         height: "48dp"
 
-        MDTextField:
-            id: category
-            hint_text: "Category"
-            readonly: True
+        MDLabel:
+            id: category_label
+            text: "Category: " + root.selected_category
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
             size_hint_x: 1
+            theme_text_color: "Custom"
+            text_color: 0.87, 0.87, 0.87, 1   # EXACT MDTextField dark-mode color
 
-        MDRaisedButton:
-            text: "▼"
+        MDIconButton:
+            icon: "chevron-down"
             size_hint_x: None
             width: "48dp"
             on_release:
-                app.root.ids.main_window.edit_category_menu.open()
-
-        MDRaisedButton:
-            text: "+"
-            size_hint_x: None
-            width: "48dp"
-            on_release:
-                app.root.ids.main_window.open_category_creator(source="edit_task")
+                app.root.ids.main_window.edit_category

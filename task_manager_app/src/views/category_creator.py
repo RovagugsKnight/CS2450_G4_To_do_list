@@ -48,6 +48,9 @@ class CategoryCreator(MDBoxLayout):
             Logger.error("CategoryCreator: No category name provided")
             return
 
+        # Auto-capitalize every word (but not all letters)
+        cat_name = " ".join(word.capitalize() for word in cat_name.split())
+
         # Prevent creating system categories
         if cat_name.lower() in ("todo", "done"):
             Logger.error("CategoryCreator: Cannot create system category names")

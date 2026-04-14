@@ -62,6 +62,9 @@ class SqliteRepo(TaskRepository):
 
     def mark_done(self, task_id) -> None:
         self.execute("UPDATE todo SET done = 1 WHERE item_id = ?;", task_id)
+    
+    def mark_undone(self, task_id: int) -> None:
+        self.execute("UPDATE todo SET done = 0 WHERE item_id = ?;", task_id)
 
     def update_task(self, task_id:int, new_name:str, new_text:str, new_deadline:str, cat_id:int) -> None:
         """updates task info for task with task id"""

@@ -1,5 +1,5 @@
 <MainWindow>:
-    md_bg_color: 0.96, 0.96, 0.96, 1
+    md_bg_color: 0.88, 0.88, 0.88, 1
     padding: [0, 24, 0, 0]
 
     MDScreenManager:
@@ -144,7 +144,11 @@
                                         MDLabel:
                                             id: stat_total_tasks
                                             text: ""
-                                            font_style: "H6"
+                                            font_style: "H4"
+                                            size_hint_y: 1
+                                            text_size: self.size
+                                            valign: "middle"
+                                            halign: "center"
                                             theme_text_color: "Custom"
                                             text_color: 0.25, 0.25, 0.25, 1
 
@@ -163,7 +167,7 @@
                             padding: "24dp"
                             spacing: "16dp"
                             elevation: 2
-                            md_bg_color: 0.94, 0.94, 0.94, 1
+                            md_bg_color: 0.90, 0.90, 0.90, 1
                             adaptive_height: True
 
                             MDBoxLayout:
@@ -204,7 +208,6 @@
                                     MDList:
                                         id: dashboard_task_list 
 
-
         # ---------------------------------------------------
         # TASK BOARD SCREEN (KANBAN)
         # ---------------------------------------------------
@@ -215,15 +218,25 @@
             ScrollView:
                 do_scroll_y: False
                 do_scroll_x: True
+                bar_width: "8dp"
+                scroll_type: ["bars", "content"]
+                scroll_wheel_distance: dp(80)
+                effect_cls: "ScrollEffect"
+                drag_timeout: 999999
+                drag_distance: 0
+                size_hint_y: None
+                height: root.height
 
                 MDBoxLayout:
                     id: board_columns
                     orientation: "horizontal"
                     spacing: "16dp"
                     padding: "24dp"
-                    size_hint_y: 1
+                    size_hint_y: None
+                    height: root.height
                     size_hint_x: None
                     width: self.minimum_width
+                    focus_behavior: False
 
 
         # ---------------------------------------------------

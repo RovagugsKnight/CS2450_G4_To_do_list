@@ -3,9 +3,12 @@ from kivymd.uix.label import MDLabel
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivy.uix.scrollview import ScrollView
 from kivy.metrics import dp
+from kivy.factory import Factory
 
 from views.task_widget import TaskItem
 from views.colors import get_color, pastelize
+
+from datetime import date, datetime
 
 
 def build_kanban_board(self):
@@ -20,7 +23,6 @@ def build_kanban_board(self):
     tasks = self.controller.load_tasks()
 
     for cat in categories:
-        # cat.color is the key ("teal", "gray", etc.)
         color_data = get_color(cat.color)
         base_color = color_data["rgba"]
         pastel = pastelize(base_color)
@@ -35,6 +37,7 @@ def build_kanban_board(self):
             md_bg_color=pastel,
         )
 
+        # Column title
         col.add_widget(
             MDLabel(
                 text=cat.name,
@@ -45,6 +48,14 @@ def build_kanban_board(self):
                 text_color=(0.1, 0.1, 0.1, 1),
             )
         )
+
+        # Underline separator under column title (via Factory)
+        separator = Factory.MDSeparator(
+            height="1dp",
+            size_hint_y=None,
+            color=(0.60, 0.60, 0.60, 1),
+        )
+        col.add_widget(separator)
 
         task_list = MDBoxLayout(
             orientation="vertical",
@@ -90,3 +101,49 @@ def build_kanban_board(self):
 
         col.add_widget(scroll)
         container.add_widget(col)
+
+
+def populate_task_lists(mainwindow, tasks):
+    """
+    Populate the main task list and dashboard task list
+    from a list of Task objects.
+    """
+    ids = mainwindow.ids
+
+    if "task_list" in ids:
+        ids.task_list.clear_widgets()
+
+    if "dashboard_task_list" in ids:
+        ids.dashboard_task_list.clear_widgets()
+
+    today = date.today()
+
+    for task in reversed(tasks):
+        category = None
+        if task.catid:
+            cat_result = mainwindow.cat_controller.get_category(task.catid)
+            if cat_result.success:
+                category = cat_result.return_val
+
+        widget = TaskItem(
+            main_window=mainwindow,
+            controller=mainwindow.task_controller,
+            item_id=task.task_id,
+            task_name=task.task_name,
+            description=task.text,
+            category=category,
+            cat_controller=mainwindow.cat_controller,
+            done=task.done,
+            deadline=task.deadline,
+        )
+
+        if "task_list" in ids:
+            ids.task_list.add_widget(widget)
+
+        if task.deadline and "dashboard_task_list" in ids:
+            try:
+                d = datetime.strptime(task.deadline, "%m/%d/%Y").date()
+                if d == today:
+                    ids.dashboard_task_list.add_widget(widget)
+            except Exception:
+                pass

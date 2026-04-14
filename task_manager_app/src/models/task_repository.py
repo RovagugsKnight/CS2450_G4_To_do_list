@@ -30,7 +30,9 @@ class TaskRepository(ABC):
     def mark_done(self, task_id: int) -> None:
         pass
 
-    # NOTE: no abstract load_tasks here – we leave it to the concrete repo
+    @abstractmethod
+    def mark_undone(self, task_id: int) -> None:
+        pass
 
     @abstractmethod
     def set_deadline(self, task_id: int, date: str) -> None:
