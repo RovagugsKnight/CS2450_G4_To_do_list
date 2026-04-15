@@ -2,6 +2,7 @@ from models.task_repository import TaskRepository
 from models.tasks import Task
 from controller.result import Result
 from controller.category_controller import CategoryController
+from models.task_factory import TaskFactory
 
 class MainWindowController:
     """controller class to link main window view to data"""
@@ -11,7 +12,8 @@ class MainWindowController:
     def load_tasks(self) -> list[Task]:
         """Loads tasks from task repository and sends them to MainWindow view"""
         rows = self.repo.get_all_tasks()
-        tasks = [Task(
+
+        tasks = [TaskFactory.create_task(
             task_id=row[0], 
             task_name=row[1], 
             text=row[2],
