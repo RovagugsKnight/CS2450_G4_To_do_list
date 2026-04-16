@@ -123,3 +123,17 @@ class CategoryController:
             return Result(True, return_val=updated)
         except ValueError as e:
             return Result(False, error=str(e))
+
+    def move_category_up(self, id: int) -> Result:
+        try:
+            self.catlist.move_category_up(id)
+            return Result(True)
+        except ValueError as e:
+            return Result(False, error=str(e))
+
+    def move_category_down(self, id: int) -> Result:
+        try:
+            self.catlist.move_category_down(id)
+            return Result(True)
+        except ValueError as e:
+            return Result(False, error=str(e))

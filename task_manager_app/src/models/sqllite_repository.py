@@ -2,6 +2,7 @@ import pathlib
 from typing import Any
 from models.task_repository import TaskRepository
 import sqlite3
+from datetime import datetime, date
 
 DATA_DIR = pathlib.Path(__file__).parent.parent / "data"
 DATA_DIR.mkdir(exist_ok=True)
@@ -16,6 +17,18 @@ class SqliteRepo(TaskRepository):
         if not cls._instance:
             cls._instance = super(SqliteRepo, cls).__new__(cls)
         return cls._instance
+
+    @classmethod
+    def reset_singleton_for_tests(cls) -> None:
+        """Drop the singleton and close its connection so tests can use a fresh ``SqliteRepo``."""
+        inst = cls._instance
+        if inst is not None:
+            try:
+                inst.connection.close()
+            except (sqlite3.Error, OSError, AttributeError):
+                pass
+            cls._instance = None
+
     
     def __init__(self, db_path=None):
         if not hasattr(self, '_initialized'):
@@ -30,7 +43,8 @@ class SqliteRepo(TaskRepository):
     def execute(self, query: str, *args: Any) -> sqlite3.Cursor:
         """Execute sql query on db"""
         result = self.connection.execute(query, args)
-        self.connection.commit()
+        if not query.lstrip().upper().startswith("SELECT"):
+            self.connection.commit()
         return result
 
     def create_table(self) -> None:
@@ -95,16 +109,38 @@ class SqliteRepo(TaskRepository):
         return None
 
     def get_overdue_tasks(self):
-        """Returns all tasks where the deadline is in the past and they are not done."""
+        """
+        Return tasks overdue by app format (MM/DD/YYYY) and not marked done.
+        """
         result = self.execute(
-            "SELECT * FROM todo WHERE deadline < date('now', 'localtime') AND deadline IS NOT NULL AND deadline != '' AND done = 0;"
+            "SELECT * FROM todo WHERE deadline IS NOT NULL AND deadline != '' AND done = 0;"
         )
-        return result.fetchall()
+        rows = result.fetchall()
+        today = date.today()
+        overdue = []
+        for row in rows:
+            try:
+                due = datetime.strptime(row[4], "%m/%d/%Y").date()
+            except (TypeError, ValueError):
+                continue
+            if due < today:
+                overdue.append(row)
+        return overdue
     
     def reassign_tasks_from_category(self, cat_id: int) -> None:
+        # Keep tasks in Todo when deleting a non-system category.
         self.execute(
-        "UPDATE todo SET category_id = NULL WHERE category_id = ?;",
-        cat_id
+            """
+            UPDATE todo
+            SET category_id = (
+                SELECT category_id
+                FROM category
+                WHERE LOWER(category_name) = 'todo'
+                LIMIT 1
+            )
+            WHERE category_id = ?;
+            """,
+            cat_id,
         )
 
     def close(self) -> None:

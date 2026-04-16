@@ -25,12 +25,12 @@ class DeadlineSelector(Widget):
             try:
                 picker.bind(on_save=self._on_save, on_cancel=self._on_cancel)
                 Logger.info("DeadlineSelector: bound on_save/on_cancel handlers")
-            except Exception:
+            except (TypeError, AttributeError):
                 try:
                     # Some older variants accept a callback kwarg
                     picker = MDDatePicker(callback=self._on_save)
                     Logger.info("DeadlineSelector: constructed MDDatePicker with callback kwarg")
-                except Exception:
+                except (TypeError, AttributeError, ValueError):
                     Logger.warning("DeadlineSelector: could not bind on_save; opening picker without explicit binding")
             picker.open()
             Logger.info("DeadlineSelector: MDDatePicker opened")
@@ -45,10 +45,10 @@ class DeadlineSelector(Widget):
         try:
             try:
                 date_str = value.strftime("%m/%d/%Y")
-            except Exception:
+            except (AttributeError, TypeError):
                 date_str = str(value)
             Logger.info("DeadlineSelector: on_save fired with %s", date_str)
-        except Exception as e:
+        except (AttributeError, TypeError, ValueError) as e:
             Logger.exception("DeadlineSelector: error formatting date value: %s", e)
             date_str = str(value)
 

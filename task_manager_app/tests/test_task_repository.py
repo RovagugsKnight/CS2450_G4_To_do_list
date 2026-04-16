@@ -26,7 +26,7 @@ def repo():
     conn.close()
     
     # ensure singleton is reset and create a repo using the temp DB path
-    SqliteRepo._instance = None
+    SqliteRepo.reset_singleton_for_tests()
     repo = SqliteRepo(db_path=db_path)
     yield repo
     try:

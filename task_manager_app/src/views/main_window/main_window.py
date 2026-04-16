@@ -1,4 +1,5 @@
 from models.category import Category
+from models.theme_preference import save_theme_style
 from views.main_window.dashboard_view import update_dashboard as dashboard_update
 from views.main_window.kanban_view import build_kanban_board, populate_task_lists
 from views.main_window.category_view import ManageCategoriesPopup
@@ -11,7 +12,10 @@ from views.main_window.task_dialogs import (
     submit_edit_task,
 )
 from views.main_window.menu_view import build_nav_menu, open_nav_menu
-from views.main_window.submenu_view import open_view_submenu
+from views.main_window.submenu_view import (
+    open_view_submenu,
+    open_manage_categories_submenu,
+)
 
 from models.task_repository import TaskRepository
 from models.category_list import CategoryList
@@ -22,10 +26,28 @@ from views.deadline_selector import DeadlineSelector
 from views.category_creator import CategoryCreator
 from views.task_widget import TaskItem
 
+import sqlite3
+
 from kivymd.uix.screen import MDScreen
 from kivy.clock import Clock
+from kivy.core.window import Window
+from kivy.metrics import dp
 from kivy.uix.popup import Popup
+from kivy.uix.widget import Widget
+from kivy.app import App
 from kivymd.uix.label import MDLabel
+
+from views.main_window.nav_menu_helpers import (
+    DEFAULT_MENU_ROW_HALF_HEIGHT_DP,
+    ESTIMATED_MENU_WIDTH_DP,
+    FALLBACK_MANAGE_ROW_OFFSET_FROM_BTN_BOTTOM_DP,
+    FALLBACK_VIEW_ROW_OFFSET_FROM_BTN_BOTTOM_DP,
+    MANAGE_ROW_CENTER_FROM_BOTTOM_DP,
+    MIN_NAV_HEIGHT_FOR_ANCHOR_DP,
+    NAV_SUBMENU_ANCHOR_HEIGHT_DP,
+    NAV_SUBMENU_ANCHOR_WIDTH_DP,
+    RIGHT_EDGE_FRACTION,
+)
 
 
 class MainWindow(MDScreen):
@@ -60,8 +82,7 @@ class MainWindow(MDScreen):
         self.ids.screen_manager.current = name
 
         if name == "Dashboard":
-            self.load_existing_tasks()
-            self.update_dashboard()
+            self.refresh_ui()
 
         elif name == "Task View":
             build_kanban_board(self)
@@ -70,7 +91,7 @@ class MainWindow(MDScreen):
         try:
             tasks = self.controller.load_tasks()
             populate_task_lists(self, tasks)
-        except Exception as e:
+        except (sqlite3.Error, IndexError, TypeError, ValueError) as e:
             self.show_error(str(e))
 
     def load_categories(self):
@@ -95,10 +116,17 @@ class MainWindow(MDScreen):
         self.categories = sorted(categories, key=sort_key)
 
     def show_error(self, message):
+        is_dark = App.get_running_app().theme_cls.theme_style == "Dark"
         Popup(
             title="Error",
-            content=MDLabel(text=message),
+            content=MDLabel(
+                text=message,
+                theme_text_color="Custom",
+                text_color=(0.92, 0.92, 0.92, 1) if is_dark else (0.1, 0.1, 0.1, 1),
+            ),
             size_hint=(0.6, 0.3),
+            background="",
+            background_color=(0.14, 0.14, 0.14, 1) if is_dark else (0.98, 0.98, 0.98, 1),
         ).open()
 
     def open_deadline_for_field(self, field):
@@ -156,14 +184,7 @@ class MainWindow(MDScreen):
 
             popup.dismiss()
 
-            # Refresh categories, Kanban, and dashboard
-            self.load_categories()
-            self.refresh_kanban()
-            self.update_dashboard()
-
-            # Refresh category manager popup if open
-            if self.category_popup:
-                self.category_popup.refresh()
+            self.refresh_ui(reload_categories=True, refresh_category_popup=True)
 
         creator.submit_button.unbind(on_release=creator.end_creation)
         creator.submit_button.bind(on_release=save_changes)
@@ -184,18 +205,7 @@ class MainWindow(MDScreen):
             self.show_error(result.error)
             return
 
-        # 3. Refresh internal category list
-        self.load_categories()
-
-        # 4. Refresh Kanban
-        self.refresh_kanban()
-
-        # 5. Refresh dashboard
-        self.update_dashboard()
-
-        # 6. Refresh popup if open
-        if self.category_popup:
-            self.category_popup.refresh()
+        self.refresh_ui(reload_categories=True, refresh_category_popup=True)
 
     def open_category_creator(self, source="nav"):
         popup = Popup(
@@ -215,6 +225,116 @@ class MainWindow(MDScreen):
     def refresh_kanban(self):
         build_kanban_board(self)
 
+    def _ensure_nav_submenu_anchor(self) -> Widget:
+        """Invisible Window child used as MDDropdownMenu caller for cascade alignment."""
+        w = getattr(self, "_nav_submenu_anchor_widget", None)
+        if w is None:
+            self._nav_submenu_anchor_widget = Widget(
+                size=(dp(NAV_SUBMENU_ANCHOR_WIDTH_DP), dp(NAV_SUBMENU_ANCHOR_HEIGHT_DP)),
+                opacity=0,
+                size_hint=(None, None),
+            )
+            Window.add_widget(self._nav_submenu_anchor_widget)
+        return self._nav_submenu_anchor_widget
+
+    def _ensure_nav_menu_open_for_submenu(self) -> None:
+        """Tap can dismiss the main menu before the cascade runs; reopen for layout."""
+        nav = getattr(self, "nav_menu", None)
+        if nav is not None and nav.parent is None:
+            nav.open()
+
+    def _nav_submenu_anchor_fallback_xy(self, kind: str):
+        """Estimate window coords when the main menu is unavailable."""
+        root = App.get_running_app().root
+        nb = root.ids.nav_button
+        ncx, btn_bottom_y = nb.to_window(nb.width * 0.5, 0)
+        menu_w = float(dp(ESTIMATED_MENU_WIDTH_DP))
+        wx = ncx + RIGHT_EDGE_FRACTION * menu_w
+        if kind == "view":
+            wy = btn_bottom_y - dp(FALLBACK_VIEW_ROW_OFFSET_FROM_BTN_BOTTOM_DP)
+        else:
+            wy = btn_bottom_y - dp(FALLBACK_MANAGE_ROW_OFFSET_FROM_BTN_BOTTOM_DP)
+        return wx, wy
+
+    def nav_submenu_anchor_caller(self, kind: str) -> Widget:
+        """
+        Place an invisible Window child so ``MDDropdownMenu``'s caller center matches the
+        chevron row. Uses ``nav_menu``'s ``x``/``y``/``width``/``height`` (it is a
+        ``Window`` child when open) instead of ``inner.to_window``, which can mis-map
+        for recycle/menu content.
+        """
+        self._ensure_nav_menu_open_for_submenu()
+        anchor = self._ensure_nav_submenu_anchor()
+        nav = getattr(self, "nav_menu", None)
+        wx, wy = None, None
+        if nav is not None and nav.parent is not None and nav.height > dp(24):
+            ax = nav.x + nav.width * 0.94
+            if kind == "view":
+                ay = nav.y + nav.height - dp(24)
+            else:
+                ay = nav.y + dp(73)
+            wx, wy = ax, ay
+        if wx is None:
+            wx, wy = self._nav_submenu_anchor_fallback_xy(kind)
+        anchor.pos = (wx - anchor.width * 0.5, wy - anchor.height * 0.5)
+        return anchor
+
+    def dismiss_all_menus(self):
+        """Close nav and any open cascading dropdown menus."""
+        for attr in ("manage_categories_submenu", "view_submenu", "nav_menu"):
+            menu = getattr(self, attr, None)
+            dismiss = getattr(menu, "dismiss", None) if menu is not None else None
+            if callable(dismiss):
+                dismiss()
+
+    def nav_submenu_switch_view(self, name: str):
+        """Used from cascade submenus: apply choice and close all menus."""
+        self.dismiss_all_menus()
+        self.switch_view(name)
+
+    def nav_submenu_open_category_creator(self):
+        self.dismiss_all_menus()
+        self.open_category_creator(source="nav")
+
+    def nav_submenu_open_category_manager(self):
+        self.dismiss_all_menus()
+        self.open_category_manager()
+
+    def _reopen_nav_menu_if_dismissed(self, dt):
+        """After opening a submenu, reopen main nav only if KivyMD dismissed it."""
+        nav = getattr(self, "nav_menu", None)
+        if nav is not None and nav.parent is None:
+            nav.open()
+
+    def toggle_theme(self):
+        app = App.get_running_app()
+        if app.theme_cls.theme_style == "Light":
+            app.theme_cls.theme_style = "Dark"
+        else:
+            app.theme_cls.theme_style = "Light"
+
+        save_theme_style(app.theme_cls.theme_style)
+
+        if hasattr(self, "nav_menu"):
+            self.nav_menu.dismiss()
+        self.build_nav_menu()
+        if self.ids.screen_manager.current == "Task View":
+            self.refresh_kanban()
+
+    def refresh_ui(self, reload_categories=False, refresh_category_popup=False):
+        """
+        Centralized post-action UI refresh to keep screens in sync.
+        """
+        if reload_categories:
+            self.load_categories()
+
+        self.load_existing_tasks()
+        self.update_dashboard()
+        self.refresh_kanban()
+
+        if refresh_category_popup and self.category_popup:
+            self.category_popup.refresh()
+
     """
     DELEGATED UI ACTIONS
     """
@@ -228,3 +348,4 @@ class MainWindow(MDScreen):
     open_nav_menu = open_nav_menu
     build_nav_menu = build_nav_menu
     open_view_submenu = open_view_submenu
+    open_manage_categories_submenu = open_manage_categories_submenu

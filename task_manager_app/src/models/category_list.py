@@ -18,3 +18,11 @@ class CategoryList(ABC):
     @abstractmethod
     def grab_category(self, category_id: int):
         pass
+
+    @abstractmethod
+    def move_category_up(self, category_id: int):
+        pass
+
+    @abstractmethod
+    def move_category_down(self, category_id: int):
+        pass

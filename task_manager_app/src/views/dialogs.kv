@@ -44,7 +44,7 @@
             text_size: self.size
             size_hint_x: 1
             theme_text_color: "Custom"
-            text_color: 0.87, 0.87, 0.87, 1   # EXACT MDTextField dark-mode color
+            text_color: (0.90, 0.90, 0.90, 1) if app.theme_cls.theme_style == "Dark" else (0.15, 0.15, 0.15, 1)
 
         MDIconButton:
             icon: "chevron-down"
@@ -108,11 +108,19 @@
             text_size: self.size
             size_hint_x: 1
             theme_text_color: "Custom"
-            text_color: 0.87, 0.87, 0.87, 1   # EXACT MDTextField dark-mode color
+            text_color: (0.90, 0.90, 0.90, 1) if app.theme_cls.theme_style == "Dark" else (0.15, 0.15, 0.15, 1)
 
         MDIconButton:
             icon: "chevron-down"
             size_hint_x: None
             width: "48dp"
             on_release:
-                app.root.ids.main_window.edit_category
+                app.root.ids.main_window.edit_category_menu.caller = root
+                app.root.ids.main_window.edit_category_menu.open()
+
+        MDIconButton:
+            icon: "plus"
+            size_hint_x: None
+            width: "48dp"
+            on_release:
+                app.root.ids.main_window.open_category_creator(source="edit_task")

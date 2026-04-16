@@ -3,6 +3,7 @@ from kivy.lang import Builder
 
 from models.sqllite_repository import SqliteRepo
 from models.sqllite_category_list import SqliteCategories
+from models.theme_preference import load_theme_style
 
 from views.main_window.main_window import MainWindow
 from controller.main_window_controller import MainWindowController
@@ -14,7 +15,7 @@ class TaskManagerApp(MDApp):
     title = "Task Manager App"
 
     def build(self):
-        self.theme_cls.theme_style = "Dark"
+        self.theme_cls.theme_style = load_theme_style()
         self.theme_cls.primary_palette = "Blue"
 
         # Backend
