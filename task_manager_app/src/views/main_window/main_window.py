@@ -1,5 +1,5 @@
 from models.category import Category
-from models.theme_preference import save_theme_style
+from models.theme_preference import save_theme_style, sync_primary_theme
 from views.main_window.dashboard_view import update_dashboard as dashboard_update
 from views.main_window.kanban_view import build_kanban_board, populate_task_lists
 from views.main_window.category_view import ManageCategoriesPopup
@@ -318,6 +318,7 @@ class MainWindow(MDScreen):
         else:
             app.theme_cls.theme_style = "Light"
 
+        sync_primary_theme(app)
         save_theme_style(app.theme_cls.theme_style)
 
         if hasattr(self, "nav_menu"):

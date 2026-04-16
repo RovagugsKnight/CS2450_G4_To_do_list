@@ -7,7 +7,7 @@ from kivy.metrics import dp
 from kivy.factory import Factory
 
 from views.task_widget import TaskItem
-from views.colors import get_color, pastelize
+from views.colors import category_rgba_for_theme, get_color, pastelize
 from views.main_window.scroll_bar_theme import scroll_bar_pair, scroll_list_gesture_kwargs
 
 from datetime import date, datetime
@@ -62,7 +62,10 @@ def build_kanban_board(self):
     for cat in categories:
         color_data = get_color(cat.color)
         base_color = color_data["rgba"]
-        pastel = pastelize(base_color)
+        if is_dark:
+            col_bg = category_rgba_for_theme(base_color, is_dark=True)
+        else:
+            col_bg = pastelize(base_color)
 
         col = MDCard(
             orientation="vertical",
@@ -71,7 +74,7 @@ def build_kanban_board(self):
             size_hint=(None, 1),
             width=dp(300),
             elevation=0,
-            md_bg_color=pastel,
+            md_bg_color=col_bg,
         )
 
         # Column title
@@ -82,20 +85,25 @@ def build_kanban_board(self):
                 size_hint_y=None,
                 height="32dp",
                 theme_text_color="Custom",
-                text_color=(0.1, 0.1, 0.1, 1),
+                text_color=(0.92, 0.92, 0.92, 1)
+                if is_dark
+                else (0.1, 0.1, 0.1, 1),
             )
         )
 
         separator = Factory.MDSeparator(
             height="1dp",
             size_hint_y=None,
-            color=(0.60, 0.60, 0.60, 1),
+            color=(0.35, 0.35, 0.38, 1)
+            if is_dark
+            else (0.60, 0.60, 0.60, 1),
         )
         col.add_widget(separator)
 
         task_list = MDBoxLayout(
             orientation="vertical",
             spacing="12dp",
+            padding=[0, dp(8), 0, 0],
             size_hint_y=None,
         )
         task_list.bind(minimum_height=task_list.setter("height"))

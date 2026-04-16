@@ -5,7 +5,7 @@ from kivymd.uix.button import MDRaisedButton, MDIconButton
 from kivymd.uix.label import MDLabel
 from kivy.app import App
 from kivy.factory import Factory
-from views.colors import get_color
+from views.colors import category_rgba_for_theme, get_color
 from views.category_creator import CategoryCreator
 from controller.category_controller import is_system_category_name
 from controller.result import Result
@@ -103,7 +103,7 @@ class ManageCategoriesPopup(Popup):
                 text="Close",
                 size_hint_y=None,
                 height="48dp",
-                md_bg_color=(0.35, 0.35, 0.35, 1) if is_dark else (0.25, 0.45, 0.85, 1),
+                md_bg_color=App.get_running_app().theme_cls.primary_color,
                 on_release=lambda inst: self.dismiss(),
             )
         )
@@ -130,13 +130,17 @@ class ManageCategoriesPopup(Popup):
         """Rebuild the category list."""
         self.list_area.clear_widgets()
         categories = self.mainwindow.cat_controller.load_categories()
+        is_dark = App.get_running_app().theme_cls.theme_style == "Dark"
 
         for cat in categories:
             # Skip system categories
             if is_system_category_name(cat.name):
                 continue
 
-            rgba = get_color(cat.color)["rgba"]
+            rgba = category_rgba_for_theme(
+                get_color(cat.color)["rgba"],
+                is_dark=is_dark,
+            )
 
             row = MDCard(
                 orientation="horizontal",

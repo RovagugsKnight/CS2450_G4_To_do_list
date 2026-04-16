@@ -24,8 +24,7 @@ class CategoryCreator(MDBoxLayout):
         self.mainwindow = mainwindow
         self.source = source
         self.popup = popup
-        is_dark = App.get_running_app().theme_cls.theme_style == "Dark"
-        self._primary_button_bg = (0.35, 0.35, 0.35, 1) if is_dark else (0.25, 0.45, 0.85, 1)
+        self._primary_button_bg = App.get_running_app().theme_cls.primary_color
 
         # Color selector widget
         self.col_selector = ColorSelector(color_dict)

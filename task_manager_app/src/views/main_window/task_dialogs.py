@@ -6,7 +6,7 @@ from kivy.app import App
 from controller.category_controller import DEFAULT_CATEGORY_NAME
 from models.category import Category
 from views.dialogs import AddTaskContent, EditTaskContent
-from views.colors import get_color
+from views.colors import category_rgba_for_theme, get_color
 from views.task_widget import TaskItem
 
 
@@ -241,7 +241,11 @@ def submit_edit_task(self):
     if category:
         self.edit_target.cat_id = category.id
         self.edit_target.cat_name = category.name
-        self.edit_target.color = get_color(category.color)["rgba"]
+        is_dark = App.get_running_app().theme_cls.theme_style == "Dark"
+        self.edit_target.color = category_rgba_for_theme(
+            get_color(category.color)["rgba"],
+            is_dark=is_dark,
+        )
     else:
         self.edit_target.change_to_none()
 

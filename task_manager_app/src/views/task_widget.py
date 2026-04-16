@@ -1,7 +1,8 @@
-from kivymd.uix.boxlayout import MDBoxLayout
+from kivy.app import App
 from kivy.metrics import dp
 from kivy.properties import BooleanProperty, StringProperty, ListProperty
 from kivy.vector import Vector
+from kivymd.uix.boxlayout import MDBoxLayout
 
 from controller.task_controller import TaskController
 from controller.category_controller import (
@@ -10,7 +11,7 @@ from controller.category_controller import (
     DEFAULT_CATEGORY_COLOR,
 )
 from models.category import Category
-from views.colors import get_color
+from views.colors import category_rgba_for_theme, get_color
 
 # Touch tuning: exclude right action column; max move to count as tap vs scroll.
 ACTION_STRIP_WIDTH_DP = 88
@@ -58,10 +59,14 @@ class TaskItem(MDBoxLayout):
         self.description = description
         self.deadline = deadline
 
+        is_dark = App.get_running_app().theme_cls.theme_style == "Dark"
         if category:
             self.cat_id = category.id
             self.cat_name = category.name
-            self.color = get_color(category.color)["rgba"]
+            self.color = category_rgba_for_theme(
+                get_color(category.color)["rgba"],
+                is_dark=is_dark,
+            )
         else:
             self.change_to_none()
 
@@ -97,7 +102,11 @@ class TaskItem(MDBoxLayout):
     def change_to_none(self):
         self.cat_id = None
         self.cat_name = DEFAULT_CATEGORY_NAME
-        self.color = get_color(DEFAULT_CATEGORY_COLOR)["rgba"]
+        is_dark = App.get_running_app().theme_cls.theme_style == "Dark"
+        self.color = category_rgba_for_theme(
+            get_color(DEFAULT_CATEGORY_COLOR)["rgba"],
+            is_dark=is_dark,
+        )
 
     def toggle_expand(self):
         self.is_expanded = not self.is_expanded

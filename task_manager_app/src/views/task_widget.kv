@@ -100,8 +100,12 @@
                         size_hint: None, None
                         size: "22dp", "22dp"
                         pos_hint: {"center_x": 0.5, "center_y": 0.5}
+                        checkbox_icon_normal: "checkbox-blank-outline"
+                        checkbox_icon_down: "checkbox-marked-outline"
                         theme_text_color: "Custom"
                         color: (0.92, 0.92, 0.92, 1) if app.theme_cls.theme_style == "Dark" else (0.1, 0.1, 0.1, 1)
+                        color_active: (0.42, 0.73, 0.58, 1) if app.theme_cls.theme_style == "Dark" else (0.24, 0.60, 0.40, 1)
+                        color_inactive: (0.50, 0.50, 0.54, 1) if app.theme_cls.theme_style == "Dark" else (0.55, 0.55, 0.60, 1)
                         active: root.done
                         on_release: root.toggle_done(self, self.active)
 
