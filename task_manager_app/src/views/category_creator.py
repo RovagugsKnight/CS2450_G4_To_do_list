@@ -5,8 +5,10 @@ from views.colors import color_dict
 from kivy.lang import Builder
 from kivy.uix.popup import Popup
 from kivy.logger import Logger
+from kivy.app import App
 from views.main_window.dashboard_view import update_dashboard
 from kivymd.uix.label import MDLabel
+from controller.category_controller import is_system_category_name
 
 Builder.load_file('views/category_creator.kv')
 
@@ -22,6 +24,7 @@ class CategoryCreator(MDBoxLayout):
         self.mainwindow = mainwindow
         self.source = source
         self.popup = popup
+        self._primary_button_bg = App.get_running_app().theme_cls.primary_color
 
         # Color selector widget
         self.col_selector = ColorSelector(color_dict)
@@ -32,7 +35,7 @@ class CategoryCreator(MDBoxLayout):
             text="Submit",
             size_hint=(1, None),
             height="50dp",
-            md_bg_color=(0.2, 0.2, 0.2, 1),
+            md_bg_color=self._primary_button_bg,
         )
         self.ids.submit_area.add_widget(self.submit_button)
 
@@ -52,7 +55,7 @@ class CategoryCreator(MDBoxLayout):
         cat_name = " ".join(word.capitalize() for word in cat_name.split())
 
         # Prevent creating system categories
-        if cat_name.lower() in ("todo", "done"):
+        if is_system_category_name(cat_name):
             Logger.error("CategoryCreator: Cannot create system category names")
             return
 
@@ -70,10 +73,17 @@ class CategoryCreator(MDBoxLayout):
         result = self.mainwindow.cat_controller.add_category(cat_name, color_key)
 
         if not result.success:
+            is_dark = App.get_running_app().theme_cls.theme_style == "Dark"
             Popup(
                 title="Error",
-                content=MDLabel(text=result.error),
+                content=MDLabel(
+                    text=result.error,
+                    theme_text_color="Custom",
+                    text_color=(0.92, 0.92, 0.92, 1) if is_dark else (0.1, 0.1, 0.1, 1),
+                ),
                 size_hint=(0.6, 0.3),
+                background="",
+                background_color=(0.14, 0.14, 0.14, 1) if is_dark else (0.98, 0.98, 0.98, 1),
             ).open()
             return
 

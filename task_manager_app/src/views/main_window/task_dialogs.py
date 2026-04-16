@@ -1,107 +1,13 @@
-from kivy.uix.behaviors import ButtonBehavior
-from kivymd.uix.boxlayout import MDBoxLayout
-from kivy.properties import BooleanProperty, StringProperty, ListProperty
-
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.menu import MDDropdownMenu
 from kivymd.uix.button import MDFlatButton, MDRaisedButton
+from kivy.app import App
 
-from controller.task_controller import TaskController
-from controller.category_controller import CategoryController, DEFAULT_CATEGORY_NAME
+from controller.category_controller import DEFAULT_CATEGORY_NAME
 from models.category import Category
-from views.colors import get_color
 from views.dialogs import AddTaskContent, EditTaskContent
-
-
-class TaskItem(ButtonBehavior, MDBoxLayout):
-    """
-    Task card widget.
-    UI is defined in task_widget.kv.
-    Handles logic and controller interaction only.
-    """
-
-    done = BooleanProperty(False)
-    task_name = StringProperty("")
-    description = StringProperty("")
-    deadline = StringProperty("")
-    color = ListProperty([1, 1, 1, 1])
-    cat_name = StringProperty("None")
-
-    is_expanded = BooleanProperty(False)
-
-    def __init__(
-        self,
-        main_window,
-        controller: TaskController,
-        item_id: int,
-        task_name: str,
-        description: str,
-        category: Category | None,
-        cat_controller: CategoryController,
-        done: bool = False,
-        deadline: str = "",
-        **kwargs
-    ):
-        super().__init__(**kwargs)
-
-        self.main_window = main_window
-        self.controller = controller
-        self.cat_controller = cat_controller
-
-        self.item_id = item_id
-        self.done = done
-        self.task_name = task_name
-        self.description = description
-        self.deadline = deadline
-
-        if category:
-            self.cat_id = category.id
-            self.cat_name = category.name
-            self.color = get_color(category.color)
-        else:
-            self.change_to_none()
-
-    def change_to_none(self):
-        self.cat_id = None
-        self.cat_name = "None"
-        self.color = get_color("white")
-
-    def toggle_expand(self):
-        self.is_expanded = not self.is_expanded
-
-    def toggle_done(self, checkbox, value):
-        if value:
-            result = self.controller.mark_done(self.item_id)
-        else:
-            result = self.controller.mark_undone(self.item_id)
-
-        if not result.success:
-            self.show_popup(result.error)
-            return
-
-        self.done = value
-
-        # Refresh UI
-        self.main_window.load_existing_tasks()
-        self.main_window.update_dashboard()
-        self.main_window.refresh_kanban()
-
-    def delete_task(self):
-        result = self.controller.delete_task(self.item_id)
-        if not result.success:
-            self.show_popup(result.error)
-            return
-
-        # Refresh UI instead of broken call
-        self.main_window.load_existing_tasks()
-        self.main_window.update_dashboard()
-        self.main_window.refresh_kanban()
-
-    def edit_task(self):
-        if hasattr(self.main_window, "open_edit_dialog"):
-            self.main_window.open_edit_dialog(self)
-        else:
-            self.show_popup("Edit dialog not implemented yet.")
+from views.colors import category_rgba_for_theme, get_color
+from views.task_widget import TaskItem
 
 
 """
@@ -110,6 +16,9 @@ ADD TASK DIALOG
 
 
 def open_add_dialog(self):
+    is_dark = App.get_running_app().theme_cls.theme_style == "Dark"
+    dialog_bg = (0.18, 0.18, 0.18, 1) if is_dark else (0.98, 0.98, 0.98, 1)
+
     content = AddTaskContent()
 
     # Keep references for submit_add_task
@@ -140,12 +49,14 @@ def open_add_dialog(self):
         caller=content,
         items=menu_items,
         width_mult=4,
+        md_bg_color=dialog_bg,
     )
 
     self.add_dialog = MDDialog(
         title="Create Task",
         type="custom",
         content_cls=content,
+        md_bg_color=dialog_bg,
         buttons=[
             MDFlatButton(text="Cancel", on_release=lambda x: self.add_dialog.dismiss()),
             MDRaisedButton(text="Create", on_release=lambda x: self.submit_add_task()),
@@ -202,9 +113,7 @@ def submit_add_task(self):
         self.show_error(result.error)
         return
 
-    self.load_existing_tasks()
-    self.update_dashboard()
-    self.refresh_kanban()
+    self.refresh_ui()
 
     self.add_dialog.dismiss()
 
@@ -215,6 +124,9 @@ EDIT TASK DIALOG
 
 
 def open_edit_dialog(self, task_widget: TaskItem):
+    is_dark = App.get_running_app().theme_cls.theme_style == "Dark"
+    dialog_bg = (0.18, 0.18, 0.18, 1) if is_dark else (0.98, 0.98, 0.98, 1)
+
     self.edit_target = task_widget
 
     content = EditTaskContent()
@@ -259,12 +171,14 @@ def open_edit_dialog(self, task_widget: TaskItem):
         caller=content,
         items=menu_items,
         width_mult=4,
+        md_bg_color=dialog_bg,
     )
 
     self.edit_dialog = MDDialog(
         title="Edit Task",
         type="custom",
         content_cls=content,
+        md_bg_color=dialog_bg,
         buttons=[
             MDFlatButton(text="Cancel", on_release=lambda x: self.edit_dialog.dismiss()),
             MDRaisedButton(text="Save", on_release=lambda x: self.submit_edit_task()),
@@ -298,6 +212,15 @@ def submit_edit_task(self):
         self.show_error("Task name is required.")
         return
 
+    # Enforce Todo fallback instead of null category.
+    if not category:
+        rows = self.catlist.load_categories()
+        for row in rows:
+            cat_id, cat_name, cat_color = row
+            if cat_name.lower() == DEFAULT_CATEGORY_NAME.lower():
+                category = Category(id=cat_id, name=cat_name, color=cat_color)
+                break
+
     result = self.task_controller.update_task(
         self.edit_target.item_id,
         name,
@@ -318,14 +241,14 @@ def submit_edit_task(self):
     if category:
         self.edit_target.cat_id = category.id
         self.edit_target.cat_name = category.name
-        self.edit_target.color = (
-            self.edit_target.cat_controller.get_category(category.id).return_val.color
+        is_dark = App.get_running_app().theme_cls.theme_style == "Dark"
+        self.edit_target.color = category_rgba_for_theme(
+            get_color(category.color)["rgba"],
+            is_dark=is_dark,
         )
     else:
         self.edit_target.change_to_none()
 
     self.edit_dialog.dismiss()
 
-    self.load_existing_tasks()
-    self.update_dashboard()
-    self.refresh_kanban()
+    self.refresh_ui()

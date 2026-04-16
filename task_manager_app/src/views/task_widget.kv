@@ -1,13 +1,18 @@
 <TaskItem>:
     orientation: "horizontal"
     size_hint_y: None
-    height: self.minimum_height
-    md_bg_color: 0.96, 0.96, 0.96, 1
+    height: "110dp" if not root.is_expanded else self.minimum_height
+    md_bg_color: (0.20, 0.20, 0.20, 1) if app.theme_cls.theme_style == "Dark" else (0.96, 0.96, 0.96, 1)
     radius: [10, 10, 10, 10]
     elevation: 3
     padding: "10dp"
     spacing: "6dp"
-    on_release: root.toggle_expand()
+    canvas.after:
+        Color:
+            rgba: (0.35, 0.35, 0.35, 1) if app.theme_cls.theme_style == "Dark" else (0.82, 0.82, 0.82, 1)
+        Line:
+            rounded_rectangle: [self.x, self.y, self.width, self.height, 10, 10, 10, 10]
+            width: 1.2
 
     # LEFT COLUMN (expands)
     MDBoxLayout:
@@ -21,25 +26,29 @@
             text: root.task_name
             font_style: "H6"
             theme_text_color: "Custom"
-            text_color: 0.1, 0.1, 0.1, 1
+            text_color: (0.95, 0.95, 0.95, 1) if app.theme_cls.theme_style == "Dark" else (0.1, 0.1, 0.1, 1)
             size_hint_y: None
-            height: self.texture_size[1]
+            text_size: self.width, None
+            shorten: not root.is_expanded
+            shorten_from: "right"
+            max_lines: 1 if not root.is_expanded else 0
+            height: "24dp" if not root.is_expanded else self.texture_size[1]
 
         MDLabel:
             text: "Due: " + root.deadline if root.deadline else "No deadline"
             font_style: "Caption"
             theme_text_color: "Custom"
-            text_color: 0.25, 0.25, 0.25, 1
+            text_color: (0.80, 0.80, 0.80, 1) if app.theme_cls.theme_style == "Dark" else (0.25, 0.25, 0.25, 1)
             size_hint_y: None
-            height: self.texture_size[1]
+            height: "18dp"
 
         MDLabel:
             text: "Category: " + root.cat_name
             font_style: "Caption"
             theme_text_color: "Custom"
-            text_color: 0.25, 0.25, 0.25, 1
+            text_color: (0.80, 0.80, 0.80, 1) if app.theme_cls.theme_style == "Dark" else (0.25, 0.25, 0.25, 1)
             size_hint_y: None
-            height: self.texture_size[1]
+            height: "18dp"
 
         # EXPANDABLE DESCRIPTION
         MDBoxLayout:
@@ -53,76 +62,86 @@
                 text: root.description
                 font_style: "Body2"
                 theme_text_color: "Custom"
-                text_color: 0.2, 0.2, 0.2, 1
+                text_color: (0.85, 0.85, 0.85, 1) if app.theme_cls.theme_style == "Dark" else (0.2, 0.2, 0.2, 1)
                 text_size: self.width, None
                 size_hint_y: None
                 height: self.texture_size[1]
 
-    # RIGHT COLUMN (fixed height — buttons never move)
-    MDBoxLayout:
-        orientation: "vertical"
+    # RIGHT SIDE (controls anchored top-right, never drift when expanded)
+    AnchorLayout:
         size_hint_x: None
         width: "80dp"
-        size_hint_y: None
-        height: "90dp"   # ← FIXED HEIGHT = buttons stay put
-        padding: 0
-        spacing: 0
+        size_hint_y: 1
+        anchor_x: "right"
+        anchor_y: "top"
 
-        # TOP ROW — checkbox + edit
         MDBoxLayout:
-            orientation: "horizontal"
-            size_hint_y: None
-            height: "40dp"
-            spacing: "4dp"
+            orientation: "vertical"
+            size_hint: None, None
+            width: "80dp"
+            height: "90dp"
+            padding: 0
+            spacing: 0
 
-            # CHECKBOX HITBOX
+            # TOP ROW — checkbox + edit
             MDBoxLayout:
-                size_hint_x: None
-                width: "36dp"
-                padding: [6, 6, 0, 0]
+                orientation: "horizontal"
+                size_hint_y: None
+                height: "40dp"
+                spacing: "4dp"
 
-                MDCheckbox:
-                    size_hint: None, None
-                    size: "22dp", "22dp"
-                    pos_hint: {"center_x": 0.5, "center_y": 0.5}
-                    theme_text_color: "Custom"
-                    color: 0.1, 0.1, 0.1, 1
-                    active: root.done
-                    on_release: root.toggle_done(self, self.active)
+                # CHECKBOX HITBOX
+                MDBoxLayout:
+                    size_hint_x: None
+                    width: "36dp"
+                    padding: [6, 6, 0, 0]
 
-            # EDIT HITBOX
+                    MDCheckbox:
+                        size_hint: None, None
+                        size: "22dp", "22dp"
+                        pos_hint: {"center_x": 0.5, "center_y": 0.5}
+                        checkbox_icon_normal: "checkbox-blank-outline"
+                        checkbox_icon_down: "checkbox-marked-outline"
+                        theme_text_color: "Custom"
+                        color: (0.92, 0.92, 0.92, 1) if app.theme_cls.theme_style == "Dark" else (0.1, 0.1, 0.1, 1)
+                        color_active: (0.42, 0.73, 0.58, 1) if app.theme_cls.theme_style == "Dark" else (0.24, 0.60, 0.40, 1)
+                        color_inactive: (0.88, 0.88, 0.88, 1) if app.theme_cls.theme_style == "Dark" else (0.2, 0.2, 0.2, 1)
+                        active: root.done
+                        on_release: root.toggle_done(self, self.active)
+
+                # EDIT HITBOX
+                MDBoxLayout:
+                    size_hint_x: None
+                    width: "36dp"
+
+                    MDIconButton:
+                        icon: "pencil"
+                        icon_size: "20dp"
+                        padding: 0
+                        pos_hint: {"center_x": 0.5, "center_y": 0.5}
+                        theme_text_color: "Custom"
+                        text_color: (0.88, 0.88, 0.88, 1) if app.theme_cls.theme_style == "Dark" else (0.2, 0.2, 0.2, 1)
+                        on_release: root.edit_task()
+
+            # BOTTOM ROW — trashcan
             MDBoxLayout:
-                size_hint_x: None
-                width: "36dp"
+                orientation: "horizontal"
+                size_hint_y: None
+                height: "50dp"
 
-                MDIconButton:
-                    icon: "pencil"
-                    icon_size: "20dp"
-                    padding: 0
-                    pos_hint: {"center_x": 0.5, "center_y": 0.5}
-                    theme_text_color: "Custom"
-                    text_color: 0.2, 0.2, 0.2, 1
-                    on_release: root.edit_task()
+                Widget:
+                    size_hint_x: None
+                    width: "20dp"
 
-        # BOTTOM ROW — trashcan (triangle layout)
-        MDBoxLayout:
-            orientation: "horizontal"
-            size_hint_y: None
-            height: "50dp"
+                MDBoxLayout:
+                    size_hint_x: None
+                    width: "36dp"
 
-            Widget:
-                size_hint_x: None
-                width: "20dp"
-
-            MDBoxLayout:
-                size_hint_x: None
-                width: "36dp"
-
-                MDIconButton:
-                    icon: "trash-can"
-                    icon_size: "20dp"
-                    padding: 0
-                    pos_hint: {"center_x": 0.5, "center_y": 0.3}  # lower position
-                    theme_text_color: "Custom"
-                    text_color: 0.8, 0, 0, 1
-                    on_release: root.delete_task()
+                    MDIconButton:
+                        icon: "trash-can"
+                        icon_size: "20dp"
+                        padding: 0
+                        pos_hint: {"center_x": 0.5, "center_y": 0.3}
+                        theme_text_color: "Custom"
+                        text_color: 0.8, 0, 0, 1
+                        on_release: root.delete_task()

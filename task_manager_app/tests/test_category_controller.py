@@ -1,19 +1,32 @@
 import pytest
 from unittest.mock import MagicMock
-from task_manager_app.src.controller.category_controller import CategoryController
+
+from controller.category_controller import CategoryController
+
 
 @pytest.fixture
 def repo():
     fake_repo = MagicMock()
     fake_repo.add_category = MagicMock(return_value="category")
-    fake_repo.load_categories = MagicMock(return_value=[(1,"School","yellow")])
+    # Todo/Done present so ``_ensure_system_categories`` does not insert on init.
+    fake_repo.load_categories = MagicMock(
+        return_value=[
+            (1, "Todo", "teal"),
+            (2, "Done", "gray"),
+            (3, "School", "yellow"),
+        ]
+    )
     fake_repo.delete_categories = MagicMock()
-    fake_repo.grab_category = MagicMock(return_value=(1,"School","yellow"))
+    fake_repo.grab_category = MagicMock(return_value=(1, "School", "yellow"))
     return fake_repo
+
 
 @pytest.fixture
 def controller(repo):
-    return CategoryController(repo)
+    c = CategoryController(repo)
+    repo.add_category.reset_mock()
+    repo.load_categories.reset_mock()
+    return c
 
 #---------------------------------------------------------------------------------
 # __ADD CATEGORY__
@@ -22,7 +35,7 @@ def test_add_category_calls_repo(controller, repo):
     """Test call to repository"""
     controller.add_category("Work", "green")
     (cat,) = repo.add_category.call_args.args
-    repo.add_category.assert_called_once()
+    assert repo.add_category.call_count == 1
     assert cat.id == None
     assert cat.name == "Work"
     assert cat.color == "green"
@@ -34,11 +47,11 @@ def test_add_category_success_return(controller):
     assert result.return_val == "category"
     
 def test_add_category_failure_return(controller, repo):
-    """Test return value on ValueError"""
+    """Test return value on ValueError from repository."""
     repo.add_category.side_effect = ValueError("invalid category")
-    result = controller.add_category("","")
-    repo.add_category.assert_not_called()
-    assert result.success == False
+    result = controller.add_category("x", "blue")
+    repo.add_category.assert_called_once()
+    assert result.success is False
     assert result.error
 
 def test_add_category_name_not_str(controller):
@@ -61,9 +74,9 @@ def test_load_categories_repo_call(controller, repo):
 def test_load_categories_return(controller):
     """Test return value of load categories"""
     categories = controller.load_categories()
-    assert categories[0].id == 1
-    assert categories[0].name == "School"
-    assert categories[0].color == "yellow"
+    school = next(c for c in categories if c.name == "School")
+    assert school.id == 3
+    assert school.color == "yellow"
 #---------------------------------------------------------------------------------
 # __DELETE CATEGORY__
 #---------------------------------------------------------------------------------

@@ -41,6 +41,7 @@ Thumbs.db
 # Local application data (SQLite DB should not be committed)
 data/*.db
 *.db
+task_manager_app/src/data/theme_style.json
 
 # Test Files
 *.coverage

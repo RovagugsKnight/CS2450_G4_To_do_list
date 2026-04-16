@@ -1,8 +1,8 @@
-#:include task_manager_app/src/views/main_window.kv
+#:include views/main_window.kv
 
 MDBoxLayout:
     orientation: "vertical"
-    md_bg_color: 0.90, 0.90, 0.90, 1
+    md_bg_color: (0.12, 0.12, 0.12, 1) if app.theme_cls.theme_style == "Dark" else (0.90, 0.90, 0.90, 1)
 
     # -------------------------
     # FLOATING HEADER (FIXED)
@@ -28,7 +28,7 @@ MDBoxLayout:
             icon_size: "42dp"
             padding: "6dp"
             theme_text_color: "Custom"
-            text_color: 0.20, 0.20, 0.20, 1
+            text_color: (0.92, 0.92, 0.92, 1) if app.theme_cls.theme_style == "Dark" else (0.20, 0.20, 0.20, 1)
             on_release: main_window.open_nav_menu()
 
         MDCard:
@@ -38,7 +38,7 @@ MDBoxLayout:
             elevation: 2
             padding: "12dp"
             size_hint_x: 1
-            md_bg_color: 0.94, 0.94, 0.94, 1
+            md_bg_color: (0.18, 0.18, 0.18, 1) if app.theme_cls.theme_style == "Dark" else (0.94, 0.94, 0.94, 1)
 
             MDBoxLayout:
                 orientation: "horizontal"
@@ -50,12 +50,12 @@ MDBoxLayout:
                     valign: "center"
                     size_hint_x: 1
                     theme_text_color: "Custom"
-                    text_color: 0.20, 0.20, 0.20, 1
+                    text_color: (0.95, 0.95, 0.95, 1) if app.theme_cls.theme_style == "Dark" else (0.20, 0.20, 0.20, 1)
 
                 MDRaisedButton:
                     text: "Create Task"
                     icon: "plus"
-                    md_bg_color: 0.25, 0.45, 0.85, 1
+                    md_bg_color: app.theme_cls.primary_color
                     on_release: main_window.open_add_dialog()
 
     # -------------------------

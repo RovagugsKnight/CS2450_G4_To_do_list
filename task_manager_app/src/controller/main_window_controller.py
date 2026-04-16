@@ -1,8 +1,8 @@
 from models.task_repository import TaskRepository
 from models.tasks import Task
 from controller.result import Result
-from controller.category_controller import CategoryController
 from models.task_factory import TaskFactory
+
 
 class MainWindowController:
     """controller class to link main window view to data"""

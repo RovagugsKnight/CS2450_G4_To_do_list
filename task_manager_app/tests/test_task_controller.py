@@ -51,7 +51,7 @@ def test_add_task_rejects_long_text(controller):
     assert "too long" in result.error.lower()
 
 def test_add_task_rejects_long_name(controller):
-    long_name = "x" * 50
+    long_name = "x" * 100
     result = controller.add_task(
         taskname=long_name,
         text="optional",
@@ -59,7 +59,7 @@ def test_add_task_rejects_long_name(controller):
         catid=None
     )
     assert not result.success
-    assert "20 char" in result.error
+    assert "60 char" in result.error
 
 def test_update_task_rejects_empty_name(controller):
     result = controller.update_task(
@@ -84,7 +84,7 @@ def test_update_task_rejects_long_text(controller):
 
 def test_update_task_handles_exception(controller, monkeypatch):
     def boom(*args, **kwargs):
-        raise Exception("DB error")
+        raise sqlite3.Error("DB error")
 
     monkeypatch.setattr(controller.repo, "update_task", boom)
 
@@ -114,7 +114,7 @@ def real_controller(tmp_path):
     conn.close()
 
     # Reset singleton and create repo with temp DB path
-    SqliteRepo._instance = None
+    SqliteRepo.reset_singleton_for_tests()
     repo = SqliteRepo(db_path=db_path)
     controller = TaskController(repo)
 

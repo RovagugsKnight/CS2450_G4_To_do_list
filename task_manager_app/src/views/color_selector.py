@@ -43,6 +43,8 @@ class ColorSelector(MDBoxLayout):
                 size_hint=(None, None),
                 width="90dp",
                 height="40dp",
+                line_color=(0.85, 0.85, 0.85, 0.0),
+                line_width=1,
             )
 
             btn.bind(on_release=lambda inst, k=key: self._select_color(k))
@@ -52,6 +54,23 @@ class ColorSelector(MDBoxLayout):
     def _select_color(self, key: str):
         Logger.info(f"ColorSelector: Selected color key = {key}")
         self.selected_color_key = key
+        self._refresh_selected_style()
+
+    def _refresh_selected_style(self):
+        """Visually indicate which color swatch is selected."""
+        for swatch_key, btn in self._buttons:
+            label = self.color_dict[swatch_key]["label"]
+            if swatch_key == self.selected_color_key:
+                # Clear selected feedback: light border + stronger elevation.
+                btn.text = label
+                btn.elevation = 6
+                btn.line_color = (0.95, 0.95, 0.95, 1)
+                btn.line_width = 2
+            else:
+                btn.text = label
+                btn.elevation = 2
+                btn.line_color = (0.85, 0.85, 0.85, 0.0)
+                btn.line_width = 1
 
     def get_selected_color_key(self) -> str:
         return self.selected_color_key

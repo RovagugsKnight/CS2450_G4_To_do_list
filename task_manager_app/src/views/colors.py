@@ -57,6 +57,26 @@ def pastelize(rgba):
     )
 
 
+def category_rgba_for_theme(rgba: tuple[float, float, float, float], *, is_dark: bool):
+    """
+    Category accent for UI: full chroma in light mode; softer / less saturated on dark UI.
+    """
+    r, g, b, a = rgba
+    if not is_dark:
+        return (r, g, b, a)
+    lum = 0.299 * r + 0.587 * g + 0.114 * b
+    keep = 0.52
+    r = r * keep + lum * (1.0 - keep)
+    g = g * keep + lum * (1.0 - keep)
+    b = b * keep + lum * (1.0 - keep)
+    dr, dg, db = 0.12, 0.13, 0.16
+    mix = 0.32
+    r = r * (1.0 - mix) + dr * mix
+    g = g * (1.0 - mix) + dg * mix
+    b = b * (1.0 - mix) + db * mix
+    return (r, g, b, a)
+
+
 # Semantic defaults for your app
 DEFAULT_CATEGORY_COLOR = "teal"   # main todo
 DONE_CATEGORY_COLOR = "gray"      # auto-done
