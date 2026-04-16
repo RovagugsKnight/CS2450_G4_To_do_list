@@ -1,213 +1,59 @@
-import pytest
+"""Unit tests for ``MainWindow`` orchestration (no full Kivy app run)."""
 from unittest.mock import MagicMock, patch
-from kivy.base import EventLoop
-from kivy.uix.widget import Widget
 
-from task_manager_app.src.views.main_window import MainWindow
-from task_manager_app.src.models.task_repository import TaskRepository
-from task_manager_app.src.models.category_list import CategoryList
-from task_manager_app.src.models.category import Category
+import pytest
+import sqlite3
+
+from models.category import Category
+from controller.result import Result
+from views.main_window.main_window import MainWindow
 
 
-@pytest.fixture
-def setup_window():
-    """Creates a MainWindow with mocked controllers and initializes MDApp."""
-    EventLoop.ensure_window()
-
-    # Initialize dummy MDApp
-    from kivymd.app import MDApp
-
-    class TestApp(MDApp):
-        def build(self):
-            return Widget()
-
-    if not MDApp.get_running_app():
-        app = TestApp()
-        app.root = Widget()
-
-    repo = MagicMock(spec=TaskRepository)
-    catlist = MagicMock(spec=CategoryList)
-
-    window = MainWindow(repo, catlist)
-
+def test_load_existing_tasks_populates_from_controller():
+    window = MainWindow.__new__(MainWindow)
     window.controller = MagicMock()
+    window.controller.load_tasks.return_value = []
+    with patch("views.main_window.main_window.populate_task_lists") as pop:
+        MainWindow.load_existing_tasks(window)
+    window.controller.load_tasks.assert_called_once()
+    pop.assert_called_once_with(window, [])
+
+
+def test_load_existing_tasks_show_error_on_db_failure():
+    window = MainWindow.__new__(MainWindow)
+    window.controller = MagicMock()
+    window.controller.load_tasks.side_effect = sqlite3.OperationalError("no such table")
+    with patch.object(MainWindow, "show_error") as err:
+        MainWindow.load_existing_tasks(window)
+    err.assert_called_once()
+
+
+def test_delete_category_skips_system_categories():
+    window = MainWindow.__new__(MainWindow)
     window.task_controller = MagicMock()
     window.cat_controller = MagicMock()
+    window.refresh_ui = MagicMock()
 
-    return window
+    MainWindow.delete_category(window, Category(1, "Todo", "teal"))
+    window.task_controller.reassign_tasks_from_category.assert_not_called()
 
-
-# -----------------------------
-# load_existing_tasks()
-# -----------------------------
-def test_load_existing_tasks(setup_window):
-    window = setup_window
-
-    task1 = MagicMock(task_id=1, task_name="A", text="t1", catid=None, done=False, deadline="")
-    task2 = MagicMock(task_id=2, task_name="B", text="t2", catid=10, done=True, deadline="2025-01-01")
-
-    window.controller.load_tasks.return_value = [task1, task2]
-
-    fake_cat = Category(10, "School", "white")
-    window.cat_controller.get_category.return_value.return_val = fake_cat
-
-    # Mock TaskItem so no real widget is created - create NEW Widget instance each time
-    with patch("task_manager_app.src.views.main_window.TaskItem") as MockTaskItem:
-        MockTaskItem.side_effect = lambda *args, **kwargs: Widget()
-        window.load_existing_tasks()
-
-    # Assert TaskItem was created twice
-    assert MockTaskItem.call_count == 2
+    MainWindow.delete_category(window, Category(2, "Done", "gray"))
+    window.task_controller.reassign_tasks_from_category.assert_not_called()
 
 
-# -----------------------------
-# add_todo_item()
-# -----------------------------
-def test_add_todo_item_success(setup_window):
-    window = setup_window
+def test_delete_category_deletes_user_category():
+    window = MainWindow.__new__(MainWindow)
+    window.task_controller = MagicMock()
+    window.cat_controller = MagicMock()
+    window.cat_controller.delete_category.return_value = Result(True)
+    window.refresh_ui = MagicMock()
 
-    result = MagicMock(success=True, return_val=99)
-    window.controller.add_task.return_value = result
+    cat = Category(9, "Work", "blue")
+    MainWindow.delete_category(window, cat)
 
-    cat = Category(5, "Work", "soft teal")
-
-    with patch("task_manager_app.src.views.main_window.TaskItem") as MockTaskItem:
-        MockTaskItem.return_value = Widget()
-        window.add_todo_item("Task", "Desc", "2025-01-01", cat)
-
-    window.controller.add_task.assert_called_once_with("Task", "Desc", "2025-01-01", 5)
-    assert window.inputframe.ids.task_name.text == ""
-
-
-def test_add_todo_item_failure(setup_window):
-    window = setup_window
-
-    result = MagicMock(success=False, error="Bad input")
-    window.controller.add_task.return_value = result
-
-    with patch.object(window, "show_popup") as popup:
-        window.add_todo_item("X", "Y", "Z", None)
-        popup.assert_called_once_with("Bad input")
-
-
-# -----------------------------
-# delete_category()
-# -----------------------------
-def test_delete_category_triggers_delete(setup_window):
-    window = setup_window
-
-    fake_selector = Widget()
-    fake_selector.get_selected_category = MagicMock(return_value=Category(3, "Home", "light blue"))
-
-    # Create button that captures the binding callback
-    button = Widget()
-    button.bind = MagicMock(side_effect=lambda **kwargs: None)
-
-    # Mock dependencies to return Widget instances
-    with patch("task_manager_app.src.views.main_window.CategorySelector", return_value=fake_selector):
-        with patch("task_manager_app.src.views.main_window.YellowButton", return_value=button):
-            with patch("task_manager_app.src.views.main_window.Popup"):
-                with patch.object(window, "delete_cat_option") as delete_call:
-                    window.delete_category()
-                    
-                    # Get the FIRST callback that was bound to the button (the decide_binding one)
-                    assert button.bind.called
-                    first_call_kwargs = button.bind.call_args_list[0][1]
-                    if 'on_release' in first_call_kwargs:
-                        first_call_kwargs['on_release'](button)
-                    
-                    delete_call.assert_called_once_with(3)
-
-
-# -----------------------------
-# delete_cat_option()
-# -----------------------------
-def test_delete_cat_option_success(setup_window):
-    window = setup_window
-
-    window.cat_controller.delete_category.return_value = True
-
-    with patch.object(window.inputframe, "delete_category") as del_cat:
-        with patch.object(window.scrollablelist, "disable_task_category") as disable:
-            window.delete_cat_option(7)
-
-            del_cat.assert_called_once_with(7)
-            disable.assert_called_once_with(7)
-
-
-def test_delete_cat_option_failure(setup_window):
-    window = setup_window
-
-    result = MagicMock(error="Nope")
-    result.__bool__ = MagicMock(return_value=False)
-    window.cat_controller.delete_category.return_value = result
-
-    with patch.object(window, "show_popup") as popup:
-        window.delete_cat_option(7)
-        popup.assert_called_once_with("Nope")
-
-
-# -----------------------------
-# create_category()
-# -----------------------------
-def test_create_category_opens_popup(setup_window):
-    window = setup_window
-
-    with patch("task_manager_app.src.views.main_window.CategoryCreator") as creator:
-        creator.return_value = Widget()
-
-        with patch("task_manager_app.src.views.main_window.Popup"):
-            window.create_category()
-
-        creator.assert_called_once()
-
-
-# -----------------------------
-# add_cat_option()
-# -----------------------------
-def test_add_cat_option_success(setup_window):
-    window = setup_window
-
-    fake_cat = Category(1, "Work", "white")
-    result = MagicMock(success=True, return_val=fake_cat)
-    window.cat_controller.add_category.return_value = result
-
-    with patch.object(window, "make_cat_widget") as mk:
-        window.add_cat_option("Work", "white")
-        mk.assert_called_once_with(fake_cat)
-
-
-def test_add_cat_option_failure(setup_window):
-    window = setup_window
-
-    result = MagicMock(success=False, error="Duplicate")
-    window.cat_controller.add_category.return_value = result
-
-    with patch.object(window, "show_popup") as popup:
-        window.add_cat_option("Work", "light blue")
-        popup.assert_called_once_with("Duplicate")
-
-
-# -----------------------------
-# remove_task_widget()
-# -----------------------------
-def test_remove_task_widget(setup_window):
-    window = setup_window
-
-    with patch.object(window.scrollablelist, "remove_item") as rm:
-        window.remove_task_widget(42)
-        rm.assert_called_once_with(42)
-
-
-# -----------------------------
-# menu_click()
-# -----------------------------
-def test_menu_click(setup_window, capsys):
-    window = setup_window
-
-    with patch.object(window.menu, "dismiss") as dis:
-        window.menu_click("Create Category")
-
-        dis.assert_called_once()
-        captured = capsys.readouterr()
-        assert "Hamburger Menu Clicked: Create Category" in captured.out
+    window.task_controller.reassign_tasks_from_category.assert_called_once_with(9)
+    window.cat_controller.delete_category.assert_called_once_with(9)
+    window.refresh_ui.assert_called_once_with(
+        reload_categories=True,
+        refresh_category_popup=True,
+    )

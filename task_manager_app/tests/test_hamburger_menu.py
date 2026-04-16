@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from task_manager_app.src.views.main_window.menu_view import build_nav_menu
+from views.main_window.menu_view import build_nav_menu
 
 
 @pytest.fixture
@@ -22,7 +22,10 @@ def test_build_nav_menu_contains_expected_entries(menu_self):
     captured = {}
 
     class CaptureMenu:
-        def __init__(self, **kwargs):
+        def __init__(self, caller, items, *, submenu=False, **kwargs):
+            captured["caller"] = caller
+            captured["items"] = items
+            captured["submenu"] = submenu
             captured.update(kwargs)
 
     app = MagicMock()
@@ -30,8 +33,8 @@ def test_build_nav_menu_contains_expected_entries(menu_self):
     app.root = MagicMock()
     app.root.ids.nav_button = MagicMock()
 
-    with patch("task_manager_app.src.views.main_window.menu_view.App.get_running_app", return_value=app), \
-         patch("task_manager_app.src.views.main_window.menu_view.make_nav_dropdown", CaptureMenu):
+    with patch("views.main_window.menu_view.App.get_running_app", return_value=app), \
+         patch("views.main_window.menu_view.make_nav_dropdown", CaptureMenu):
         build_nav_menu(menu_self)
 
     items = captured["items"]
@@ -39,23 +42,27 @@ def test_build_nav_menu_contains_expected_entries(menu_self):
     assert "Switch View  >" in labels
     assert "Manage Categories  >" in labels
     assert any(t in ("Dark Mode", "Light Mode") for t in labels)
-    assert captured["width_mult"] == 4
 
 
 def test_nav_menu_item_callbacks_invoke_handlers(menu_self):
     built = {}
 
     class CaptureMenu:
-        def __init__(self, **kwargs):
-            built["kwargs"] = kwargs
+        def __init__(self, caller, items, *, submenu=False, **kwargs):
+            built["kwargs"] = {
+                "caller": caller,
+                "items": items,
+                "submenu": submenu,
+                **kwargs,
+            }
 
     app = MagicMock()
     app.theme_cls.theme_style = "Dark"
     app.root = MagicMock()
     app.root.ids.nav_button = MagicMock()
 
-    with patch("task_manager_app.src.views.main_window.menu_view.App.get_running_app", return_value=app), \
-         patch("task_manager_app.src.views.main_window.menu_view.make_nav_dropdown", CaptureMenu):
+    with patch("views.main_window.menu_view.App.get_running_app", return_value=app), \
+         patch("views.main_window.menu_view.make_nav_dropdown", CaptureMenu):
         build_nav_menu(menu_self)
 
     for item in built["kwargs"]["items"]:

@@ -85,3 +85,24 @@ Recent nav submenu work is functionally fine but adds **UI complexity** and **du
 
 - `MainWindow` could still shrink further by extracting nav anchor + menu dismissal into a small coordinator class.
 - `DeadlineSelector.open()` outer ``except Exception`` (after MDDatePicker init) left broad where any KivyMD failure should surface in logs; can narrow further per deployed KivyMD version.
+
+---
+
+## 2026-04-15 (review follow-up: consistency + tests)
+
+### Fixed
+
+- **`MainWindow.nav_submenu_anchor_caller`** now uses the same layout constants as `nav_menu_helpers` (`RIGHT_EDGE_FRACTION`, `DEFAULT_MENU_ROW_HALF_HEIGHT_DP`, `MANAGE_ROW_CENTER_FROM_BOTTOM_DP`, `MIN_NAV_HEIGHT_FOR_ANCHOR_DP`) instead of duplicated literals.
+- **`TaskController.set_deadline` / `update_deadline` / `remove_deadline`** now return `Result` and map `sqlite3.Error` to failure messages, matching other controller methods.
+- **`is_system_category_name()`** added in `category_controller.py`; views and sqlite code use it (or `DEFAULT_CATEGORY_NAME` / `DONE_CATEGORY_NAME`) instead of scattered `"todo"` / `"done"` literals. `reassign_tasks_from_category` SQL uses a bound parameter for the default category name.
+- **Views** use `isinstance(result, Result)` instead of `hasattr(result, "success")` where appropriate (`main_window.py`, `category_view.py`).
+- **`task_widget.py`**: named constants `ACTION_STRIP_WIDTH_DP` and `TAP_VS_SCROLL_MAX_MOVE_DP` for touch thresholds.
+- **`deadline_selector.py`**: narrowed `except` types for picker open and callback paths (still logs and re-raises or logs user-callback failures).
+- **`main_window.py`**: section dividers use `# --- ... ---` comments instead of stray triple-quoted strings mid-class.
+- **`views/app.kv`**: `#:include` path fixed to `views/main_window.kv` so KV resolves when the process cwd is `src` (matches `tests/conftest.py`).
+- **Tests**: `test_hamburger_menu` capture class matches `make_nav_dropdown(caller, items, *, submenu=...)`; `test_main_window` rewritten for current APIs; `test_deadline_controller` aligned with `Result`; `test_category_controller` / `test_category_database` / `test_task_main` updated for system-category init, ordering helpers, and mocked `build()`; full suite green (62 tests).
+
+### Remaining (optional)
+
+- `MainWindow` size / coordinator extraction (unchanged goal).
+- If you run the app with cwd other than `src`, ensure KV paths still resolve (same constraint as before).

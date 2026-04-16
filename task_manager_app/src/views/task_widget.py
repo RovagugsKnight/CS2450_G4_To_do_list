@@ -12,6 +12,10 @@ from controller.category_controller import (
 from models.category import Category
 from views.colors import get_color
 
+# Touch tuning: exclude right action column; max move to count as tap vs scroll.
+ACTION_STRIP_WIDTH_DP = 88
+TAP_VS_SCROLL_MAX_MOVE_DP = 15
+
 
 class TaskItem(MDBoxLayout):
     """
@@ -64,7 +68,7 @@ class TaskItem(MDBoxLayout):
     def _touch_on_action_strip(self, touch) -> bool:
         """Right-side controls column (~80dp); touches here should not toggle expand."""
         # touch / widget geometry are in window coordinates
-        return touch.x >= self.right - dp(88)
+        return touch.x >= self.right - dp(ACTION_STRIP_WIDTH_DP)
 
     def on_touch_down(self, touch):
         if not self.collide_point(*touch.pos):
@@ -86,7 +90,7 @@ class TaskItem(MDBoxLayout):
         if start is not None:
             ax, ay = start
             # Slightly above ScrollView scroll_distance so a dragIntent scroll does not toggle.
-            if Vector(touch.pos).distance((ax, ay)) <= dp(15):
+            if Vector(touch.pos).distance((ax, ay)) <= dp(TAP_VS_SCROLL_MAX_MOVE_DP):
                 self.toggle_expand()
         return super().on_touch_up(touch)
 

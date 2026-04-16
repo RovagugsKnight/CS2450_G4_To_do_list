@@ -34,7 +34,7 @@ class DeadlineSelector(Widget):
                     Logger.warning("DeadlineSelector: could not bind on_save; opening picker without explicit binding")
             picker.open()
             Logger.info("DeadlineSelector: MDDatePicker opened")
-        except Exception as e:
+        except (OSError, RuntimeError, TypeError, AttributeError, ValueError) as e:
             Logger.exception("DeadlineSelector: failed to open MDDatePicker: %s", e)
             raise
 
@@ -57,9 +57,9 @@ class DeadlineSelector(Widget):
                 try:
                     self.callback(date_str)
                     Logger.info("DeadlineSelector: callback invoked successfully")
-                except Exception as cb_e:
+                except (TypeError, ValueError, RuntimeError) as cb_e:
                     Logger.exception("DeadlineSelector: callback raised an exception: %s", cb_e)
-        except Exception as e:
+        except (TypeError, RuntimeError, AttributeError) as e:
             Logger.exception("DeadlineSelector: unexpected error invoking callback: %s", e)
 
     def _on_cancel(self, *args):

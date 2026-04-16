@@ -8,6 +8,7 @@ from kivy.logger import Logger
 from kivy.app import App
 from views.main_window.dashboard_view import update_dashboard
 from kivymd.uix.label import MDLabel
+from controller.category_controller import is_system_category_name
 
 Builder.load_file('views/category_creator.kv')
 
@@ -55,7 +56,7 @@ class CategoryCreator(MDBoxLayout):
         cat_name = " ".join(word.capitalize() for word in cat_name.split())
 
         # Prevent creating system categories
-        if cat_name.lower() in ("todo", "done"):
+        if is_system_category_name(cat_name):
             Logger.error("CategoryCreator: Cannot create system category names")
             return
 

@@ -21,7 +21,13 @@ from models.task_repository import TaskRepository
 from models.category_list import CategoryList
 from controller.main_window_controller import MainWindowController
 from controller.task_controller import TaskController
-from controller.category_controller import CategoryController
+from controller.category_controller import (
+    CategoryController,
+    DEFAULT_CATEGORY_NAME,
+    DONE_CATEGORY_NAME,
+    is_system_category_name,
+)
+from controller.result import Result
 from views.deadline_selector import DeadlineSelector
 from views.category_creator import CategoryCreator
 from views.task_widget import TaskItem
@@ -107,11 +113,12 @@ class MainWindow(MDScreen):
             categories.append(Category(cat_id, name, color))
 
         def sort_key(c):
-            if c.name.lower() == "todo":
-                return (0, c.name.lower())
-            if c.name.lower() == "done":
-                return (1, c.name.lower())
-            return (2, c.name.lower())
+            ln = c.name.lower()
+            if ln == DEFAULT_CATEGORY_NAME.lower():
+                return (0, ln)
+            if ln == DONE_CATEGORY_NAME.lower():
+                return (1, ln)
+            return (2, ln)
 
         self.categories = sorted(categories, key=sort_key)
 
@@ -138,9 +145,7 @@ class MainWindow(MDScreen):
         """Delegate to the dashboard view function."""
         dashboard_update(self)
 
-    """
-    CATEGORY MANAGER (POPUP)
-    """
+    # --- Category manager (popup) ---
 
     def open_category_manager(self):
         popup = ManageCategoriesPopup(self)
@@ -178,7 +183,7 @@ class MainWindow(MDScreen):
             new_name = " ".join(word.capitalize() for word in new_name.split())
 
             result = self.cat_controller.update_category(category.id, new_name, new_color)
-            if hasattr(result, "success") and not result.success:
+            if isinstance(result, Result) and not result.success:
                 self.show_error(result.error)
                 return
 
@@ -193,7 +198,7 @@ class MainWindow(MDScreen):
         popup.open()
 
     def delete_category(self, category):
-        if category.name.lower() in ("todo", "done"):
+        if is_system_category_name(category.name):
             return
 
         # 1. Reassign tasks
@@ -267,12 +272,12 @@ class MainWindow(MDScreen):
         anchor = self._ensure_nav_submenu_anchor()
         nav = getattr(self, "nav_menu", None)
         wx, wy = None, None
-        if nav is not None and nav.parent is not None and nav.height > dp(24):
-            ax = nav.x + nav.width * 0.94
+        if nav is not None and nav.parent is not None and nav.height > dp(MIN_NAV_HEIGHT_FOR_ANCHOR_DP):
+            ax = nav.x + nav.width * RIGHT_EDGE_FRACTION
             if kind == "view":
-                ay = nav.y + nav.height - dp(24)
+                ay = nav.y + nav.height - dp(DEFAULT_MENU_ROW_HALF_HEIGHT_DP)
             else:
-                ay = nav.y + dp(73)
+                ay = nav.y + dp(MANAGE_ROW_CENTER_FROM_BOTTOM_DP)
             wx, wy = ax, ay
         if wx is None:
             wx, wy = self._nav_submenu_anchor_fallback_xy(kind)
@@ -335,9 +340,7 @@ class MainWindow(MDScreen):
         if refresh_category_popup and self.category_popup:
             self.category_popup.refresh()
 
-    """
-    DELEGATED UI ACTIONS
-    """
+    # --- Delegated UI actions (module functions bound as methods) ---
 
     open_add_dialog = open_add_dialog
     set_add_category = set_add_category

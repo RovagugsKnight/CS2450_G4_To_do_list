@@ -82,14 +82,26 @@ class TaskController:
         except sqlite3.Error as e:
             return Result(False, str(e))
         
-    def set_deadline(self, task_id: int, date: str):
-        return self.repo.set_deadline(task_id, date)
+    def set_deadline(self, task_id: int, date: str) -> Result:
+        try:
+            self.repo.set_deadline(task_id, date)
+            return Result(True)
+        except sqlite3.Error as e:
+            return Result(False, str(e))
 
-    def update_deadline(self, task_id: int, date: str):
-        return self.repo.update_deadline(task_id, date)
+    def update_deadline(self, task_id: int, date: str) -> Result:
+        try:
+            self.repo.update_deadline(task_id, date)
+            return Result(True)
+        except sqlite3.Error as e:
+            return Result(False, str(e))
 
-    def remove_deadline(self, task_id: int):
-        return self.repo.remove_deadline(task_id)
+    def remove_deadline(self, task_id: int) -> Result:
+        try:
+            self.repo.remove_deadline(task_id)
+            return Result(True)
+        except sqlite3.Error as e:
+            return Result(False, str(e))
 
     def get_overdue_tasks(self):
         return self.repo.get_overdue_tasks()

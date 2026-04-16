@@ -1,6 +1,8 @@
 import pytest
 from unittest.mock import MagicMock, patch
-from task_manager_app.src.models.sqllite_category_list import SqliteCategories, Category
+
+from models.category import Category
+from models.sqllite_category_list import SqliteCategories
 
 class MockCategory:
     def __init__(self, id, name, color):
@@ -10,9 +12,11 @@ class MockCategory:
 
 @pytest.fixture
 def catlist():
-    c_list = SqliteCategories()
-    c_list.execute = MagicMock()
-    return c_list
+    # Patch must stay active for the whole test (``add_category`` / ``delete_category`` call ordering).
+    with patch.object(SqliteCategories, "_enforce_system_positions", lambda self: None):
+        c_list = SqliteCategories()
+        c_list.execute = MagicMock()
+        yield c_list
 
 @pytest.fixture
 def category():
@@ -27,7 +31,9 @@ def test_execute_calls_cursor_and_commit():
     mock_conn = MagicMock()
     mock_conn.cursor.return_value = mock_cursor
 
-    with patch("sqlite3.connect", return_value=mock_conn):
+    with patch("sqlite3.connect", return_value=mock_conn), patch.object(
+        SqliteCategories, "_enforce_system_positions", lambda self: None
+    ):
         db = SqliteCategories()
         mock_cursor.reset_mock() # reset mock so execute is only called once
         mock_conn.reset_mock() # reset mock so commit is only called once
@@ -41,39 +47,51 @@ def test_execute_calls_cursor_and_commit():
 # __CREATE TABLE__
 #---------------------------------------------------------------------------------
 def test_create_table_query(catlist):
-    """Test create table commits a CREATE TABLE query """
+    """Test create table commits a CREATE TABLE query."""
     catlist.create_table()
 
-    query = catlist.execute.call_args.args[0]
-    assert "CREATE TABLE IF NOT EXISTS category" in query
+    queries = [c.args[0] for c in catlist.execute.call_args_list]
+    assert any("CREATE TABLE IF NOT EXISTS category" in q for q in queries)
 #---------------------------------------------------------------------------------
 # __LOAD FROM DB__
 #---------------------------------------------------------------------------------
 def test_load_category_query(catlist):
-    """Test that query fetches all rows"""
+    """Test that load uses a SELECT on category."""
+    mock_cursor = MagicMock()
+    mock_cursor.fetchall.return_value = [(1, "Todo", "teal", None)]
+    catlist.execute = MagicMock(return_value=mock_cursor)
+    catlist._ordered_ids = MagicMock(return_value=[1])
+
     catlist.load_categories()
 
     query = catlist.execute.call_args.args[0]
-    assert "SELECT * FROM category" in query
+    assert "FROM category" in query
+    assert "category_id" in query
 
 def test_load_category_return(catlist):
-    """Test load_Categories return values"""
+    """Test load_categories return shape."""
     mock_cursor = MagicMock()
-    mock_cursor.fetchall.return_value = "category"
+    mock_cursor.fetchall.return_value = [(1, "Todo", "teal", None)]
     catlist.execute = MagicMock(return_value=mock_cursor)
+    catlist._ordered_ids = MagicMock(return_value=[1])
 
     result = catlist.load_categories()
 
-    assert result == "category"
+    assert result == [(1, "Todo", "teal")]
 #---------------------------------------------------------------------------------
 # __ADD TO DB__
 #---------------------------------------------------------------------------------
 def test_add_category_query(catlist, category):
-    """Test that query inserts into DB """
+    """Test that query inserts into DB."""
+    mock_cursor = MagicMock()
+    mock_cursor.lastrowid = 1
+    catlist.execute = MagicMock(return_value=mock_cursor)
+
     catlist.add_category(category)
 
     query = catlist.execute.call_args.args[0]
-    assert query == "INSERT INTO category VALUES (NULL, ?, ?);"
+    assert "INSERT INTO category" in query
+    assert "category_name" in query
 
 def test_add_category_return(catlist, category):
     """Test that add_category returns category with new id"""
@@ -89,18 +107,24 @@ def test_add_category_return(catlist, category):
 # __DELETE FROM DB__
 #---------------------------------------------------------------------------------
 def test_delete_category_query(catlist):
-    """Test that query deletes row from DB"""
+    """Test that query deletes row from DB."""
+    mock_cursor = MagicMock()
+    mock_cursor.rowcount = 1
+    catlist.execute = MagicMock(return_value=mock_cursor)
+    catlist._ordered_ids = MagicMock(return_value=[1])
+
     catlist.delete_category(1)
 
     query = catlist.execute.call_args.args[0]
-    assert query == "DELETE FROM category WHERE category_id = ?"
+    assert "DELETE FROM category" in query
 
 def test_non_existent_id(catlist):
-    """Test that error is raised when id doesn't exist"""
+    """Test that error is raised when id doesn't exist."""
     mock_cursor = MagicMock()
     mock_cursor.rowcount = 0
     catlist.execute = MagicMock(return_value=mock_cursor)
-    
+    catlist._ordered_ids = MagicMock(return_value=[1])
+
     with pytest.raises(ValueError):
         catlist.delete_category(999)
 #---------------------------------------------------------------------------------

@@ -1,6 +1,7 @@
 import pathlib
 from typing import Any
 from models.task_repository import TaskRepository
+from controller.category_controller import DEFAULT_CATEGORY_NAME
 import sqlite3
 from datetime import datetime, date
 
@@ -135,11 +136,12 @@ class SqliteRepo(TaskRepository):
             SET category_id = (
                 SELECT category_id
                 FROM category
-                WHERE LOWER(category_name) = 'todo'
+                WHERE LOWER(category_name) = ?
                 LIMIT 1
             )
             WHERE category_id = ?;
             """,
+            DEFAULT_CATEGORY_NAME.lower(),
             cat_id,
         )
 

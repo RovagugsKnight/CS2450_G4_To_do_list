@@ -3,6 +3,7 @@ import pathlib
 from typing import Any
 from models.category_list import CategoryList
 from models.category import Category
+from controller.category_controller import DEFAULT_CATEGORY_NAME, DONE_CATEGORY_NAME
 
 DATA_DIR = pathlib.Path(__file__).parent.parent / "data"
 DATA_DIR.mkdir(exist_ok=True)
@@ -91,8 +92,14 @@ class SqliteCategories(CategoryList):
             return
 
         name_by_id = {row[0]: row[1].lower() for row in rows}
-        todo_id = next((cid for cid, name in name_by_id.items() if name == "todo"), None)
-        done_id = next((cid for cid, name in name_by_id.items() if name == "done"), None)
+        todo_id = next(
+            (cid for cid, name in name_by_id.items() if name == DEFAULT_CATEGORY_NAME.lower()),
+            None,
+        )
+        done_id = next(
+            (cid for cid, name in name_by_id.items() if name == DONE_CATEGORY_NAME.lower()),
+            None,
+        )
 
         ordered = self._ordered_ids()
         ordered = [cid for cid in ordered if cid in name_by_id]
@@ -166,8 +173,14 @@ class SqliteCategories(CategoryList):
         ordered = self._ordered_ids()
         rows = self.execute("SELECT category_id, category_name FROM category;").fetchall()
         name_by_id = {row[0]: row[1].lower() for row in rows}
-        todo_id = next((cid for cid, n in name_by_id.items() if n == "todo"), None)
-        done_id = next((cid for cid, n in name_by_id.items() if n == "done"), None)
+        todo_id = next(
+            (cid for cid, n in name_by_id.items() if n == DEFAULT_CATEGORY_NAME.lower()),
+            None,
+        )
+        done_id = next(
+            (cid for cid, n in name_by_id.items() if n == DONE_CATEGORY_NAME.lower()),
+            None,
+        )
 
         if category_id in (todo_id, done_id):
             return
@@ -185,8 +198,14 @@ class SqliteCategories(CategoryList):
         ordered = self._ordered_ids()
         rows = self.execute("SELECT category_id, category_name FROM category;").fetchall()
         name_by_id = {row[0]: row[1].lower() for row in rows}
-        todo_id = next((cid for cid, n in name_by_id.items() if n == "todo"), None)
-        done_id = next((cid for cid, n in name_by_id.items() if n == "done"), None)
+        todo_id = next(
+            (cid for cid, n in name_by_id.items() if n == DEFAULT_CATEGORY_NAME.lower()),
+            None,
+        )
+        done_id = next(
+            (cid for cid, n in name_by_id.items() if n == DONE_CATEGORY_NAME.lower()),
+            None,
+        )
 
         if category_id in (todo_id, done_id):
             return

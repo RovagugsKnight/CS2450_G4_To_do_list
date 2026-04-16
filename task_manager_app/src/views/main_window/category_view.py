@@ -7,6 +7,8 @@ from kivy.app import App
 from kivy.factory import Factory
 from views.colors import get_color
 from views.category_creator import CategoryCreator
+from controller.category_controller import is_system_category_name
+from controller.result import Result
 
 
 class ManageCategoriesPopup(Popup):
@@ -118,7 +120,7 @@ class ManageCategoriesPopup(Popup):
             result = self.mainwindow.cat_controller.move_category_up(category.id)
         else:
             result = self.mainwindow.cat_controller.move_category_down(category.id)
-        if hasattr(result, "success") and not result.success:
+        if isinstance(result, Result) and not result.success:
             self.mainwindow.show_error(result.error)
             return
         self.mainwindow.refresh_ui(reload_categories=True, refresh_category_popup=False)
@@ -131,7 +133,7 @@ class ManageCategoriesPopup(Popup):
 
         for cat in categories:
             # Skip system categories
-            if cat.name.lower() in ("todo", "done"):
+            if is_system_category_name(cat.name):
                 continue
 
             rgba = get_color(cat.color)["rgba"]

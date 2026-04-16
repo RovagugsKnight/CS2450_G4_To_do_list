@@ -8,6 +8,12 @@ DEFAULT_CATEGORY_COLOR = "teal"
 DONE_CATEGORY_COLOR = "gray"
 
 
+def is_system_category_name(name: str) -> bool:
+    """True for reserved system categories (Todo / Done), case-insensitive."""
+    n = name.strip().lower()
+    return n in (DEFAULT_CATEGORY_NAME.lower(), DONE_CATEGORY_NAME.lower())
+
+
 class CategoryController:
 
     def __init__(self, catlist: CategoryList):
@@ -33,7 +39,7 @@ class CategoryController:
             )
 
     def _is_system_category(self, name: str) -> bool:
-        return name.lower() in (DEFAULT_CATEGORY_NAME.lower(), DONE_CATEGORY_NAME.lower())
+        return is_system_category_name(name)
 
     """
     LOAD
