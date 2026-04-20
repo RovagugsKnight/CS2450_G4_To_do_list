@@ -1,37 +1,40 @@
-from kivymd.uix.button import MDFillRoundFlatIconButton
+from kivymd.uix.button import MDToggleButton
+from kivy.properties import ObjectProperty, StringProperty, ListProperty
 from models.category import Category
-from views.colors import get_color
-from kivy.properties import ListProperty, StringProperty
-from kivy.lang import Builder
-from kivy.uix.behaviors.togglebutton import ToggleButtonBehavior
+from kivy.app import App
 
-Builder.load_file("views/category_button.kv")
+from views.colors import category_rgba_for_theme, get_color
 
-class CategoryButton(MDFillRoundFlatIconButton, ToggleButtonBehavior):
 
-    color = ListProperty([1,1,1,1])
-    name = StringProperty("None")
+class CategoryButton(MDToggleButton):
+    """
+    A toggleable button representing a category.
+    Works with CategorySelector to choose a category.
+    """
 
-    def __init__(self, category: Category | None = None, **kwargs):
+    category = ObjectProperty(None)
+    text = StringProperty("")
+    color = ListProperty([1, 1, 1, 1])
+
+    def __init__(self, category: Category, **kwargs):
         super().__init__(**kwargs)
+
         self.category = category
-        if self.category:
-            self.cat_id = self.category.id
-            self.color = get_color(self.category.color)
-            self.name = self.category.name
-            self.bind(state=self.keep_color) # keep color after toggle
-    
-    def keep_color(self, *args):
-        """change color back to original color"""
+        self.text = category.name
+
+        # category.color is a string key ("teal", "gray", etc.)
+        color_data = get_color(category.color)
+        is_dark = App.get_running_app().theme_cls.theme_style == "Dark"
+        self.color = category_rgba_for_theme(color_data["rgba"], is_dark=is_dark)
+
+        # Style
+        self.size_hint = (None, None)
+        self.height = "40dp"
+        self.width = "110dp"
+        self.radius = [10, 10, 10, 10]
         self.md_bg_color = self.color
-    
+        self.theme_text_color = "Custom"
+        self.text_color = (0.92, 0.92, 0.92, 1) if is_dark else (0.1, 0.1, 0.1, 1)
+
     def get_category(self):
         return self.category
-    
-    def show_selection(self, instance, value):
-        """Show which button is selected with outline"""
-        if value == "down":
-            self.line_width = 2
-            self.line_color = (0.7, 0.7, 0.7, 1)
-        else:
-            self.line_color = self.color

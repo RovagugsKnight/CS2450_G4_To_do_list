@@ -6,7 +6,7 @@ from task_manager_app.src.models.sqllite_repository import SqliteRepo
 
 @pytest.fixture
 def repo():
-    SqliteRepo._instance = None
+    SqliteRepo.reset_singleton_for_tests()
     # Create a temporary file to act as the SQLite DB
     db_fd, db_path = tempfile.mkstemp()
 
@@ -52,9 +52,9 @@ def test_get_overdue_tasks(repo):
     repo.add_task("Overdue Task", "Desc", "") # ID 1
     repo.add_task("Future Task", "Desc", "")  # ID 2
     
-    # Use YYYY-MM-DD for reliable SQL comparisons
-    repo.set_deadline(1, "2020-01-01")    
-    repo.set_deadline(2, "2050-01-01")   
+    # App deadline format is MM/DD/YYYY (used by get_overdue_tasks parsing).
+    repo.set_deadline(1, "01/01/2020")
+    repo.set_deadline(2, "01/01/2050")
 
     overdue_rows = repo.get_overdue_tasks()
     

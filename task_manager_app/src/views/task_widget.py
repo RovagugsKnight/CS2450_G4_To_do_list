@@ -1,140 +1,140 @@
-from kivymd.uix.boxlayout import MDBoxLayout
-from kivy.uix.popup import Popup
-from kivy.uix.label import Label
-from views.buttons import YellowButton
-from kivymd.uix.card import MDCard
+from kivy.app import App
+from kivy.metrics import dp
 from kivy.properties import BooleanProperty, StringProperty, ListProperty
-from kivymd.uix.label import MDLabel
-from kivy.lang import Builder
-from controller.task_controller import TaskController
-from models.category import Category
-from views.colors import get_color
-from views.category_selector import CategorySelector
-from controller.category_controller import CategoryController
+from kivy.vector import Vector
+from kivymd.uix.boxlayout import MDBoxLayout
 
-Builder.load_file("views/task_widget.kv")
+from controller.task_controller import TaskController
+from controller.category_controller import (
+    CategoryController,
+    DEFAULT_CATEGORY_NAME,
+    DEFAULT_CATEGORY_COLOR,
+)
+from models.category import Category
+from views.colors import category_rgba_for_theme, get_color
+
+# Touch tuning: exclude right action column; max move to count as tap vs scroll.
+ACTION_STRIP_WIDTH_DP = 88
+TAP_VS_SCROLL_MAX_MOVE_DP = 15
+
 
 class TaskItem(MDBoxLayout):
-    """Task widget with card layout and done, delete, and edit buttons on the side"""
-    done = BooleanProperty(False)
-    task_name = StringProperty(" ")
-    description = StringProperty(" ")
-    color = ListProperty([1,1,1,1])
-    deadline = StringProperty(" ")
+    """
+    Task card: not ButtonBehavior (so ScrollView can scroll). Tap almost anywhere on the
+    card toggles expand; a short drag is treated as scroll. The right action column is
+    excluded so checkbox / edit / delete stay accurate.
+    """
 
-    def __init__(self, main_window, controller: TaskController, item_id: int, task_name: str, description: str, 
-                 category: Category|None, cat_controller: CategoryController, done: bool=False, deadline: str="", **kwargs):
+    done = BooleanProperty(False)
+    task_name = StringProperty("")
+    description = StringProperty("")
+    deadline = StringProperty("")
+    color = ListProperty([1, 1, 1, 1])
+    cat_name = StringProperty(DEFAULT_CATEGORY_NAME)
+
+    is_expanded = BooleanProperty(False)
+
+    def __init__(
+        self,
+        main_window,
+        controller: TaskController,
+        item_id: int,
+        task_name: str,
+        description: str,
+        category: Category | None,
+        cat_controller: CategoryController,
+        done: bool = False,
+        deadline: str = "",
+        **kwargs
+    ):
         super().__init__(**kwargs)
-        self.item_id = item_id
+
         self.main_window = main_window
+        self.controller = controller
+        self.cat_controller = cat_controller
+
+        self.item_id = item_id
         self.done = done
         self.task_name = task_name
         self.description = description
         self.deadline = deadline
-        self.controller = controller
-        self.cat_controller = cat_controller
+
+        is_dark = App.get_running_app().theme_cls.theme_style == "Dark"
         if category:
-            self.cat_name = category.name
-            self.color = get_color(category.color)
             self.cat_id = category.id
+            self.cat_name = category.name
+            self.color = category_rgba_for_theme(
+                get_color(category.color)["rgba"],
+                is_dark=is_dark,
+            )
         else:
             self.change_to_none()
-    
-    def change_to_none(self) -> None:
-        """change display to no category"""
-        self.cat_name = "None"
-        self.color = get_color("white")
+
+    def _touch_on_action_strip(self, touch) -> bool:
+        """Right-side controls column (~80dp); touches here should not toggle expand."""
+        # touch / widget geometry are in window coordinates
+        return touch.x >= self.right - dp(ACTION_STRIP_WIDTH_DP)
+
+    def on_touch_down(self, touch):
+        if not self.collide_point(*touch.pos):
+            return super().on_touch_down(touch)
+        if self._touch_on_action_strip(touch):
+            return super().on_touch_down(touch)
+
+        handled = super().on_touch_down(touch)
+        if handled:
+            return True
+
+        # Candidate for tap-to-expand; cleared in on_touch_up if finger moved (scroll).
+        touch.ud[f"_task_expand_{id(self)}"] = (touch.x, touch.y)
+        return False
+
+    def on_touch_up(self, touch):
+        key = f"_task_expand_{id(self)}"
+        start = touch.ud.pop(key, None)
+        if start is not None:
+            ax, ay = start
+            # Slightly above ScrollView scroll_distance so a dragIntent scroll does not toggle.
+            if Vector(touch.pos).distance((ax, ay)) <= dp(TAP_VS_SCROLL_MAX_MOVE_DP):
+                self.toggle_expand()
+        return super().on_touch_up(touch)
+
+    def change_to_none(self):
         self.cat_id = None
-
-    def show_popup(self, message:str) -> None:
-        """Creates popup for errors"""
-        popup = Popup(
-            title="Error",
-            content=Label(text=str(message)),
-            size_hint=(0.6, 0.3)
+        self.cat_name = DEFAULT_CATEGORY_NAME
+        is_dark = App.get_running_app().theme_cls.theme_style == "Dark"
+        self.color = category_rgba_for_theme(
+            get_color(DEFAULT_CATEGORY_COLOR)["rgba"],
+            is_dark=is_dark,
         )
-        popup.open()
-  
-    def mark_done(self) -> None:
-        """disables done button and tells controller 
-        to mark task done"""
-        result = self.controller.mark_done(self.item_id)
-        if result.success:
-            self.done = True
+
+    def toggle_expand(self):
+        self.is_expanded = not self.is_expanded
+
+    def toggle_done(self, checkbox, value):
+        if value:
+            result = self.controller.mark_done(self.item_id)
         else:
+            result = self.controller.mark_undone(self.item_id)
+
+        if not result.success:
             self.show_popup(result.error)
-    
-    def remove(self) -> None:
-        """tells main window to remove task widget and 
-        tells controller to delete task from repository"""
+            return
+
+        self.done = value
+
+        self.main_window.refresh_ui()
+
+    def delete_task(self):
         result = self.controller.delete_task(self.item_id)
-        if result.success:
-            self.main_window.remove_task_widget(self.item_id)
-        else:
+        if not result.success:
             self.show_popup(result.error)
+            return
 
-    def edit_task(self) -> None:
-        """Pulls up edit popup that lets user edit task name and description
-        calls controller to update database info"""
-        from kivy.uix.popup import Popup
-        from kivy.uix.boxlayout import BoxLayout
-        from kivy.uix.textinput import TextInput
-        from kivy.uix.button import Button
+        self.main_window.refresh_ui()
 
-        layout = BoxLayout(orientation='vertical', spacing=10, padding=10)
-
-        task_box = TextInput(text=self.task_name, multiline=False)
-        layout.add_widget(task_box)
-
-        deadline_box = TextInput(text=self.deadline, multiline=False)
-        layout.add_widget(deadline_box)
-
-        input_box = TextInput(text=self.description, multiline=True)
-        layout.add_widget(input_box)
-
-        cat_label = Label(text="Change category", color="white")
-        category_changer = CategorySelector(self.cat_controller)
-        layout.add_widget(cat_label)
-        layout.add_widget(category_changer)
-
-        save_button = YellowButton(text="Save")
-        layout.add_widget(save_button)
-
-        popup = Popup(title="Edit Task", content=layout, size_hint=(0.8, 0.5))
-
-        def save_changes(instance:Button) -> None:
-            """Saves task to repository with controller.
-            Shows popup on failure"""
-            cat_id = self.cat_id
-            new_category = category_changer.get_selected_category()
-            if new_category:
-                cat_id = new_category.id
-                self.cat_id = cat_id
-                self.name = new_category.name
-                self.color = get_color(new_category.color)   
-
-            if category_changer.check_selected() and new_category is None:
-                cat_id = None
-                self.cat_id = None
-                self.name = "None"
-                self.color = get_color("white")
-
-            new_name = task_box.text.strip()
-            new_text = input_box.text.strip()
-            new_deadline = deadline_box.text.strip()
-
-            if new_name:
-                result = self.controller.update_task(self.item_id, new_name, new_text, new_deadline, cat_id)
-                if result.success:
-                    self.task_name = new_name
-                    self.description = new_text
-                    self.deadline = new_deadline
-                    popup.dismiss()
-                else:
-                    self.show_popup(result.error)
-                    input_box.text = self.description
-                    task_box.text = self.task_name
-                    deadline_box.text = self.deadline
-
-        save_button.bind(on_release=save_changes)
-        popup.open()
+    def edit_task(self):
+        if hasattr(self.main_window, "open_edit_dialog"):
+            self.main_window.open_edit_dialog(self)
+        else:
+            self.show_popup("Edit dialog not implemented yet.")

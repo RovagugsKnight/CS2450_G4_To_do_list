@@ -1,17 +1,82 @@
-color_dict = {'yellow' : (0.90, 0.82, 0.35, 1),
-'red' : (0.8, 0.1, 0.1, 1),
-'light teal' : (0, 0.41, 0.41, 1.0),
-'white' : (1, 1, 1, 1),
-'mint' : (0.6, 1, 0.6, 1),
-'light blue' : (0.68, 0.85, 0.9, 1),
-'soft teal' : (0.25, 0.88, 0.82, 1),
+"""
+Modern, minimal, light‑mode friendly palette
+"""
+
+color_dict = {
+    "white": {
+        "label": "White",
+        "rgba": (1, 1, 1, 1)
+    },
+    "amber": {
+        "label": "Amber",
+        "rgba": (0.98, 0.82, 0.40, 1),
+    },
+    "rose": {
+        "label": "Rose",
+        "rgba": (0.94, 0.55, 0.55, 1),
+    },
+    "teal": {
+        "label": "Teal",
+        "rgba": (0.35, 0.70, 0.70, 1),
+    },
+    "blue": {
+        "label": "Blue",
+        "rgba": (0.55, 0.70, 0.90, 1),
+    },
+    "mint": {
+        "label": "Mint",
+        "rgba": (0.70, 0.90, 0.70, 1),
+    },
+    "lavender": {
+        "label": "Lavender",
+        "rgba": (0.78, 0.70, 0.90, 1),
+    },
+    "gray": {
+        "label": "Gray",
+        "rgba": (0.85, 0.85, 0.85, 1),
+    },
 }
 
-def get_color(color: str):
-    if color.lower() in color_dict:
-        return color_dict[color.lower()]
-    else:
-        raise ValueError('Color not available')
 
-Black_transparent = (0, 0, 0, 0)
+def get_color(key: str):
+    """Return color dict {label, rgba} for a palette key."""
+    key = key.lower().replace(" ", "_")
+    if key in color_dict:
+        return color_dict[key]
+    raise ValueError(f"Color '{key}' not available")
 
+
+def pastelize(rgba):
+    """Return a pastel version of an RGBA color."""
+    r, g, b, a = rgba
+    return (
+        (r + 1.0) / 2.0,
+        (g + 1.0) / 2.0,
+        (b + 1.0) / 2.0,
+        1.0,
+    )
+
+
+def category_rgba_for_theme(rgba: tuple[float, float, float, float], *, is_dark: bool):
+    """
+    Category accent for UI: full chroma in light mode; softer / less saturated on dark UI.
+    """
+    r, g, b, a = rgba
+    if not is_dark:
+        return (r, g, b, a)
+    lum = 0.299 * r + 0.587 * g + 0.114 * b
+    keep = 0.52
+    r = r * keep + lum * (1.0 - keep)
+    g = g * keep + lum * (1.0 - keep)
+    b = b * keep + lum * (1.0 - keep)
+    dr, dg, db = 0.12, 0.13, 0.16
+    mix = 0.32
+    r = r * (1.0 - mix) + dr * mix
+    g = g * (1.0 - mix) + dg * mix
+    b = b * (1.0 - mix) + db * mix
+    return (r, g, b, a)
+
+
+# Semantic defaults for your app
+DEFAULT_CATEGORY_COLOR = "teal"   # main todo
+DONE_CATEGORY_COLOR = "gray"      # auto-done

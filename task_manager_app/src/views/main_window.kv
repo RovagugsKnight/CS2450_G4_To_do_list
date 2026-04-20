@@ -1,0 +1,301 @@
+#:import st views.main_window.scroll_bar_theme
+
+<MainWindow>:
+    md_bg_color: (0.10, 0.10, 0.10, 1) if app.theme_cls.theme_style == "Dark" else (0.88, 0.88, 0.88, 1)
+    padding: [0, 24, 0, 0]
+
+    MDScreenManager:
+        id: screen_manager
+
+        # ---------------------------------------------------
+        # DASHBOARD SCREEN
+        # ---------------------------------------------------
+        MDScreen:
+            name: "Dashboard"
+            md_bg_color: (0.12, 0.12, 0.12, 1) if app.theme_cls.theme_style == "Dark" else (0.90, 0.90, 0.90, 1)
+
+            ScrollView:
+                do_scroll_y: True
+                do_scroll_x: False
+                bar_width: "14dp"
+                scroll_type: ["bars", "content"]
+                bar_color: st.BAR_ACTIVE_DARK if app.theme_cls.theme_style == "Dark" else st.BAR_ACTIVE_LIGHT
+                bar_inactive_color: st.BAR_INACTIVE_DARK if app.theme_cls.theme_style == "Dark" else st.BAR_INACTIVE_LIGHT
+                scroll_timeout: 200
+                scroll_distance: dp(12)
+
+                MDBoxLayout:
+                    orientation: "vertical"
+                    padding: "24dp"
+                    spacing: "24dp"
+                    size_hint_y: None
+                    height: self.minimum_height
+
+                    MDBoxLayout:
+                        id: dashboard_container
+                        orientation: "vertical"
+                        spacing: "24dp"
+                        padding: [20, 0, 20, 0]
+                        size_hint_x: None
+                        width: min(self.parent.width if self.parent and self.parent.width > 0 else dp(900), dp(900))
+                        pos_hint: {"center_x": 0.5}
+                        adaptive_height: True
+
+                        # ---------------------------------------------------
+                        # TWO-ROW DASHBOARD HEADER (WRAPPED IN A CARD)
+                        # ---------------------------------------------------
+                        MDCard:
+                            radius: 16
+                            padding: "24dp"
+                            spacing: "16dp"
+                            md_bg_color: (0.17, 0.17, 0.17, 1) if app.theme_cls.theme_style == "Dark" else (0.94, 0.94, 0.94, 1)
+                            elevation: 2
+                            adaptive_height: True
+                            
+                            MDBoxLayout:
+                                orientation: "horizontal"
+                                spacing: "16dp"
+                                adaptive_height: True
+
+                                # LEFT COLUMN (Dashboard title + Progress card)
+                                MDBoxLayout:
+                                    orientation: "vertical"
+                                    spacing: "16dp"
+                                    size_hint_x: 0.65
+                                    adaptive_height: True
+
+                                    MDLabel:
+                                        text: "Dashboard"
+                                        font_style: "H5"
+                                        halign: "left"
+                                        valign: "top"
+                                        theme_text_color: "Custom"
+                                        text_color: (0.95, 0.95, 0.95, 1) if app.theme_cls.theme_style == "Dark" else (0.20, 0.20, 0.20, 1)
+                                        size_hint_y: None
+                                        height: self.texture_size[1]
+
+                                    MDCard:
+                                        radius: 12
+                                        padding: "16dp"
+                                        size_hint_y: None
+                                        height: "130dp"
+                                        elevation: 1
+                                        md_bg_color: (0.22, 0.22, 0.22, 1) if app.theme_cls.theme_style == "Dark" else (0.98, 0.98, 0.98, 1)
+
+                                        MDBoxLayout:
+                                            orientation: "vertical"
+                                            spacing: "6dp"
+
+                                            MDLabel:
+                                                text: "Progress Overview"
+                                                font_style: "Subtitle1"
+                                                theme_text_color: "Custom"
+                                                text_color: (0.90, 0.90, 0.90, 1) if app.theme_cls.theme_style == "Dark" else (0.25, 0.25, 0.25, 1)
+
+                                            MDSeparator:
+                                                height: "1dp"
+                                                color: (0.35, 0.35, 0.35, 1) if app.theme_cls.theme_style == "Dark" else (0.80, 0.80, 0.80, 1)
+
+                                            MDLabel:
+                                                text: "Tasks Completed Today"
+                                                font_style: "Subtitle2"
+                                                theme_text_color: "Custom"
+                                                text_color: (0.90, 0.90, 0.90, 1) if app.theme_cls.theme_style == "Dark" else (0.25, 0.25, 0.25, 1)
+
+                                            MDProgressBar:
+                                                id: progress_today
+                                                value: 0
+
+                                            MDLabel:
+                                                text: "Total Completion"
+                                                font_style: "Subtitle2"
+                                                theme_text_color: "Custom"
+                                                text_color: (0.90, 0.90, 0.90, 1) if app.theme_cls.theme_style == "Dark" else (0.25, 0.25, 0.25, 1)
+
+                                            MDProgressBar:
+                                                id: progress_week
+                                                value: 0
+
+                                # VERTICAL SEPARATOR
+                                MDSeparator:
+                                    orientation: "vertical"
+                                    size_hint_x: None
+                                    width: "1dp"
+                                    color: (0.35, 0.35, 0.35, 1) if app.theme_cls.theme_style == "Dark" else (0.80, 0.80, 0.80, 1)
+
+                                # RIGHT COLUMN (Total Tasks)
+                                MDCard:
+                                    radius: 12
+                                    padding: "16dp"
+                                    size_hint_x: 0.25
+                                    size_hint_y: None
+                                    height: "150dp"
+                                    elevation: 1
+                                    md_bg_color: (0.22, 0.22, 0.22, 1) if app.theme_cls.theme_style == "Dark" else (0.98, 0.98, 0.98, 1)
+
+                                    MDBoxLayout:
+                                        orientation: "vertical"
+                                        spacing: "8dp"
+
+                                        MDLabel:
+                                            text: "Total Tasks"
+                                            font_style: "Subtitle1"
+                                            theme_text_color: "Custom"
+                                            text_color: (0.90, 0.90, 0.90, 1) if app.theme_cls.theme_style == "Dark" else (0.25, 0.25, 0.25, 1)
+                                            size_hint_y: None
+                                            height: self.texture_size[1]
+
+                                        MDSeparator:
+                                            height: "1dp"
+                                            color: (0.35, 0.35, 0.35, 1) if app.theme_cls.theme_style == "Dark" else (0.80, 0.80, 0.80, 1)
+
+                                        MDLabel:
+                                            id: stat_total_tasks
+                                            text: ""
+                                            font_style: "H4"
+                                            size_hint_y: 1
+                                            text_size: self.size
+                                            valign: "middle"
+                                            halign: "center"
+                                            theme_text_color: "Custom"
+                                            text_color: (0.92, 0.92, 0.92, 1) if app.theme_cls.theme_style == "Dark" else (0.25, 0.25, 0.25, 1)
+
+                        # ---------------------------------------------------
+                        # SEPARATOR LINE
+                        # ---------------------------------------------------
+                        MDSeparator:
+                            height: "1dp"
+                            color: (0.35, 0.35, 0.35, 1) if app.theme_cls.theme_style == "Dark" else (0.80, 0.80, 0.80, 1)
+
+                        # ---------------------------------------------------
+                        # TODAY'S TASKS CARD
+                        # ---------------------------------------------------
+                        MDCard:
+                            radius: 16
+                            padding: "24dp"
+                            spacing: "16dp"
+                            elevation: 2
+                            md_bg_color: (0.17, 0.17, 0.17, 1) if app.theme_cls.theme_style == "Dark" else (0.90, 0.90, 0.90, 1)
+                            adaptive_height: True
+
+                            MDBoxLayout:
+                                orientation: "vertical"
+                                spacing: "12dp"
+                                adaptive_height: True
+
+                                # HEADER ROW
+                                MDBoxLayout:
+                                    orientation: "horizontal"
+                                    size_hint_y: None
+                                    height: "32dp"
+
+                                    MDLabel:
+                                        text: "Today's Tasks"
+                                        font_style: "H5"
+                                        theme_text_color: "Custom"
+                                        text_color: (0.92, 0.92, 0.92, 1) if app.theme_cls.theme_style == "Dark" else (0.25, 0.25, 0.25, 1)
+
+                                    MDLabel:
+                                        id: stat_due_today_header
+                                        text: ""
+                                        halign: "right"
+                                        font_style: "Subtitle2"
+                                        theme_text_color: "Custom"
+                                        text_color: (0.85, 0.85, 0.85, 1) if app.theme_cls.theme_style == "Dark" else (0.25, 0.25, 0.25, 1)
+
+                                # FULL-WIDTH UNDERLINE
+                                MDSeparator:
+                                    height: "1dp"
+                                    size_hint_x: 1
+                                    color: (0.35, 0.35, 0.35, 1) if app.theme_cls.theme_style == "Dark" else (0.80, 0.80, 0.80, 1)
+
+                                # No inner ScrollView: nested vertical ScrollViews fight over the same axis
+                                # (outer dashboard scroll vs inner list). Let the dashboard ScrollView scroll
+                                # this whole section; scrollbar on the outer view covers Today's Tasks too.
+                                MDBoxLayout:
+                                    id: dashboard_task_list
+                                    orientation: "vertical"
+                                    spacing: "0dp"
+                                    size_hint_y: None
+                                    height: max(dp(120), self.minimum_height)
+
+        # ---------------------------------------------------
+        # TASK BOARD SCREEN (KANBAN)
+        # ---------------------------------------------------
+        MDScreen:
+            name: "Task View"
+            md_bg_color: (0.12, 0.12, 0.12, 1) if app.theme_cls.theme_style == "Dark" else (0.90, 0.90, 0.90, 1)
+
+            # Trello-style board: horizontal scroll between columns; each column scrolls vertically inside.
+            ScrollView:
+                size_hint: 1, 1
+                do_scroll_y: False
+                do_scroll_x: True
+                bar_width: "14dp"
+                scroll_type: ["bars", "content"]
+                bar_color: st.BAR_ACTIVE_DARK if app.theme_cls.theme_style == "Dark" else st.BAR_ACTIVE_LIGHT
+                bar_inactive_color: st.BAR_INACTIVE_DARK if app.theme_cls.theme_style == "Dark" else st.BAR_INACTIVE_LIGHT
+                scroll_timeout: st.LIST_SCROLL_TIMEOUT_MS
+                scroll_distance: dp(st.LIST_SCROLL_DISTANCE_DP)
+                scroll_wheel_distance: dp(80)
+
+                MDBoxLayout:
+                    id: board_columns
+                    orientation: "horizontal"
+                    spacing: "16dp"
+                    padding: "24dp"
+                    size_hint_y: None
+                    height: root.height
+                    size_hint_x: None
+                    width: self.minimum_width
+                    focus_behavior: False
+
+
+        # ---------------------------------------------------
+        # MANAGE CATEGORIES SCREEN
+        # ---------------------------------------------------
+        MDScreen:
+            name: "ManageCategories"
+            md_bg_color: (0.12, 0.12, 0.12, 1) if app.theme_cls.theme_style == "Dark" else (0.90, 0.90, 0.90, 1)
+
+            ScrollView:
+                do_scroll_y: True
+                do_scroll_x: False
+                bar_width: "14dp"
+                scroll_type: ["bars", "content"]
+                bar_color: st.BAR_ACTIVE_DARK if app.theme_cls.theme_style == "Dark" else st.BAR_ACTIVE_LIGHT
+                bar_inactive_color: st.BAR_INACTIVE_DARK if app.theme_cls.theme_style == "Dark" else st.BAR_INACTIVE_LIGHT
+                scroll_timeout: 200
+                scroll_distance: dp(12)
+
+                MDBoxLayout:
+                    orientation: "vertical"
+                    padding: "24dp"
+                    spacing: "16dp"
+                    size_hint_y: None
+                    height: self.minimum_height
+
+                    MDLabel:
+                        text: "Manage Categories"
+                        font_style: "H5"
+                        theme_text_color: "Custom"
+                        text_color: (0.92, 0.92, 0.92, 1) if app.theme_cls.theme_style == "Dark" else (0.25, 0.25, 0.25, 1)
+                        size_hint_y: None
+                        height: self.texture_size[1]
+
+                    MDSeparator:
+                        height: "1dp"
+                        color: (0.35, 0.35, 0.35, 1) if app.theme_cls.theme_style == "Dark" else (0.80, 0.80, 0.80, 1)
+
+                    ScrollView:
+                        size_hint_y: None
+                        height: root.height - dp(120)
+                        bar_width: "14dp"
+                        scroll_type: ["bars", "content"]
+                        bar_color: st.BAR_ACTIVE_DARK if app.theme_cls.theme_style == "Dark" else st.BAR_ACTIVE_LIGHT
+                        bar_inactive_color: st.BAR_INACTIVE_DARK if app.theme_cls.theme_style == "Dark" else st.BAR_INACTIVE_LIGHT
+                        scroll_timeout: 200
+                        scroll_distance: dp(12)
+
+                        MDList:
+                            id: category_list

@@ -1,13 +1,20 @@
 <CategoryCreator>:
-    spacing: "10dp"
-    padding: "10dp"
     orientation: "vertical"
+    spacing: "12dp"
+    padding: "12dp"
 
     MDTextField:
         id: cat_name
         hint_text: "Category Name"
-        multiline: False
-    
-        
+        size_hint_y: None
+        height: "48dp"
 
+    BoxLayout:
+        id: color_area
+        size_hint_y: None
+        height: "50dp"
 
+    BoxLayout:
+        id: submit_area
+        size_hint_y: None
+        height: "60dp"
