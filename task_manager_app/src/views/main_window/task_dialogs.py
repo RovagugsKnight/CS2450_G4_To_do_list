@@ -3,7 +3,7 @@ from kivymd.uix.menu import MDDropdownMenu
 from kivymd.uix.button import MDFlatButton, MDRaisedButton
 from kivy.app import App
 
-from controller.category_controller import DEFAULT_CATEGORY_NAME
+from controller.category_controller import DEFAULT_CATEGORY_NAME, DONE_CATEGORY_NAME
 from models.category import Category
 from views.dialogs import AddTaskContent, EditTaskContent
 from views.colors import category_rgba_for_theme, get_color
@@ -37,6 +37,9 @@ def open_add_dialog(self):
     menu_items = []
     for row in categories:
         cat = Category(id=row[0], name=row[1], color=row[2])
+        # "Done" is for completed work items, not a create target — use checkbox to complete.
+        if cat.name.strip().lower() == DONE_CATEGORY_NAME.lower():
+            continue
         menu_items.append({
             "text": cat.name,
             "on_release": lambda c=cat: self.set_add_category(c),
@@ -88,6 +91,10 @@ def submit_add_task(self):
 
     if not name:
         self.show_error("Task name is required.")
+        return
+
+    if category and category.name.strip().lower() == DONE_CATEGORY_NAME.lower():
+        self.show_error("Choose a category other than Done. Mark the task complete when it is finished.")
         return
 
     # Resolve category id, defaulting to the system "Todo" category if none selected
@@ -162,6 +169,8 @@ def open_edit_dialog(self, task_widget: TaskItem):
     menu_items = []
     for row in categories:
         cat = Category(id=row[0], name=row[1], color=row[2])
+        if cat.name.strip().lower() == DONE_CATEGORY_NAME.lower():
+            continue
         menu_items.append({
             "text": cat.name,
             "on_release": lambda c=cat: self.set_edit_category(c),
@@ -210,6 +219,10 @@ def submit_edit_task(self):
 
     if not name:
         self.show_error("Task name is required.")
+        return
+
+    if category and category.name.strip().lower() == DONE_CATEGORY_NAME.lower():
+        self.show_error("Choose a category other than Done. Mark the task complete when it is finished.")
         return
 
     # Enforce Todo fallback instead of null category.
