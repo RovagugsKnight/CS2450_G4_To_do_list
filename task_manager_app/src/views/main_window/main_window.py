@@ -153,9 +153,14 @@ class MainWindow(MDScreen):
         popup.open()
 
     def open_edit_category(self, category):
+        is_dark = App.get_running_app().theme_cls.theme_style == "Dark"
         popup = Popup(
             title=f"Edit Category: {category.name}",
             size_hint=(0.9, 0.6),
+            background="",
+            background_color=(0.14, 0.14, 0.14, 1) if is_dark else (0.98, 0.98, 0.98, 1),
+            title_color=(0.92, 0.92, 0.92, 1) if is_dark else (0.1, 0.1, 0.1, 1),
+            separator_color=(0.35, 0.35, 0.35, 1) if is_dark else (0.80, 0.80, 0.80, 1),
         )
 
         creator = CategoryCreator(
@@ -213,9 +218,14 @@ class MainWindow(MDScreen):
         self.refresh_ui(reload_categories=True, refresh_category_popup=True)
 
     def open_category_creator(self, source="nav"):
+        is_dark = App.get_running_app().theme_cls.theme_style == "Dark"
         popup = Popup(
             title="Create Category",
             size_hint=(0.9, 0.6),
+            background="",
+            background_color=(0.14, 0.14, 0.14, 1) if is_dark else (0.98, 0.98, 0.98, 1),
+            title_color=(0.92, 0.92, 0.92, 1) if is_dark else (0.1, 0.1, 0.1, 1),
+            separator_color=(0.35, 0.35, 0.35, 1) if is_dark else (0.80, 0.80, 0.80, 1),
         )
 
         creator = CategoryCreator(
