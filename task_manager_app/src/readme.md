@@ -1,82 +1,120 @@
-# Task Manager App (Kivy + MVC)
+# Task Manager App (KivyMD + MVC)
 
-A task management application built with Python and Kivy, structured using the MVC architecture for clarity, maintainability, and group collaboration. This project is inspired by the PythonGuis Kivy tutorial but expanded with custom UI components and a clean, scalable file layout.
+A desktop task manager built with Python, KivyMD, and SQLite using an MVC-style structure. The app supports task CRUD workflows, category management, dashboard stats, Kanban-style views, and saved theme preferences.
 
-## Features
+## Current Features
 
-- Add and display tasks
-- Scrollable task list
-- Custom-styled buttons and inputs
-- Organized MVC architecture
-- Easy to extend (categories, priorities, due dates, etc.)
-- Edit Tasks and Save to `tasks.db`
+- Create, edit, and remove tasks
+- Persist tasks in SQLite via repository classes
+- Manage categories with dedicated category controllers/repositories
+- Dashboard and Kanban-oriented task views
+- Dialog-driven task workflows
+- Saved theme style and synced primary color preferences
+
+## Architecture (Mermaid)
+
+```mermaid
+flowchart LR
+    UI[Views / KV UI] --> MW[MainWindow]
+    MW --> MWC[MainWindowController]
+    MW --> TC[TaskController]
+    MW --> CC[CategoryController]
+
+    MWC --> TR[(SqliteRepo)]
+    TC --> TR
+    CC --> CR[(SqliteCategories)]
+```
+
+## Startup Flow (Mermaid)
+
+```mermaid
+sequenceDiagram
+    participant App as TaskManagerApp
+    participant Theme as Theme Preference
+    participant Repo as SqliteRepo
+    participant Cat as SqliteCategories
+    participant KV as KV Loader
+    participant MW as MainWindow
+
+    App->>Theme: load_theme_style() and sync_primary_theme()
+    App->>Repo: create task repository
+    App->>Cat: create category repository
+    App->>KV: load dialogs/task widget/app KV files
+    App->>MW: inject repo + controllers
+    MW->>MW: load_existing_tasks()
+    MW->>MW: update_dashboard()
+```
 
 ## Project Structure
 
-project/
-│
-├── main.py
-│
-├── models/
-│   ├── database.py
-│   ├── task.py
-│   └── task_repository.py
-│
-├── controllers/
-│   └── task_controller.py
-│
-├── views/
-│   ├── main_window.py
-│   ├── task_widget.py
-│   ├── scrollable_list.py
-│   ├── inputs.py
-│   ├── base_buttons.py
-│   ├── buttons.py
-│   └── colors.py
-│
-└── data/
-    └── tasks.db
+```text
+task_manager_app/
+├── src/
+│   ├── main.py
+│   ├── controller/
+│   │   ├── main_window_controller.py
+│   │   ├── task_controller.py
+│   │   └── category_controller.py
+│   ├── models/
+│   │   ├── sqllite_repository.py
+│   │   ├── sqllite_category_list.py
+│   │   ├── task_repository.py
+│   │   ├── task_factory.py
+│   │   ├── tasks.py
+│   │   ├── category.py
+│   │   └── theme_preference.py
+│   └── views/
+│       ├── app.kv
+│       ├── dialogs.kv
+│       ├── task_widget.py
+│       ├── task_widget.kv
+│       └── main_window/
+│           ├── main_window.py
+│           ├── dashboard_view.py
+│           ├── kanban_view.py
+│           └── ...
+└── tests/
+    ├── test_task_repository.py
+    ├── test_task_controller.py
+    ├── test_category_controller.py
+    └── ...
+```
 
-## Dependencies
+## Setup
 
 - Python 3.12
-- Kivy (latest stable)
-- KivyMD
 - Virtual environment recommended
-- pytest
 
-Create Venv:
+Create and activate a venv:
 
-- Windows: py -3.12 -m venv venv (or py -3.12 -m venv venv.nosync to prevent onedrive syncing)
-- Mac: python3.12 -m venv venv
+- Windows:
+  - `py -3.12 -m venv venv`
+  - `venv\Scripts\activate`
+- macOS/Linux:
+  - `python3.12 -m venv venv`
+  - `source venv/bin/activate`
 
-Activate venv:
+Install dependencies:
 
-- Windows: venv\Scripts\activate.bat or venv.nosync\Scripts\activate.bat
-- Mac: source venv/bin/activate
+```bash
+pip install kivy kivymd2 pytest
+```
 
-Open a new terminal and you should see (venv)
+## Run the App
 
-Install Kivy:
+From `task_manager_app/src`:
 
-pip install kivy
-
-Install KivyMD:
-
-pip install kivymd2
-
-Run the application:
-
+```bash
 python main.py
+```
 
-Install pytest:
+## Run Tests
 
-pip install pytest
+From `task_manager_app`:
 
-Run the tests:
-
-cd task_manager_app/tests
+```bash
 pytest -v
+```
 
 ## Contributors
 
@@ -84,13 +122,3 @@ pytest -v
 - Forrest
 - Andy
 - Drew
-
-
-- This project follows the MVC pattern for maintainability.
-- UI components are separated into individual files for clean OOP structure.
-- The database file (`tasks.db`) is created automatically on first run.
-- Future improvements may include:
-  - Overdue task highlighting
-  - Categories or tags
-  - Animations and transitions
-  - Persistent settings
