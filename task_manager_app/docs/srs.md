@@ -72,11 +72,22 @@ version 1.0
 INFORMATIVE  
 [vision_plan.md](vision_plan.md)
 
-Use Case by Drew Howard  
-version 1.1  
-02/11/2026  
+Use Case  
+version 6  
+04/20/2026  
 INFORMATIVE  
-[uml/Use_Case_diagram.svg](uml/Use_CASe_diagram.svg)
+[uml/Use_Case_diagram.svg](uml/Use_Case_diagram.svg)
+
+UML Class Diagram
+04/20/2026
+INFORMATIVE
+[uml/UML_diagram.svg](uml/UML_diagram.svg)
+
+design_patterns
+version 6
+04/20/2026
+INFORMATIVE
+[uml/design_pattern.md](uml/design_pattern.md)
 
 ## 1.5 Document Overview
 - __Product Overview__: Background and context for product requirements.
@@ -100,9 +111,10 @@ This architecture replaces earlier prototypes that combined UI and logic in a si
 - Editing tasks
 - Viewing tasks
 - Setting task deadlines
-- Giving task reminders
 - Marking tasks as finished  
 - Viewing tasks as interactive cards rather than a simple list
+- Creating categories
+- Assigning tasks to cateogries
 [Use Case](uml/Use_Case_diagram.svg)
 
 ## 2.3 Product constraints
@@ -124,21 +136,13 @@ This architecture replaces earlier prototypes that combined UI and logic in a si
   [REQ-MAINT-001-0.1](req-maint-001-01)
   
 ## 2.4 User Characteristics
-__User Class: Registered User__
+__User Class: Busy Individual__
 - __Role__: Uses all product features 
 - __Expertise__: Low to moderate computer literacy
-- __Access Level__: All product features including cloud services?
-- __Frequency of Use__: Few times a week or every day
+- __Access Level__: All features
+- __Frequency of Use__: Every day
 - __Accessibility Needs__: Intutive navigation and responsive layout
 - __Goals__: Organizing, storing, and setting deadlines for many tasks
-
-__User Class: Guest User__
-- __Role__: Uses part of product features
-- __expertise__: Low to moderate computer literacy
-- __Access Level__: Some product features like logging tasks locally
-- __Frequency of Use__: Every once in a while
-- __Accessibility Needs__: Same as registered user
-- __Goals__: Same as registered user with less tasks
 
 ## 2.5 Assumptions and Dependencies
 __Assumption__: The system will use the Kivy framework for GUI development.  
@@ -149,7 +153,10 @@ of front end design.
 ## 2.6 Apportioning of Requirements
 Release 1: Product documentation   
 Release 2: Product Diagrams and class design   
-Next Release requirements unknown
+Release 3: Create GUI with card layout
+Release 4: Add new feature such as categories and deadlines
+Release 5: Add test Cases
+Release 6: Refactor code
 
 # 3. Requirements
 ## 3.1 External Interfaces
@@ -183,7 +190,7 @@ Acceptance Criteria:
 - Button will be visible to user
 - When button is pressed delete task function executed
 
-Verification: Test
+Verification: Inspection
 
 __REQ-UI-003-0.1__  
 __Task Completion Button__
@@ -195,7 +202,7 @@ Acceptance Criteria:
 - Button will be visible to user
 - A Button will be included for every task
 
-Verification: Test
+Verification: Inspection
 
 __REQ-UI-004-0.1__  
 __Task Cards__
@@ -207,9 +214,9 @@ Acceptance Criteria:
 - Cards display task name, deadline, and category
 - Cards include action buttons (edit, delete, complete)
 
-Verification: Test
+Verification: Inspection
 
-## REQ-UI-005-0.1  
+#### REQ-UI-005-0.1  
 **Task Card UI Component**
 
 The system shall provide a reusable UI component for displaying and interacting with a single task.
@@ -220,11 +227,64 @@ The system shall provide a reusable UI component for displaying and interacting 
 - Component receives a Task object from the controller  
 - Component triggers controller actions when buttons are pressed  
 
-**Verification:** Test
+**Verification:** Inspection
+
+#### REQ-UI-006-0.1
+**Multiple App Views**
+
+The system shall give a dashboard view for task statistics such as task number and percentage completed.
+It shall also give a task view to show tasks in their respective categories.
+
+**Acceptance Criteria:**
+- Dashboard shows task statistics such as task number, percentage completed, tasks due on the date,
+and tasks completed that day
+- Task view shall show respective tasks in a labeled category box
+- Task view shall scroll horizontally to allow make space for added categories
+
+**Verification:** Inspection
+
+#### REQ-UI-007-0.1
+**Task Creator**
+
+The system shall have a task creator button that produces a task creator popup for the user
+to enter task features.
+
+**Acceptance Criteria:**
+- Create task button is available
+- Create task button produces popup when pressed
+- popup requires task name and gives description, deadline, and category as optional inputs
+- task creation popup can be cancelled with cancel button that closes the popup and stops task creation
+
+**Verifcation:** Inspection
+
+#### REQ-UI-008-0.1
+**Category Creator**
+
+The system shall have a category creator button that produces a creator popup for the user
+to enter category features.
+
+**Acceptance Criteria:**
+- Create category button is available
+- Create category button produces popup when pressed
+- Popup requires category name and color to be input
+- Category creation popup can be cancelled with cancel button that closes the popup and stops task creation
+
+**Verification:** Inspection
+
+#### REQ-UI-009-0.1
+**Light and Dark mode**
+
+The system shall give light mode and dark mode theme options
+
+**Acceptance Criteria:**
+- Button shall be provided to switch between light and dark
+- There shall be a change in background color with light being white and dark being black
+
+**Verification:** Inspection
 
 ### 3.1.2 Software Interface
 
-__REQ-SI-001-0.1__  
+#### REQ-SI-001-0.1
 __Local SQLite Database__
 The system shall use an SQLite
 database as persistent storage for 
@@ -250,7 +310,7 @@ Acceptance Criteria:
 
 Verifcation: Test
 
-__REQ-FUNC-002-0.1__    
+#### REQ-FUNC-002-0.1    
 __Add Tasks__
 
 The system shall allow users
@@ -262,7 +322,7 @@ Acceptance Criteria:
 
 Verifcation: Test
 
-__REQ-FUNC-003-0.1__  
+#### REQ-FUNC-003-0.1  
 __Delete Tasks__
 
 The system shall allow users
@@ -273,7 +333,7 @@ Acceptance Criteria:
 
 Verfication: Test
 
-__REQ-FUNC-004-0.1__  
+#### REQ-FUNC-004-0.1  
 __Edit Tasks__
 
 The system shall allow users
@@ -288,7 +348,7 @@ Acceptance Criteria:
 
 Verification: Test
 
-__REQ-FUNC-005-0.1__  
+#### REQ-FUNC-005-0.1  
 __Categorize Tasks__
 
 The system shall allow users
@@ -296,12 +356,26 @@ to organize tasks into a named
 group.
 
 Acceptance Criteria:
-- Task displays category name
-- Task is included in category group
+- Tasks can be organized int category groups
+- Categories are stored in database
 
 Verification: Test
 
-## REQ-FUNC-TASKMODEL-001-0.1  
+#### REQ-FUNC-006-0.1
+**Task Deadlines**
+
+The system shall allow users
+the ability to set deadlines for
+their tasks.
+
+**Acceptance Criteria:**
+- Tasks have a deadline attribute
+- Deadlines are optional
+- Deadlines have to be in dd/mm/yyyy format
+
+
+
+#### REQ-FUNC-TASKMODEL-001-0.1  
 **Task Data Model**
 
 The system shall provide a Task data model representing a single task entity.
@@ -313,7 +387,7 @@ The system shall provide a Task data model representing a single task entity.
 
 **Verification:** Inspection
 
-## REQ-FUNC-REPO-001-0.1  
+#### REQ-FUNC-REPO-001-0.1  
 **Task Repository Interface**
 
 The system shall define an abstract repository interface specifying required task storage operations.
@@ -325,7 +399,7 @@ The system shall define an abstract repository interface specifying required tas
 
 **Verification:** Inspection
 
-## REQ-FUNC-REPO-002-0.1  
+#### REQ-FUNC-REPO-002-0.1  
 **SQLite Task Repository Implementation**
 
 The system shall implement the TaskRepository interface using a local SQLite database.
@@ -338,7 +412,7 @@ The system shall implement the TaskRepository interface using a local SQLite dat
 
 **Verification:** Test + Inspection
 
-## REQ-FUNC-CONTROLLER-001-0.1  
+#### REQ-FUNC-CONTROLLER-001-0.1  
 **Task Controller Logic**
 
 The system shall provide a controller responsible for coordinating task operations between the UI and repository.
@@ -351,7 +425,7 @@ The system shall provide a controller responsible for coordinating task operatio
 
 **Verification:** Test
 
-## REQ-FUNC-ID-001-0.1  
+#### REQ-FUNC-ID-001-0.1  
 **Unique Task Identification**
 
 The system shall assign each task a unique identifier used for storage and retrieval.
@@ -363,7 +437,7 @@ The system shall assign each task a unique identifier used for storage and retri
 
 **Verification:** Test
 
-## REQ-FUNC-DONE-001-0.1  
+#### REQ-FUNC-DONE-001-0.1  
 **Task Completion State**
 
 The system shall store and update a boolean completion state for each task.
@@ -378,23 +452,10 @@ The system shall store and update a boolean completion state for each task.
 ## 3.3 Quality of Service (Non-Functional Requirements)
 
 ### 3.3.1 Performance
-
-__REQ-PERF-001-0.1__  
-__Local Task Log Retreival__
-
-The system shall retrieve a task
-log of up to 10,000 tasks from local storage 
-within 10 ms under normal operating conditions.
-
-Applies to: [REQ-FUNC-004-0.1](#req-func-004-01)
-
-Acceptance Criteria:
-- Task log is loaded into local memory within 10 ms
-
-Verfication: Test
+__No security requirements currently.__
 
 ### 3.3.2 Security
-__No security requirements currently. Authentication and encryption for future system.__
+__No security requirements currently.__
 
 ### 3.3.3 Reliability
 
@@ -516,28 +577,31 @@ This structure ensures each component has a single responsibility and supports S
 
 | Requirement ID | Verification Method | Test/Artifact Link | Status | Evidence           |
 |----------------|---------------------|--------------------|--------|--------------------|
-|REQ-UI-001-0.1  |         Test        | [tests](src/tests) |Planned |                    |
-|REQ-UI-002-0.1  |         Test        | [tests](src/tests) |Planned |                    |
-|REQ-UI-003-0.1  |         Test        | [tests](src/tests) |Planned |                    |
-|REQ-UI-004-0.1  |         Test        | [tests](src/tests) |Planned |                    |
-|REQ-UI-005-0.1  |         Test        | [tests](src/tests) |Planned |                    |
-|REQ-FUNC-001-0.1|         Test        | [tests](src/tests) |Planned |                    |
-|REQ-FUNC-002-0.1|         Test        | [tests](src/tests) |Planned |                    |
-|REQ-FUNC-003-0.1|         Test        | [tests](src/tests) |Planned |                    |
-|REQ-FUNC-004-0.1|         Test        | [tests](src/tests) |Planned |                    |
-|REQ-FUNC-005-0.1|         Test        | [tests](src/tests) |Planned |                    |
-|REQ-FUNC-TASKMODEL-001-0.1 |      Inspection     |      document      |Planned |                    |
-|REQ-FUNC-REPO-001-0.1      |      Inspection     |      document      |Planned |                    |
-|REQ-FUNC-REPO-002-0.1      |   Test + Inspection | [tests](src/tests) |Planned |                    |
-|REQ-FUNC-CONTROLLER-001-0.1|         Test        | [tests](src/tests) |Planned |                    |
-|REQ-FUNC-ID-001-0.1        |         Test        | [tests](src/tests) |Planned |                    |
-|REQ-FUNC-DONE-001-0.1      |         Test        | [tests](src/tests) |Planned |                    |
-|REQ-SI-001-0.1  |      Inspection     |      document      |Planned |                    |
-|REQ-PERF-001-0.1|         Test        | [tests](src/tests) |Planned |                    |
-|REQ-REL-001-0.1 |         Test        | [tests](src/tests) |Planned |                    |
-|REQ-AVAIL-001-0.1|     Inspection     |      document      |Planned |                    |
-|REQ-DEAD-001-0.1|      Inspection     |[Releases](../../releases) |Planned |             |
-|REQ-INST-001-0.1|      Inspection     |      document      |Planned |                    |
-|REQ-INST-002-0.1|      Inspection     |      document      |Planned |                    |
-|REQ-BUILD-001-0.1|      Inspection    |      document      |Planned |                    |
-|REQ-MAINT-001-0.1|      Inspection    |      document      |Planned |                    |
+|REQ-UI-001-0.1  |         Inspection        | [mvp_validation](mvp_validation.md) |Done |          null          |
+|REQ-UI-002-0.1  |         Inspection        | [mvp_validation](mvp_validation.md) |Done |          null          |
+|REQ-UI-003-0.1  |         Inspection        | [mvp_validation](mvp_validation.md) |Done |          null          |
+|REQ-UI-004-0.1  |         Inspection        | [mvp_validation](mvp_validation.md) |Done |          null          |
+|REQ-UI-005-0.1  |         Inspection        | [mvp_validation](mvp_validation.md) |Done |          null          |
+|REQ-UI-006-0.1  |         Inspection        | [mvp_validation](mvp_validation.md) |Done |          null          |
+|REQ-UI-007-0.1  |         Inspection        | [mvp_validation](mvp_validation.md) |Done |          null          |
+|REQ-UI-008-0.1  |         Inspection        | [mvp_validation](mvp_validation.md) |Done |          null          |
+|REQ-UI-009-0.1  |         Inspection        | [mvp_validation](mvp_validation.md) |Done |          null          |
+|REQ-FUNC-001-0.1|         Test        | [tests](tests) |Done |        null            |
+|REQ-FUNC-002-0.1|         Test        | [tests](tests) |Done |        null            |
+|REQ-FUNC-003-0.1|         Test        | [tests](tests) |Done |        null            |
+|REQ-FUNC-004-0.1|         Test        | [tests](tests) |Done |        null            |
+|REQ-FUNC-005-0.1|         Test        | [tests](tests) |Done |        null            |
+|REQ-FUNC-006-0.1|         Test        | [tests](tests) |Done |        null            |
+|REQ-FUNC-TASKMODEL-001-0.1 |      Inspection     |      null      |Done |         null           |
+|REQ-FUNC-REPO-001-0.1      |      Inspection     |      null      |Done |         null           |
+|REQ-FUNC-REPO-002-0.1      |   Test + Inspection | [tests](tests) |Done |         null           |
+|REQ-FUNC-CONTROLLER-001-0.1|         Test        | [tests](tests) |Done |         null           |
+|REQ-FUNC-ID-001-0.1        |         Test        | [tests](tests) |Done |         null           |
+|REQ-FUNC-DONE-001-0.1      |         Test        | [tests](tests) |Done |         null           |
+|REQ-SI-001-0.1  |      Inspection     |      [mvp_validation](mvp_validation.md)      |Done |       null             |
+|REQ-REL-001-0.1 |         Test        | [tests](tests) |Done |         null           |
+|REQ-AVAIL-001-0.1|     Inspection     |      null      |Done |         null           |
+|REQ-INST-001-0.1|      Inspection     |      null      |done |         null           |
+|REQ-INST-002-0.1|      Inspection     |      null      |Done |         null           |
+|REQ-BUILD-001-0.1|      Inspection    |      null      |Done |         null           |
+|REQ-MAINT-001-0.1|      Inspection    |      null      |Done |         null           |
